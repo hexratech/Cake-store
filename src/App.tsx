@@ -3,8 +3,8 @@ import CakeShop from "@/pages/components/home"
 function App() {
   return (
     <>
- <CakeShop/>
-     
+  <CakeShop/>
+    
     </>
   )
 }

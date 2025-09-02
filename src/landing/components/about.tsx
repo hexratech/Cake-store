@@ -1,51 +1,97 @@
-import  {CAKE_TYPES} from "../../types/caketypes"
-import  {TYPE_GALLERY} from "../../types/data/gallery"
-export const AboutSection: React.FC<{ selectedType: string | null; setSelectedType: (type: string | null) => void }> = ({ selectedType, setSelectedType }) => {
+import { CAKE_TYPES } from "../../types/caketypes";
+import { TYPE_GALLERY } from "../../types/data/gallery";
+
+export const AboutSection: React.FC<{ selectedType: string | null; setSelectedType: (type: string | null) => void }> = ({
+  selectedType,
+  setSelectedType,
+}) => {
   return (
-    <section id="about" className="mt-12 bg-white rounded-2xl shadow p-6">
-      <div className="flex flex-col md:flex-row gap-6">
-        <div className="md:w-2/3">
-          <h3 className="text-xl font-bold">About SweetLayers Bakery</h3>
-          <p className="mt-2 text-slate-600">
-            SweetLayers is a family-owned bakery crafting custom cakes for every celebration. We use
-            quality ingredients sourced locally to deliver flavors that make moments memorable.
+    <section
+      id="about"
+      className="mt-16 bg-gradient-to-br from-white-50 to-white-100 rounded-[3rem] shadow-2xl p-8 lg:p-12"
+    >
+      <div className="flex flex-col gap-10">
+        <div className="w-full">
+          <h2 className="text-4xl font-extrabold text-black mb-4">Our Story 🍰</h2>
+          <p className="text-lg text-black leading-relaxed mb-8">
+            3vivi Bakery is a family-owned bakery where we believe every celebration deserves a centerpiece.
+            We specialize in custom cakes, baked with passion and crafted from the finest{" "}
+            <strong className="text-black">locally-sourced ingredients</strong>.
+            Our goal is to create not just a cake, but a memorable experience that brings people together.
           </p>
-          <div className="mt-4">
-            <label className="block text-sm font-medium">Choose a cake type</label>
-            <div className="mt-2 inline-block relative">
+
+          <div className="mt-8">
+            <h3 className="text-2xl font-bold text-black mb-4">Our Cake Collections</h3>
+
+            {/* Mobile Dropdown */}
+            <div className="sm:hidden mb-6">
               <select
-                className="rounded-md border px-3 py-2"
-                value={selectedType ?? ""}
                 onChange={(e) => setSelectedType(e.target.value || null)}
+                value={selectedType || ""}
+                className="w-full p-3 rounded-lg border border-gray-300 text-black font-medium"
               >
-                <option value=""> Select</option>
+                <option value="">All Cakes</option>
                 {CAKE_TYPES.map((t) => (
-                  <option value={t.key} key={t.key}>{t.label}</option>
+                  <option key={t.key} value={t.key}>
+                    {t.label}
+                  </option>
                 ))}
               </select>
             </div>
-            {selectedType && (
-              <div className="mt-4">
-                <h4 className="font-semibold">{CAKE_TYPES.find((c) => c.key === selectedType)?.label}</h4>
-                <div className="mt-3 flex gap-3 overflow-x-auto py-2">
-                  {TYPE_GALLERY[selectedType].map((src, i) => (
-                    <div key={i} className="min-w-[220px] rounded-xl overflow-hidden shadow">
-                      <img src={src} className="w-full h-40 object-cover" alt={`${selectedType}-${i}`} />
+
+            {/* Desktop Buttons */}
+            <div className="hidden sm:flex flex-wrap gap-2 mb-6">
+              <button
+                onClick={() => setSelectedType(null)}
+                className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ease-in-out ${
+                  !selectedType
+                    ? "bg-rose-600 text-white shadow-lg scale-105"
+                    : "bg-rose-200 text-black hover:bg-rose-300"
+                }`}
+              >
+                All Cakes
+              </button>
+              {CAKE_TYPES.map((t) => (
+                <button
+                  key={t.key}
+                  onClick={() => setSelectedType(t.key)}
+                  className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ease-in-out ${
+                    selectedType === t.key
+                      ? "bg-rose-600 text-white shadow-lg scale-105"
+                      : "bg-rose-200 text-black hover:bg-rose-300"
+                  }`}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            <div className="mt-6">
+              <h4 className="font-bold text-3xl text-black mb-4">
+                {selectedType ? CAKE_TYPES.find((c) => c.key === selectedType)?.label : "All Cakes"}
+              </h4>
+
+              {/* ✅ Mobile: 2x2 grid */}
+              <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6 py-2">
+                {(selectedType ? TYPE_GALLERY[selectedType] : Object.values(TYPE_GALLERY).flat()).map((src, i) => (
+                  <div
+                    key={i}
+                    className="group relative rounded-2xl overflow-hidden shadow-xl transform hover:scale-105 transition-transform duration-300"
+                  >
+                    <img
+                      src={src}
+                      className="w-full h-40 sm:h-64 object-cover object-center transition-all duration-300 group-hover:filter group-hover:brightness-90"
+                      alt={`${selectedType}-${i}`}
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                      <span className="text-white text-lg font-bold">View</span>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
-        <aside className="md:w-1/3 bg-rose-50 rounded-xl p-4">
-          <h4 className="font-semibold">Quick Info</h4>
-          <ul className="mt-2 text-sm text-slate-600 space-y-2">
-            <li>Open: Mon - Sat, 8:00 AM — 8:00 PM</li>
-            <li>Custom orders accepted (48+ hours notice for medium cakes)</li>
-            <li>Delivery available in Accra metro and selected areas</li>
-          </ul>
-        </aside>
       </div>
     </section>
   );

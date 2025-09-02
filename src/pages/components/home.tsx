@@ -7,13 +7,12 @@ import type { Product } from "../../types/data/products";
 import { SAMPLE_PRODUCTS } from "../../types/data/products";
 import {HeroSection} from "../../landing/components/hero"
 import {ProductsSection} from "../../landing/components/product-card"
-import {AboutSection} from "../../landing/components/about"    
+import {AboutSection} from "../../landing/components/about"
 import {ContactSection} from "../../landing/components/contact"
 import {FooterSection} from "../../landing/components/footer"
-import {ServicesSection } from "../../landing/components/section"
+import {ServicesSection } from "../../landing/components/services"
 import {FaqSection} from "../../landing/components/fqs"
-import {motion} from "framer-motion"
-import { AnimatePresence } from 'framer-motion';
+import {motion, AnimatePresence} from "framer-motion"
 export default function CakeShop(): JSX.Element {
   const [cart, setCart] = useState<Record<string, number>>({});
   const [queryProducts, ] = useState<Product[]>(SAMPLE_PRODUCTS);
@@ -66,14 +65,16 @@ export default function CakeShop(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
       {/* NAV */}
+
       <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img
-              src="evivilogo.jpg"
+              src="logo.png"
               alt="3vivi bakery"
               className="h-10 w-auto rounded-md"
-            />
+      />
+      
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map(link => (
                 <a key={link.id} href={`#${link.id}`} className="hover:underline">{link.label}</a>
@@ -124,8 +125,8 @@ export default function CakeShop(): JSX.Element {
       <main>
         <HeroSection />
         <div className="max-w-7xl mx-auto px-6 pb-16">
-          <ProductsSection products={queryProducts} wishList={wishList} addToCart={addToCart} toggleWish={toggleWish} />
           <AboutSection selectedType={selectedType} setSelectedType={setSelectedType} />
+          <ProductsSection products={queryProducts} wishList={wishList} addToCart={addToCart} toggleWish={toggleWish} />
           <ServicesSection />
           <FaqSection />
           <ContactSection rating={rating} reviews={reviews} />
