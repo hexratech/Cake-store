@@ -1,9 +1,12 @@
+// src/landing/components/hero.tsx
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { HERO_SLIDES } from "../../types/data/slider";
+import { useNavigate } from "react-router-dom"; // ✅ for navigation
 
 export const HeroSection: React.FC = () => {
   const [slideIndex, setSlideIndex] = useState(0);
+  const navigate = useNavigate(); // ✅ hook
 
   useEffect(() => {
     const t = setInterval(() => {
@@ -11,6 +14,14 @@ export const HeroSection: React.FC = () => {
     }, 5000);
     return () => clearInterval(t);
   }, []);
+
+  // ✅ scroll to services section
+  const handleLearnMore = () => {
+    const servicesSection = document.getElementById("services");
+    if (servicesSection) {
+      servicesSection.scrollIntoView({ behavior: "smooth" });
+    }
+  };
 
   return (
     <section className="relative text-center text-white overflow-hidden h-screen">
@@ -53,10 +64,18 @@ export const HeroSection: React.FC = () => {
           {HERO_SLIDES[slideIndex].subtitle}
         </motion.p>
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
-          <button className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-750 transition-colors">
+          {/* ✅ Order Now goes to /menu */}
+          <button
+            onClick={() => navigate("/menu")}
+            className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
+          >
             Order Now
           </button>
-          <button className="px-5 py-3 rounded-lg bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-colors">
+          {/* ✅ Learn More scrolls to Services */}
+          <button
+            onClick={handleLearnMore}
+            className="px-5 py-3 rounded-lg bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-colors"
+          >
             Learn More
           </button>
         </div>

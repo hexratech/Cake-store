@@ -1,7 +1,13 @@
-export const NAV_LINKS = [
-  { id: "home", label: "Home" },
-  { id: "about", label: "About" },
-  { id: "products", label: "Products" },
-  { id: "menu", label: "Menu" },
-  { id: "contact", label: "Contact" },
+export type NavLink = {
+  id: string;
+  label: string;
+  path: string; // always required
+};
+
+export const NAV_LINKS: NavLink[] = [
+  { id: "home", label: "Home", path: "/" },
+  { id: "about", label: "About", path: "/about" },
+  { id: "products", label: "Products", path: "/products" },
+  { id: "menu", label: "Menu", path: "/menu" },
+  { id: "contact", label: "Contact", path: "/contact" },
 ];

@@ -5,7 +5,7 @@ import { ShoppingCart, Heart, X, Menu } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Filters } from "../components/menu/Filters";
 import { CakeCustomizer } from "../components/menu/CakeCustomizer";
-import { SAMPLE_PRODUCTS } from "@/types/data/products"; // removed unused Product type
+import { SAMPLE_PRODUCTS } from "@/types/data/products";
 import { NAV_LINKS } from "@/types/navs";
 import { useCart } from "@/hooks/useCart";
 import { FooterSection } from "@/landing/components/footer";
@@ -37,7 +37,7 @@ export const MenuPage: React.FC = () => {
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.path.startsWith("/") ? (
-                  <Link key={link.id} to={link.path} className="hover:underline">
+                  <Link key={link.id} to={link.path!} className="hover:underline">
                     {link.label}
                   </Link>
                 ) : (
@@ -82,11 +82,21 @@ export const MenuPage: React.FC = () => {
               <div className="px-6 py-4 flex flex-col gap-3">
                 {NAV_LINKS.map((link) =>
                   link.path.startsWith("/") ? (
-                    <Link key={link.id} to={link.path} className="py-2" onClick={() => setMenuOpen(false)}>
+                    <Link
+                      key={link.id}
+                      to={link.path!}
+                      className="py-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
                       {link.label}
                     </Link>
                   ) : (
-                    <a key={link.id} href={link.path} className="py-2" onClick={() => setMenuOpen(false)}>
+                    <a
+                      key={link.id}
+                      href={link.path}
+                      className="py-2"
+                      onClick={() => setMenuOpen(false)}
+                    >
                       {link.label}
                     </a>
                   )
@@ -97,7 +107,6 @@ export const MenuPage: React.FC = () => {
         </AnimatePresence>
       </nav>
 
-    
       {/* MAIN CONTENT */}
       <main className="px-6 sm:px-10 lg:px-20 py-12">
         {/* Page Header */}
@@ -108,7 +117,9 @@ export const MenuPage: React.FC = () => {
           className="text-center mb-10"
         >
           <h1 className="text-4xl font-extrabold text-slate-800">Our Menu</h1>
-          <p className="mt-2 text-slate-600">Browse our collection or customize your own cake 🍰</p>
+          <p className="mt-2 text-slate-600">
+            Browse our collection or customize your own cake 🍰
+          </p>
           {cartCount > 0 && (
             <div className="mt-3 inline-block px-4 py-2 rounded-lg bg-rose-100 text-rose-700 font-medium">
               🛒 {cartCount} item{cartCount > 1 ? "s" : ""} in cart
@@ -142,7 +153,9 @@ export const MenuPage: React.FC = () => {
                 >
                   <Heart
                     size={18}
-                    className={`${wishList[p.id] ? "text-rose-500 fill-rose-500" : "text-slate-600"}`}
+                    className={`${
+                      wishList[p.id] ? "text-rose-500 fill-rose-500" : "text-slate-600"
+                    }`}
                   />
                 </motion.button>
               </div>
@@ -176,14 +189,16 @@ export const MenuPage: React.FC = () => {
 
         <AnimatePresence>
           {showCustomizer && (
-            <CakeCustomizer isOpen={showCustomizer} onClose={() => setShowCustomizer(false)} />
+            <CakeCustomizer
+              isOpen={showCustomizer}
+              onClose={() => setShowCustomizer(false)}
+            />
           )}
         </AnimatePresence>
       </main>
 
       <FooterSection />
 
-      
       {/* CART MODAL */}
       <AnimatePresence>
         {isCartOpen && (
@@ -219,17 +234,29 @@ export const MenuPage: React.FC = () => {
                   <ul className="space-y-4 pr-2">
                     {cartItems.map(({ product, quantity }) => (
                       <li key={product?.id} className="flex items-center gap-4">
-                        <img src={product?.image} alt={product?.name} className="w-16 h-16 object-cover rounded-lg" />
+                        <img
+                          src={product?.image}
+                          alt={product?.name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
                         <div className="flex-1">
                           <h4 className="font-semibold">{product?.name}</h4>
-                          <div className="text-sm text-slate-500">GHS {product?.priceGHS}</div>
+                          <div className="text-sm text-slate-500">
+                            GHS {product?.priceGHS}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
-                          <button onClick={() => product && removeFromCart(product)} className="px-2 py-1 border rounded-lg hover:bg-slate-100">
+                          <button
+                            onClick={() => product && removeFromCart(product)}
+                            className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                          >
                             -
                           </button>
                           <span className="w-6 text-center">{quantity}</span>
-                          <button onClick={() => product && addToCart(product)} className="px-2 py-1 border rounded-lg hover:bg-slate-100">
+                          <button
+                            onClick={() => product && addToCart(product)}
+                            className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                          >
                             +
                           </button>
                         </div>
