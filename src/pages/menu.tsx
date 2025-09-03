@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, Heart, X, Menu } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Filters } from "../components/menu/Filters";
 import { CakeCustomizer } from "../components/menu/CakeCustomizer";
 import { SAMPLE_PRODUCTS } from "@/types/data/products";
@@ -11,17 +11,22 @@ import { useCart } from "@/hooks/useCart";
 import { FooterSection } from "@/landing/components/footer";
 
 export const MenuPage: React.FC = () => {
-  const { cart, addToCart, removeFromCart, cartCount } = useCart(); // shared cart
+  const { cart, addToCart, removeFromCart, cartCount } = useCart(); // ✅ shared hook
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
 
   const toggleWish = (id: string) => {
     setWishList((w) => ({ ...w, [id]: !w[id] }));
   };
 
-  const cartItems = cart.map((i) => ({ product: i.product, quantity: i.quantity }));
+  const cartItems = cart.map((i) => ({
+    product: i.product,
+    quantity: i.quantity,
+  }));
+
   const cartTotal = cartItems.reduce(
     (total, item) => total + (item.product?.priceGHS || 0) * item.quantity,
     0
@@ -33,7 +38,11 @@ export const MenuPage: React.FC = () => {
       <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
+            <img
+              src="logo.png"
+              alt="3vivi bakery"
+              className="h-10 w-auto rounded-md"
+            />
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.path.startsWith("/") ? (
@@ -129,6 +138,7 @@ export const MenuPage: React.FC = () => {
 
         <Filters />
 
+        {/* Product Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {SAMPLE_PRODUCTS.map((p, i) => (
             <motion.article
@@ -154,7 +164,9 @@ export const MenuPage: React.FC = () => {
                   <Heart
                     size={18}
                     className={`${
-                      wishList[p.id] ? "text-rose-500 fill-rose-500" : "text-slate-600"
+                      wishList[p.id]
+                        ? "text-rose-500 fill-rose-500"
+                        : "text-slate-600"
                     }`}
                   />
                 </motion.button>
@@ -164,7 +176,9 @@ export const MenuPage: React.FC = () => {
                 <h3 className="font-semibold text-lg text-slate-800">{p.name}</h3>
                 <p className="text-sm text-slate-500 mt-1 flex-1">{p.description}</p>
                 <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="text-lg font-bold text-rose-600">GHS {p.priceGHS}</div>
+                  <div className="text-lg font-bold text-rose-600">
+                    GHS {p.priceGHS}
+                  </div>
                   <motion.button
                     onClick={() => addToCart(p)}
                     className="px-3 py-2 flex items-center justify-center gap-2 rounded-lg bg-rose-500 text-white text-sm hover:bg-rose-600 transition"
@@ -178,6 +192,7 @@ export const MenuPage: React.FC = () => {
           ))}
         </div>
 
+        {/* Customizer Button */}
         <div className="text-center mt-12">
           <button
             onClick={() => setShowCustomizer(true)}
@@ -264,6 +279,7 @@ export const MenuPage: React.FC = () => {
                     ))}
                   </ul>
 
+                  {/* Total & Checkout */}
                   <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
                     <span>GHS {cartTotal.toFixed(2)}</span>
@@ -272,7 +288,10 @@ export const MenuPage: React.FC = () => {
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                      onClick={() => alert("Proceeding to checkout!")}
+                      onClick={() => {
+                        setIsCartOpen(false);
+                        navigate("/checkout"); // ✅ properly navigates
+                      }}
                     >
                       Proceed to Checkout
                     </button>

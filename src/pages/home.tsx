@@ -2,68 +2,63 @@
 import { useState } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import type { JSX } from "react";
-import { Link } from "react-router-dom"; // ✅ use Link for navigation
-
-import { NAV_LINKS } from "../../types/navs";
-import type { Product } from "../../types/data/products";
-import { SAMPLE_PRODUCTS } from "../../types/data/products";
-import { HeroSection } from "../../landing/components/hero";
-import { ProductsSection } from "../../landing/components/product-card";
-import { AboutSection } from "../../landing/components/about";
-import { ContactSection } from "../../landing/components/contact";
-import { FooterSection } from "../../landing/components/footer";
-import { ServicesSection } from "../../landing/components/services";
-import { FaqSection } from "../../landing/components/fqs";
+import { Link, useNavigate } from "react-router-dom"; 
+import { NAV_LINKS } from "../types/navs";
+import type { Product } from "../types/data/products";
+import { SAMPLE_PRODUCTS } from "../types/data/products";
+import { HeroSection } from "../landing/components/hero";
+import { ProductsSection } from "../landing/components/product-card";
+import { AboutSection } from "../landing/components/about";
+import { ContactSection } from "../landing/components/contact";
+import { FooterSection } from "../landing/components/footer";
+import { ServicesSection } from "../landing/components/services";
+import { FaqSection } from "../landing/components/fqs";
 import { motion, AnimatePresence } from "framer-motion";
+import { useCart } from "@/hooks/useCart"; // ✅ use shared cart
 
 export default function CakeShop(): JSX.Element {
-  const [cart, setCart] = useState<Record<string, number>>({});
+  const { cart, addToCart, removeFromCart, cartCount } = useCart(); // ✅ context cart
   const [queryProducts] = useState<Product[]>(SAMPLE_PRODUCTS);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>("birthday");
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
   const [rating] = useState(4.6);
-  const [reviews] = useState(
-    [
-      { id: 1, name: "Ama", text: "Delicious cake and friendly service!", stars: 5 },
-      { id: 2, name: "Kojo", text: "Custom wedding cake was stunning.", stars: 5 },
-      { id: 3, name: "Ena", text: "Quick delivery but would like more flavor options.", stars: 4 },
-    ] as { id: number; name: string; text: string; stars: number }[]
-  );
+  const navigate = useNavigate();
+  const [reviews] = useState([
+    {
+      id: 1,
+      name: "Ama",
+      text: "Delicious cake and friendly service!",
+      stars: 5,
+    },
+    {
+      id: 2,
+      name: "Kojo",
+      text: "Custom wedding cake was stunning.",
+      stars: 5,
+    },
+    {
+      id: 3,
+      name: "Ena",
+      text: "Quick delivery but would like more flavor options.",
+      stars: 4,
+    },
+  ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  function addToCart(p: Product) {
-    setCart((c) => ({ ...c, [p.id]: (c[p.id] || 0) + 1 }));
-  }
-
-  function removeFromCart(p: Product) {
-    setCart((c) => {
-      const copy = { ...c };
-      if (!copy[p.id]) return copy;
-      copy[p.id] = copy[p.id] - 1;
-      if (copy[p.id] <= 0) delete copy[p.id];
-      return copy;
-    });
-  }
 
   function toggleWish(id: string) {
     setWishList((w) => ({ ...w, [id]: !w[id] }));
   }
 
-  const cartItems = Object.keys(cart).map((productId) => {
-    const product = SAMPLE_PRODUCTS.find((p) => p.id === productId);
-    return {
-      product,
-      quantity: cart[productId],
-    };
-  });
+  const cartItems = cart.map(({ product, quantity }) => ({
+    product,
+    quantity,
+  }));
 
-  const cartTotal = cartItems.reduce((total, item) => {
-    if (!item.product) return total;
-    return total + item.product.priceGHS * item.quantity;
-  }, 0);
-
-  const cartCount = Object.values(cart).reduce((s, n) => s + n, 0);
+  const cartTotal = cartItems.reduce(
+    (total, item) => total + item.product.priceGHS * item.quantity,
+    0
+  );
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
@@ -165,7 +160,7 @@ export default function CakeShop(): JSX.Element {
           <ProductsSection
             products={queryProducts}
             wishList={wishList}
-            addToCart={addToCart}
+            addToCart={addToCart} // ✅ now using context
             toggleWish={toggleWish}
           />
           <ServicesSection />
@@ -210,41 +205,35 @@ export default function CakeShop(): JSX.Element {
 
               {cartCount === 0 ? (
                 <div className="text-center text-slate-500 py-8">
-                  <ShoppingCart
-                    size={48}
-                    className="mx-auto text-slate-300"
-                  />
+                  <ShoppingCart size={48} className="mx-auto text-slate-300" />
                   <p className="mt-2">Your cart is empty.</p>
                 </div>
               ) : (
                 <>
                   <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
                     {cartItems.map(({ product, quantity }) => (
-                      <li
-                        key={product?.id}
-                        className="flex items-center gap-4"
-                      >
+                      <li key={product.id} className="flex items-center gap-4">
                         <img
-                          src={product?.image}
-                          alt={product?.name}
+                          src={product.image}
+                          alt={product.name}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <h4 className="font-semibold">{product?.name}</h4>
+                          <h4 className="font-semibold">{product.name}</h4>
                           <div className="text-sm text-slate-500">
-                            GHS {product?.priceGHS}
+                            GHS {product.priceGHS}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => product && removeFromCart(product)}
+                            onClick={() => removeFromCart(product)}
                             className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                           >
                             -
                           </button>
                           <span className="w-6 text-center">{quantity}</span>
                           <button
-                            onClick={() => product && addToCart(product)}
+                            onClick={() => addToCart(product)}
                             className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                           >
                             +
@@ -262,7 +251,7 @@ export default function CakeShop(): JSX.Element {
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                      onClick={() => alert("Proceeding to checkout!")}
+                      onClick={() => navigate("/checkout")}
                     >
                       Proceed to Checkout
                     </button>
