@@ -1,5 +1,6 @@
 import React from "react";
-
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 type Props = {
   customer: {
     name: string;
@@ -30,13 +31,13 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer }) => {
 
       {/* Full Name */}
       <div className="space-y-1">
-        <label
+        <Label
           htmlFor="name"
           className="block text-sm font-medium text-slate-600"
         >
           Full Name
-        </label>
-        <input
+        </Label>
+        <Input required
           id="name"
           type="text"
           name="name"
@@ -49,13 +50,13 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer }) => {
 
       {/* Phone */}
       <div className="space-y-1">
-        <label
+        <Label 
           htmlFor="phone"
           className="block text-sm font-medium text-slate-600"
         >
           Phone Number
-        </label>
-        <input
+        </Label>
+        <input required
           id="phone"
           type="tel"
           name="phone"
@@ -68,13 +69,13 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer }) => {
 
       {/* Email */}
       <div className="space-y-1">
-        <label
+        <Label
           htmlFor="email"
           className="block text-sm font-medium text-slate-600"
         >
           Email Address
-        </label>
-        <input
+        </Label>
+        <Input required
           id="email"
           type="email"
           name="email"
@@ -87,13 +88,13 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer }) => {
 
       {/* Address */}
       <div className="space-y-1">
-        <label
+        <Label
           htmlFor="address"
           className="block text-sm font-medium text-slate-600"
         >
           Delivery Address
-        </label>
-        <input
+        </Label>
+        <input required
           id="address"
           type="text"
           name="address"
