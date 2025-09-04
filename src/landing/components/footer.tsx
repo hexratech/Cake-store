@@ -1,6 +1,7 @@
-import { Instagram, Twitter } from "lucide-react";
+import { Instagram } from "lucide-react";
 import { NAV_LINKS } from "../../types/navs";
-
+import { faTiktok ,faSnapchat} from '@fortawesome/free-brands-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 export const FooterSection: React.FC = () => {
   const serviceLinks = [
     { label: "Wishlist", id: "wishlist" },
@@ -33,7 +34,7 @@ export const FooterSection: React.FC = () => {
           </p>
           <div className="mt-4 flex items-center gap-4">
             <a
-              href="#"
+              href="https://www.instagram.com/3vivi_bakery"
               aria-label="Instagram"
               className="p-2 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition duration-300"
             >
@@ -44,7 +45,12 @@ export const FooterSection: React.FC = () => {
               aria-label="Twitter"
               className="p-2 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition duration-300"
             >
-              <Twitter className="w-5 h-5" />
+            <FontAwesomeIcon icon={faSnapchat}  className="w-5 h-5" />
+            </a>
+            <a  href="https://www.tiktok.com/@3vivi_bakery"
+              aria-label="Twitter"
+              className="p-2 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition duration-300">
+              <FontAwesomeIcon icon={faTiktok} className="w-5 h-5" />
             </a>
           </div>
         </div>
