@@ -1,6 +1,6 @@
 import { Heart, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
-import type { Product } from "../../types/data/products";
+import type { Product } from "@/api/index";
 
 interface ProductCardProps {
   product: Product;
@@ -33,7 +33,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         />
         <motion.button
           className="absolute right-4 top-4 bg-white/90 p-2 rounded-full shadow-lg hover:bg-rose-100 transition"
-          onClick={() => onToggleWish(product.id)}
+          onClick={() => onToggleWish(product._id)}
           aria-label="wishlist"
           whileTap={{ scale: 0.9 }}
         >
@@ -58,7 +58,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
         {/* Price + Add to Cart */}
         <div className="mt-4 flex items-center justify-between gap-2">
           <div className="text-xl font-bold text-rose-600">
-            GHS {product.priceGHS.toFixed(2)}
+            GHS {product.price.toFixed(2)}
           </div>
 
           <motion.button

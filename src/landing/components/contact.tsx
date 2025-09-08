@@ -3,8 +3,10 @@ import { motion } from "framer-motion";
 
 export const ContactSection: React.FC<{
   rating: number;
-  reviews: { id: number; name: string; text: string; stars: number }[];
+  reviews: { id: string; name: string; text: string; stars: number }[];
 }> = ({ rating, reviews }) => {
+  const totalStars = 5;
+
   return (
     <section
       id="contact"
@@ -20,8 +22,7 @@ export const ContactSection: React.FC<{
       >
         <h3 className="text-4xl font-extrabold text-black">Contact Us</h3>
         <p className="text-sm text-slate-600 mt-2">
-          Have a question or custom order? Send us a message and we’ll reply
-          within 24 hours.
+          Have a question or custom order? Send us a message and we’ll reply within 24 hours.
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
@@ -71,46 +72,38 @@ export const ContactSection: React.FC<{
         <h3 className="text-4xl font-extrabold text-black">Customer Reviews</h3>
 
         <div className="flex items-center gap-4 mt-3">
-          <div className="text-4xl font-bold text-slate-800">
-            {rating.toFixed(1)}
-          </div>
+          <div className="text-4xl font-bold text-slate-800">{rating.toFixed(1)}</div>
           <div className="flex">
-            {[...Array(5)].map((_, i) => (
+            {Array.from({ length: totalStars }, (_, idx) => (
               <Star
-                key={i}
+                key={idx}
                 className={`w-6 h-6 ${
-                  i < Math.round(rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-slate-300"
+                  idx < Math.round(rating) ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
                 }`}
               />
             ))}
           </div>
-          <span className="text-sm text-slate-600">
-            ({reviews.length} reviews)
-          </span>
+          <span className="text-sm text-slate-600">({reviews.length} reviews)</span>
         </div>
 
         <div className="mt-6 space-y-4">
-          {reviews.map((r, idx) => (
+          {reviews.map((r) => (
             <motion.div
               key={r.id}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: idx * 0.1 }}
+              transition={{ duration: 0.5 }}
               viewport={{ once: true }}
               className="bg-white rounded-2xl border border-rose-100 p-5 shadow-sm hover:shadow-md transition"
             >
               <div className="flex items-center justify-between">
                 <div className="font-semibold text-slate-800">{r.name}</div>
                 <div className="flex">
-                  {[...Array(5)].map((_, i) => (
+                  {Array.from({ length: totalStars }, (_, starIdx) => (
                     <Star
-                      key={i}
+                      key={starIdx}
                       className={`w-4 h-4 ${
-                        i < r.stars
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-slate-300"
+                        starIdx < r.stars ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
                       }`}
                     />
                   ))}

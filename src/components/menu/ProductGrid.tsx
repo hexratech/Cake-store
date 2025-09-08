@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import type { Product } from "../../types/data/products";
+import type { Product } from "@/api/index";
 import { ProductCard } from "./ProductCard";
 
 interface ProductGridProps {
@@ -37,9 +37,9 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {products.map((product) => (
           <ProductCard
-            key={product.id}
+            key={product._id}
             product={product}
-            isWished={!!wishList[product.id]}
+            isWished={!!wishList[product._id]}
             onToggleWish={onToggleWish}
             onAddToCart={onAddToCart}
           />
