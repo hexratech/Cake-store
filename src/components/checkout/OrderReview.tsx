@@ -48,9 +48,13 @@ interface PaystackCallback {
   [key: string]: unknown;
 }
 
+// 🔹 FIX: Updated this type to match the backend's response structure
 interface PaymentInitResponse {
-  reference: string;
-  authorization_url: string;
+  message: string;
+  payment: {
+    reference: string;
+    authorization_url: string;
+  };
 }
 
 const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
@@ -84,7 +88,8 @@ const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
       });
 
       const data = res.data;
-      if (!data.reference) throw new Error("Payment initialization failed.");
+      // 🔹 FIX: Correctly check for the nested reference
+      if (!data.payment || !data.payment.reference) throw new Error("Payment initialization failed.");
       if (!window.PaystackPop) throw new Error("Paystack script not loaded.");
 
       // Launch Paystack modal
@@ -93,7 +98,8 @@ const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
         email: customer.email,
         amount: Math.round(cart.total * 100), // kobo/pesewa
         currency: "GHS",
-        ref: data.reference,
+        // 🔹 FIX: Use the correct nested reference
+        ref: data.payment.reference,
         onClose: () => console.log("Payment cancelled."),
         callback: (response: PaystackCallback) => {
           window.location.href = `/checkout/payment-success?reference=${response.reference}`;
