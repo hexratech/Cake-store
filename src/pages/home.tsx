@@ -1,62 +1,58 @@
 // src/pages/components/home.tsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import type { JSX } from "react";
-import { Link, useNavigate } from "react-router-dom"; 
+import { Link, useNavigate } from "react-router-dom";
 import { NAV_LINKS } from "../types/navs";
-import type { Product } from "../types/data/products";
-import { SAMPLE_PRODUCTS } from "../types/data/products";
+import type { Product } from "@/api/index";
 import { HeroSection } from "../landing/components/hero";
-import { ProductsSection } from "../landing/components/product-card";
+import { ProductsSection } from "../landing/components/product-section";
 import { AboutSection } from "../landing/components/about";
 import { ContactSection } from "../landing/components/contact";
 import { FooterSection } from "../landing/components/footer";
 import { ServicesSection } from "../landing/components/services";
 import { FaqSection } from "../landing/components/fqs";
 import { motion, AnimatePresence } from "framer-motion";
-import { useCart } from "@/hooks/useCart"; // ✅ use shared cart
+import { useCart } from "@/hooks/useCart";
 
 export default function CakeShop(): JSX.Element {
-  const { cart, addToCart, removeFromCart, cartCount } = useCart(); // ✅ context cart
-  const [queryProducts] = useState<Product[]>(SAMPLE_PRODUCTS);
+  const { cart, addToCart, removeFromCart, cartCount } = useCart();
+  const [products, setProducts] = useState<Product[]>([]);
   const [menuOpen, setMenuOpen] = useState(false);
   const [selectedType, setSelectedType] = useState<string | null>("birthday");
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
   const [rating] = useState(4.6);
   const navigate = useNavigate();
   const [reviews] = useState([
-    {
-      id: 1,
-      name: "Ama",
-      text: "Delicious cake and friendly service!",
-      stars: 5,
-    },
-    {
-      id: 2,
-      name: "Kojo",
-      text: "Custom wedding cake was stunning.",
-      stars: 5,
-    },
-    {
-      id: 3,
-      name: "Ena",
-      text: "Quick delivery but would like more flavor options.",
-      stars: 4,
-    },
+    { id: "1", name: "Newton", text: "Delicious cake and friendly service!", stars: 5 },
+    { id: "2", name: "May", text: "Custom wedding cake was stunning.", stars: 5 },
+    { id: "3", name: "Spenzy", text: "Quick delivery but would like more flavor options.", stars: 4 },
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 
-  function toggleWish(id: string) {
-    setWishList((w) => ({ ...w, [id]: !w[id] }));
+  // Fetch products from backend
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
+        const data: Product[] = await res.json();
+        const published = data.filter((p) => p.isPublished);
+        setProducts(published);
+      } catch (err) {
+        console.error("Failed to fetch products:", err);
+      }
+    };
+    fetchProducts();
+  }, []);
+
+  function toggleWish(_id: string) {
+    setWishList((w) => ({ ...w, [_id]: !w[_id] }));
   }
 
-  const cartItems = cart.map(({ product, quantity }) => ({
-    product,
-    quantity,
-  }));
+  const cartItems = cart.map(({ product, quantity }) => ({ product, quantity }));
 
   const cartTotal = cartItems.reduce(
-    (total, item) => total + item.product.priceGHS * item.quantity,
+    (total, item) => total + (item.product?.price || 0) * item.quantity,
     0
   );
 
@@ -66,13 +62,8 @@ export default function CakeShop(): JSX.Element {
       <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img
-              src="logo.png"
-              alt="3vivi bakery"
-              className="h-10 w-auto rounded-md"
-            />
+            <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
 
-            {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.id === "menu" ? (
@@ -80,11 +71,7 @@ export default function CakeShop(): JSX.Element {
                     {link.label}
                   </Link>
                 ) : (
-                  <a
-                    key={link.id}
-                    href={`#${link.id}`}
-                    className="hover:underline"
-                  >
+                  <a key={link.id} href={`#${link.id}`} className="hover:underline">
                     {link.label}
                   </a>
                 )
@@ -112,7 +99,6 @@ export default function CakeShop(): JSX.Element {
           </div>
         </div>
 
-        {/* Mobile menu */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -125,21 +111,11 @@ export default function CakeShop(): JSX.Element {
               <div className="px-6 py-4 flex flex-col gap-3">
                 {NAV_LINKS.map((link) =>
                   link.id === "menu" ? (
-                    <Link
-                      key={link.id}
-                      to="/menu"
-                      className="py-2"
-                      onClick={() => setMenuOpen(false)}
-                    >
+                    <Link key={link.id} to="/menu" className="py-2" onClick={() => setMenuOpen(false)}>
                       {link.label}
                     </Link>
                   ) : (
-                    <a
-                      key={link.id}
-                      href={`#${link.id}`}
-                      className="py-2"
-                      onClick={() => setMenuOpen(false)}
-                    >
+                    <a key={link.id} href={`#${link.id}`} className="py-2" onClick={() => setMenuOpen(false)}>
                       {link.label}
                     </a>
                   )
@@ -153,14 +129,11 @@ export default function CakeShop(): JSX.Element {
       <main>
         <HeroSection />
         <div className="max-w-7xl mx-auto px-6 pb-16">
-          <AboutSection
-            selectedType={selectedType}
-            setSelectedType={setSelectedType}
-          />
+          <AboutSection selectedType={selectedType} setSelectedType={setSelectedType} />
           <ProductsSection
-            products={queryProducts}
+            products={products} // ✅ fixed: pass backend data
             wishList={wishList}
-            addToCart={addToCart} // ✅ now using context
+            addToCart={addToCart}
             toggleWish={toggleWish}
           />
           <ServicesSection />
@@ -171,7 +144,7 @@ export default function CakeShop(): JSX.Element {
 
       <FooterSection />
 
-      {/* Cart Dialog Pop-up */}
+      {/* Cart Dialog */}
       <AnimatePresence>
         {isCartOpen && (
           <motion.div
@@ -192,14 +165,8 @@ export default function CakeShop(): JSX.Element {
             >
               <div className="flex justify-between items-center mb-4">
                 <h3 className="text-xl font-bold">Your Cart ({cartCount})</h3>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  aria-label="close cart"
-                >
-                  <X
-                    size={24}
-                    className="text-slate-500 hover:text-slate-800"
-                  />
+                <button onClick={() => setIsCartOpen(false)} aria-label="close cart">
+                  <X size={24} className="text-slate-500 hover:text-slate-800" />
                 </button>
               </div>
 
@@ -212,7 +179,7 @@ export default function CakeShop(): JSX.Element {
                 <>
                   <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
                     {cartItems.map(({ product, quantity }) => (
-                      <li key={product.id} className="flex items-center gap-4">
+                      <li key={product._id} className="flex items-center gap-4">
                         <img
                           src={product.image}
                           alt={product.name}
@@ -220,9 +187,7 @@ export default function CakeShop(): JSX.Element {
                         />
                         <div className="flex-1">
                           <h4 className="font-semibold">{product.name}</h4>
-                          <div className="text-sm text-slate-500">
-                            GHS {product.priceGHS}
-                          </div>
+                          <div className="text-sm text-slate-500">GHS {product.price}</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button

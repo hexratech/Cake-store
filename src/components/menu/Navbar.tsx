@@ -12,7 +12,7 @@ export const Navbar: React.FC = () => {
   const { cart, addToCart, removeFromCart } = useCart();
 
   const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.priceGHS * i.quantity, 0);
+  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
 
   return (
     <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
@@ -127,7 +127,7 @@ export const Navbar: React.FC = () => {
                 <>
                   <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
                     {cart.map(({ product, quantity }) => (
-                      <li key={product.id} className="flex items-center gap-4">
+                      <li key={product._id} className="flex items-center gap-4">
                         <img
                           src={product.image}
                           alt={product.name}
@@ -136,7 +136,7 @@ export const Navbar: React.FC = () => {
                         <div className="flex-1">
                           <h4 className="font-semibold">{product.name}</h4>
                           <div className="text-sm text-slate-500">
-                            GHS {product.priceGHS}
+                            GHS {product.price}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">

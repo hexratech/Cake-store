@@ -1,23 +1,98 @@
-// src/App.tsx
-import "./App.css";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import CakeShop from "@/pages/home";
-import { MenuPage } from "@/pages/menu";
-import { CartProvider } from "@/context/CartContext";
-import CheckoutPage from "@/pages/CheckoutPage";
+import { AuthProvider } from "./admin/context/AuthProvider";
+import ProtectedRoute from "./admin/components/ProtectedRoute";
+import { CartProvider } from "./contexts/CartContext";
+
+// Frontend pages
+import Home from "./pages/Home";
+import { MenuPage } from "./pages/Menu";
+import CheckoutPage from "./pages/CheckoutPage";
+
+// Admin pages
+import LoginPage from "./admin/pages/LoginPage";
+import Dashboard from "./admin/pages/Dashboard";
+import OrderPage from "./admin/pages/OrderPage";
+import CustomCakesPage from "./admin/pages/CustomCakesPage";
+import ProductsPage from "./admin/pages/ProductsPage";
+import SettingsPage from "./admin/pages/SettingsPage";
+import UsersPage from "./admin/pages/UsersPage";
+import MessagesPage from "./admin/pages/MessagesPage";
 
 function App() {
   return (
-    <Router>
-      {/* Wrap the entire app in CartProvider */}
+    <AuthProvider>
       <CartProvider>
-        <Routes>
-          <Route path="/" element={<CakeShop />} />
-          <Route path="/menu" element={<MenuPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-        </Routes>
+        <Router>
+          <Routes>
+            {/* Customer Site */}
+            <Route path="/" element={<Home />} />
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+
+            {/* Admin */}
+            <Route path="/admin/login" element={<LoginPage />} />
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/orders"
+              element={
+                <ProtectedRoute>
+                  <OrderPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/custom-cakes"
+              element={
+                <ProtectedRoute>
+                  <CustomCakesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/products"
+              element={
+                <ProtectedRoute>
+                  <ProductsPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/messages"
+              element={
+                <ProtectedRoute>
+                  <MessagesPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <ProtectedRoute>
+                  <UsersPage />
+                </ProtectedRoute>
+              }
+            />
+
+            {/* Settings page only for superadmin */}
+            <Route
+              path="/admin/settings"
+              element={
+                <ProtectedRoute allowedRoles={["superadmin"]}>
+                  <SettingsPage />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Router>
       </CartProvider>
-    </Router>
+    </AuthProvider>
   );
 }
 
