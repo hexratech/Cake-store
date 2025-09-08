@@ -18,31 +18,30 @@ export const FooterSection: React.FC = () => {
   ];
 
   return (
-    <footer className="bg-rose-600 text-white pt-12 pb-8 rounded-t-3xl shadow-2xl">
-      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
+    <footer className="bg-rose-600 text-white pt-16 pb-12 rounded-t-[3rem] shadow-2xl">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-12">
         {/* Logo & About */}
-        <div>
+        <div className="flex flex-col items-start">
           <img
             src="evivilogo.jpg"
             alt="3vivi bakery Logo"
-            className="h-12 w-auto rounded-md shadow-md"
+            className="h-14 w-auto rounded-xl shadow-lg"
           />
-          <p className="text-sm text-rose-100 mt-3">
-            Handmade cakes & pastries from the heart of Accra.
-            Crafted fresh, baked with love. 🎂
+          <p className="text-sm text-rose-100 mt-4 leading-relaxed">
+            Handmade cakes & pastries from the heart of Accra. Crafted fresh, baked with love. 🎂
           </p>
-          <div className="mt-4 flex items-center gap-4">
+          <div className="mt-6 flex items-center gap-5">
             <a
               href="#"
               aria-label="Instagram"
-              className="p-2 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition duration-300"
+              className="p-3 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition-all duration-300 transform hover:scale-110"
             >
               <Instagram className="w-5 h-5" />
             </a>
             <a
               href="#"
               aria-label="Twitter"
-              className="p-2 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition duration-300"
+              className="p-3 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition-all duration-300 transform hover:scale-110"
             >
               <Twitter className="w-5 h-5" />
             </a>
@@ -51,8 +50,8 @@ export const FooterSection: React.FC = () => {
 
         {/* Navigation */}
         <div>
-          <h4 className="font-semibold text-lg mb-3">Navigation</h4>
-          <ul className="space-y-2 text-rose-100">
+          <h4 className="font-bold text-xl mb-5">Navigation</h4>
+          <ul className="space-y-3 text-rose-100">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
                 <a
@@ -68,8 +67,8 @@ export const FooterSection: React.FC = () => {
 
         {/* Services */}
         <div>
-          <h4 className="font-semibold text-lg mb-3">Services</h4>
-          <ul className="space-y-2 text-rose-100">
+          <h4 className="font-bold text-xl mb-5">Services</h4>
+          <ul className="space-y-3 text-rose-100">
             {serviceLinks.map((link) => (
               <li key={link.id}>
                 <a
@@ -85,14 +84,14 @@ export const FooterSection: React.FC = () => {
 
         {/* Payment Methods */}
         <div>
-          <h4 className="font-semibold text-lg mb-3">Payment Methods</h4>
-          <div className="mt-2 flex flex-wrap gap-3">
+          <h4 className="font-bold text-xl mb-5">Payment Methods</h4>
+          <div className="mt-2 flex flex-wrap gap-4">
             {paymentImages.map((img, index) => (
               <img
                 key={index}
                 src={img.src}
                 alt={img.alt}
-                className="h-10 w-auto rounded-md bg-white shadow-md p-1"
+                className="h-10 w-auto rounded-lg bg-white shadow-md p-1"
               />
             ))}
           </div>
@@ -100,8 +99,8 @@ export const FooterSection: React.FC = () => {
       </div>
 
       {/* Bottom Note */}
-      <div className="border-t border-white/30 mt-10 pt-6 text-center text-rose-100 text-sm">
-        &copy; {new Date().getFullYear()} <span className="font-semibold">3vivi Bakery</span> — All rights reserved.
+      <div className="border-t border-white/30 mt-16 pt-8 text-center text-rose-100 text-sm">
+        &copy; {new Date().getFullYear()} <span className="font-bold">3vivi Bakery</span> — All rights reserved.
       </div>
     </footer>
   );
