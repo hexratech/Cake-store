@@ -1,9 +1,10 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { CheckCircle2 } from "lucide-react";
+import { Button } from "../ui/button";
+import { SuccessAnimation } from "@/animation/success-animation";
+import { CakeCookiesLoader } from "@/animation/order_loader";
 import CartSummary from "./CartSummary";
 import type { Cart, PaymentMethod } from "@/api/index";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 type Customer = {
   name: string;
@@ -14,158 +15,114 @@ type Customer = {
 
 type Props = {
   customer: Customer;
-  paymentMethod: Extract<PaymentMethod, "card" | "mobile-money">;
+  paymentMethod: Extract<PaymentMethod, "card" | "mobile-money" | "cash">;
   cart: Cart;
+  onPlaceOrder?: () => void;
 };
 
-// Extend Window interface for Paystack
-declare global {
-  interface Window {
-    PaystackPop?: {
-      setup: (options: PaystackOptions) => PaystackHandler;
-    };
-  }
-}
-
-interface PaystackOptions {
-  key: string;
-  email: string;
-  amount: number;
-  currency?: string;
-  ref: string;
-  onClose?: () => void;
-  callback: (response: PaystackCallback) => void;
-}
-
-interface PaystackHandler {
-  openIframe: () => void;
-}
-
-interface PaystackCallback {
-  reference: string;
-  status?: string;
-  message?: string;
-  [key: string]: unknown;
-}
-
-interface PaymentInitResponse {
-  reference: string;
-  authorization_url: string;
-}
-
-const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+const OrderReview: React.FC<Props> = ({
+  customer,
+  paymentMethod,
+  cart,
+  onPlaceOrder,
+}) => {
+  const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
   const handlePlaceOrder = async () => {
     try {
-      // Client-side validation to ensure required data is present
-      if (!customer.email || !cart.total || cart.total <= 0) {
-        setError("Email and total price are required to place the order.");
-        return;
-      }
+      setIsLoading(true);
 
-      setLoading(true);
-      setError(null);
-
-      // Initialize payment on backend
-      const res = await axios.post<PaymentInitResponse>(
-        `${API_URL}/api/payments/initiate`,
-        {
-          email: customer.email,
-          name: customer.name,
-          phone: customer.phone,
-          address: customer.address,
-          paymentMethod,
-          totalPrice: cart.total,
-          items: cart.items.map((item) => ({
-            productId: item.product._id,
-            name: item.product.name,
-            price: item.product.price,
-            quantity: item.quantity,
-          })),
+      // If Paystack integration needed
+      if (paymentMethod === "card" || paymentMethod === "mobile-money") {
+        if (!window.PaystackPop) {
+          throw new Error("Paystack script not loaded.");
         }
-      );
 
-      const data = res.data;
+        const handler = window.PaystackPop.setup({
+          key: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY,
+          email: customer.email,
+          amount: Math.round(cart.total * 100), // in kobo
+          currency: "GHS",
+          ref: `${Date.now()}-${Math.floor(Math.random() * 1000)}`,
+          onClose: () => {
+            setIsLoading(false);
+            console.log("Payment cancelled.");
+          },
+          callback: (response: { reference: string }) => {
+            console.log("Payment successful:", response);
+            setIsSuccess(true);
+            onPlaceOrder?.();
+            setTimeout(() => window.location.reload(), 2000);
+          },
+        });
 
-      if (!data.reference) throw new Error("Payment initialization failed.");
-      if (!window.PaystackPop) throw new Error("Paystack script not loaded.");
-
-      // Launch Paystack payment modal
-      const handler = window.PaystackPop.setup({
-        key: import.meta.env.VITE_PAYSTACK_KEY,
-        email: customer.email,
-        amount: Math.round(cart.total * 100), // amount in kobo
-        currency: "GHS",
-        ref: data.reference,
-        onClose: () => console.log("Payment cancelled."),
-        callback: (response) => {
-          window.location.href = `/checkout/payment-success?reference=${response.reference}`;
-        },
-      });
-
-      handler.openIframe();
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        setError(err.message);
-        console.error("Payment failed:", err);
+        handler.openIframe();
       } else {
-        setError("Payment failed.");
+        // Cash on delivery
+        setTimeout(() => {
+          setIsSuccess(true);
+          onPlaceOrder?.();
+          setTimeout(() => window.location.reload(), 2000);
+        }, 1500);
       }
-    } finally {
-      setLoading(false);
+    } catch (err: unknown) {
+      console.error("Payment error:", err);
+      setIsLoading(false);
+      alert(err instanceof Error ? err.message : "Payment failed");
     }
   };
 
   return (
-    <div className="border rounded-2xl p-6 bg-white shadow-sm space-y-6">
-      <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">
-        Review & Confirm
+    <div className="bg-white rounded-2xl shadow-md p-6 space-y-5">
+      {/* Header */}
+      <h2 className="text-xl font-semibold text-slate-800 flex items-center gap-2">
+        <CheckCircle2 className="text-rose-500" size={22} />
+        Review Your Order
       </h2>
 
       {/* Customer Info */}
-      <div className="space-y-1 text-slate-700">
-        <p>
-          <span className="font-medium">Name:</span> {customer.name}
-        </p>
-        <p>
-          <span className="font-medium">Email:</span> {customer.email}
-        </p>
-        <p>
-          <span className="font-medium">Phone:</span> {customer.phone}
-        </p>
-        <p>
-          <span className="font-medium">Address:</span> {customer.address}
-        </p>
+      <div className="space-y-2 text-slate-700">
+        <div>
+          <span className="font-medium text-slate-900">Name:</span> {customer.name || "—"}
+        </div>
+        <div>
+          <span className="font-medium text-slate-900">Phone:</span> {customer.phone || "—"}
+        </div>
+        <div>
+          <span className="font-medium text-slate-900">Email:</span> {customer.email || "—"}
+        </div>
+        <div>
+          <span className="font-medium text-slate-900">Address:</span> {customer.address || "—"}
+        </div>
+        <div>
+          <span className="font-medium text-slate-900">Payment:</span>{" "}
+          <span className="capitalize">{paymentMethod}</span>
+        </div>
       </div>
 
-      {/* Payment Method */}
-      <p className="text-slate-700">
-        <span className="font-medium">Payment Method:</span>{" "}
-        {paymentMethod === "card"
-          ? "Debit/Credit Card (Paystack)"
-          : "Mobile Money (Paystack)"}
-      </p>
+      {/* Cart Summary */}
+      <CartSummary cart={cart} />
 
-      {/* Cart Summary (read-only) */}
-      <CartSummary cart={cart} onProceed={handlePlaceOrder} />
-
-      {/* Error */}
-      {error && (
-        <p className="text-red-500 text-sm font-medium bg-red-50 p-2 rounded-lg">
-          {error}
-        </p>
-      )}
-
-      {/* Place Order Button */}
-      <button
-        onClick={handlePlaceOrder}
-        disabled={loading}
-        className="w-full py-3 rounded-xl font-medium shadow bg-rose-600 hover:bg-rose-700 text-white transition disabled:opacity-50"
-      >
-        {loading ? "Processing..." : "Place Order & Pay"}
-      </button>
+      {/* Action Button */}
+      <div className="w-full">
+        {isLoading ? (
+          <Button disabled className="w-full bg-rose-600 text-white py-3 rounded-xl font-medium shadow">
+            <CakeCookiesLoader />
+          </Button>
+        ) : isSuccess ? (
+          <div className="w-full py-3 rounded-xl bg-green-100 text-center">
+            <SuccessAnimation />
+          </div>
+        ) : (
+          <Button
+            onClick={handlePlaceOrder}
+            className="w-full bg-rose-600 text-white py-3 rounded-xl font-medium shadow hover:bg-rose-700 transition-colors"
+          >
+            Place Order
+          </Button>
+        )}
+      </div>
     </div>
   );
 };
