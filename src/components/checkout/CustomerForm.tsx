@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
 
 type Customer = {
   name: string;
@@ -10,7 +12,7 @@ type Customer = {
 type Props = {
   customer: Customer;
   setCustomer: React.Dispatch<React.SetStateAction<Customer>>;
-  onNext?: () => void; // ✅ optional, won’t throw error if not passed
+  onNext?: () => void; // Optional, won't throw error if not passed
 };
 
 const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
@@ -26,7 +28,7 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
       return;
     }
     setError(null);
-    onNext?.(); // ✅ safe optional call
+    onNext?.(); // Safe optional call
   };
 
   return (
@@ -43,10 +45,10 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
 
       {/* Full Name */}
       <div className="space-y-1">
-        <label htmlFor="name" className="block text-sm font-medium text-slate-600">
+        <Label htmlFor="name" className="block text-sm font-medium text-slate-600">
           Full Name *
-        </label>
-        <input
+        </Label>
+        <Input
           id="name"
           type="text"
           name="name"
@@ -60,10 +62,10 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
 
       {/* Phone */}
       <div className="space-y-1">
-        <label htmlFor="phone" className="block text-sm font-medium text-slate-600">
+        <Label htmlFor="phone" className="block text-sm font-medium text-slate-600">
           Phone Number *
-        </label>
-        <input
+        </Label>
+        <Input
           id="phone"
           type="tel"
           name="phone"
@@ -77,10 +79,10 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
 
       {/* Email */}
       <div className="space-y-1">
-        <label htmlFor="email" className="block text-sm font-medium text-slate-600">
+        <Label htmlFor="email" className="block text-sm font-medium text-slate-600">
           Email Address * (required for payment)
-        </label>
-        <input
+        </Label>
+        <Input
           id="email"
           type="email"
           name="email"
@@ -94,10 +96,10 @@ const CustomerForm: React.FC<Props> = ({ customer, setCustomer, onNext }) => {
 
       {/* Address */}
       <div className="space-y-1">
-        <label htmlFor="address" className="block text-sm font-medium text-slate-600">
+        <Label htmlFor="address" className="block text-sm font-medium text-slate-600">
           Delivery Address *
-        </label>
-        <input
+        </Label>
+        <Input
           id="address"
           type="text"
           name="address"
