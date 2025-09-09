@@ -7,6 +7,7 @@ import { CartProvider } from "./contexts/CartContext";
 import Home from "./pages/Home";
 import { MenuPage } from "./pages/Menu";
 import CheckoutPage from "./pages/CheckoutPage";
+import PaymentSuccess from "./pages/PaymentSuccess";
 
 // Admin pages
 import LoginPage from "./admin/pages/LoginPage";
@@ -18,9 +19,13 @@ import SettingsPage from "./admin/pages/SettingsPage";
 import UsersPage from "./admin/pages/UsersPage";
 import MessagesPage from "./admin/pages/MessagesPage";
 
-import PaymentSuccess from "./pages/PaymentSuccess";
+// ✅ Import the hook
+import { useKeepAlive } from "./hooks/useKeepAlive";
 
 function App() {
+  // ✅ Activate keep-alive pings
+  useKeepAlive();
+
   return (
     <AuthProvider>
       <CartProvider>
@@ -30,7 +35,6 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
-
             <Route path="/payment-success" element={<PaymentSuccess />} />
 
             {/* Admin */}

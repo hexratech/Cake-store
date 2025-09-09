@@ -342,15 +342,14 @@ const ProductsPage = () => {
 
                 {/* Product Image */}
                 <img
-  src={
-    product.image?.startsWith("http")
-      ? product.image
-      : `${import.meta.env.VITE_API_URL}${product.image}`
-  }
-  alt={product.name}
-  className="w-full h-48 object-cover rounded-lg mb-4"
-/>
-
+                  src={
+                    product.image?.startsWith("http")
+                      ? product.image
+                      : `${import.meta.env.VITE_API_URL}${product.image}`
+                  }
+                  alt={product.name}
+                  className="w-full h-48 object-cover rounded-lg mb-4"
+                />
 
                 {/* Product Status Badges */}
                 <div className="absolute top-4 right-4 flex flex-col items-end gap-2">
@@ -376,8 +375,7 @@ const ProductsPage = () => {
                 </h3>
                 <p className="text-sm text-gray-500 mt-1 flex items-center gap-1">
                   <Package className="w-4 h-4 text-gray-400" />
-                  Category:{" "}
-                  <span className="font-medium">{product.category}</span>
+                  Category: <span className="font-medium">{product.category}</span>
                 </p>
                 <div className="flex items-center justify-between mt-3">
                   <span className="text-xl font-extrabold text-rose-600">
@@ -420,9 +418,9 @@ const ProductsPage = () => {
           )}
         </div>
 
-        {/* Modern Modal */}
+        {/* Modern Modal (UPDATED) */}
         {isModalOpen && (
-          <div className="fixed inset-0 z-50 bg-black/40 flex items-center justify-center p-4">
+          <div className="fixed inset-0 z-50 bg-black/40 flex items-start justify-center p-4 pt-8 overflow-y-auto">
             <div className="bg-white p-8 rounded-2xl w-full max-w-lg relative shadow-2xl">
               <button
                 className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition"
@@ -588,29 +586,27 @@ const ProductsPage = () => {
 
                 {/* Image Upload */}
                 <div className="flex flex-col">
-  <label
-    htmlFor="imageFile"
-    className="text-sm font-medium text-gray-600 mb-1"
-  >
-    {editingProduct ? "Change Image" : "Product Image"}
-  </label>
-  <input
-    id="imageFile"
-    type="file"
-    accept="image/*"
-    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
-    className="w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100"
-  />
-  {editingProduct?.image && (
-    <img
-      src={editingProduct.image}
-      alt="Current Product"
-      className="mt-4 w-32 h-32 object-cover rounded-lg"
-    />
-  )}
-</div>
-
-
+                  <label
+                    htmlFor="imageFile"
+                    className="text-sm font-medium text-gray-600 mb-1"
+                  >
+                    {editingProduct ? "Change Image" : "Product Image"}
+                  </label>
+                  <input
+                    id="imageFile"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => setImageFile(e.target.files?.[0] || null)}
+                    className="w-full text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-rose-50 file:text-rose-700 hover:file:bg-rose-100"
+                  />
+                  {editingProduct?.image && (
+                    <img
+                      src={editingProduct.image}
+                      alt="Current Product"
+                      className="mt-4 w-32 h-32 object-cover rounded-lg"
+                    />
+                  )}
+                </div>
 
                 {/* Submit Button */}
                 <button
