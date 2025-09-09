@@ -18,42 +18,12 @@ type Props = {
   cart: Cart;
 };
 
-// Extend Window interface for Paystack
-declare global {
-  interface Window {
-    PaystackPop?: {
-      setup: (options: PaystackOptions) => PaystackHandler;
-    };
-  }
-}
-
-interface PaystackOptions {
-  key: string;
-  email: string;
-  amount: number;
-  currency?: string;
-  ref: string;
-  onClose?: () => void;
-  callback: (response: PaystackCallback) => void;
-}
-
-interface PaystackHandler {
-  openIframe: () => void;
-}
-
-interface PaystackCallback {
-  reference: string;
-  status?: string;
-  message?: string;
-  [key: string]: unknown;
-}
-
-// 🔹 FIX: Updated this type to match the backend's response structure
+// Interface for the expected response from our backend API
 interface PaymentInitResponse {
   message: string;
   payment: {
     reference: string;
-    authorization_url: string;
+    authorization_url: string; // The URL to redirect the user to
   };
 }
 
@@ -63,22 +33,28 @@ const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
 
   const handlePlaceOrder = async () => {
     try {
-      if (!customer.email || !cart.total || cart.total <= 0) {
-        setError("Email and total price are required to place the order.");
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (
+        !customer.email ||
+        !emailRegex.test(customer.email) ||
+        typeof cart.total !== "number" ||
+        cart.total <= 0
+      ) {
+        setError("A valid email and a positive total price are required to place the order.");
         return;
       }
 
       setLoading(true);
       setError(null);
 
-      // Initialize payment on backend
+      // Make the API call to your backend to initiate the payment
       const res = await axios.post<PaymentInitResponse>(`${API_URL}/api/payments/initiate`, {
         email: customer.email,
         name: customer.name,
         phone: customer.phone,
         address: customer.address,
         paymentMethod,
-        totalPrice: cart.total, // backend converts to amount
+        totalPrice: cart.total,
         items: cart.items.map((item) => ({
           productId: item.product._id,
           name: item.product.name,
@@ -87,32 +63,26 @@ const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
         })),
       });
 
-      const data = res.data;
-      // 🔹 FIX: Correctly check for the nested reference
-      if (!data.payment || !data.payment.reference) throw new Error("Payment initialization failed.");
-      if (!window.PaystackPop) throw new Error("Paystack script not loaded.");
+      const data = res?.data;
 
-      // Launch Paystack modal
-      const handler: PaystackHandler = window.PaystackPop.setup({
-        key: import.meta.env.VITE_PAYSTACK_KEY!,
-        email: customer.email,
-        amount: Math.round(cart.total * 100), // kobo/pesewa
-        currency: "GHS",
-        // 🔹 FIX: Use the correct nested reference
-        ref: data.payment.reference,
-        onClose: () => console.log("Payment cancelled."),
-        callback: (response: PaystackCallback) => {
-          window.location.href = `/checkout/payment-success?reference=${response.reference}`;
-        },
-      });
+      // Check if the authorization URL was returned from the backend
+      if (!data?.payment?.authorization_url) {
+        throw new Error("Payment initialization failed: No authorization URL received.");
+      }
 
-      handler.openIframe();
+      // Redirect the user to the authorization URL to complete the payment.
+      // This is the correct way to handle a backend-initiated Paystack transaction.
+      window.location.href = data.payment.authorization_url;
+
     } catch (err: unknown) {
-      if (err instanceof Error) {
+      if (axios.isAxiosError(err)) {
+        console.error("Payment failed (Axios error):", err.response?.data || err.message);
+        setError(err.response?.data?.message || "Payment initiation failed.");
+      } else if (err instanceof Error) {
         setError(err.message);
         console.error("Payment failed:", err);
       } else {
-        setError("Payment failed.");
+        setError("Payment failed due to an unknown error.");
       }
     } finally {
       setLoading(false);
@@ -141,7 +111,11 @@ const OrderReview: React.FC<Props> = ({ customer, paymentMethod, cart }) => {
       <CartSummary cart={cart} onProceed={handlePlaceOrder} />
 
       {/* Error */}
-      {error && <p className="text-red-500 text-sm font-medium bg-red-50 p-2 rounded-lg">{error}</p>}
+      {error && (
+        <p className="text-red-500 text-sm font-medium bg-red-50 p-2 rounded-lg">
+          {error}
+        </p>
+      )}
 
       {/* Place Order Button */}
       <button

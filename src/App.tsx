@@ -18,6 +18,8 @@ import SettingsPage from "./admin/pages/SettingsPage";
 import UsersPage from "./admin/pages/UsersPage";
 import MessagesPage from "./admin/pages/MessagesPage";
 
+import PaymentSuccess from "./pages/PaymentSuccess";
+
 function App() {
   return (
     <AuthProvider>
@@ -28,6 +30,8 @@ function App() {
             <Route path="/" element={<Home />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
+
+            <Route path="/payment-success" element={<PaymentSuccess />} />
 
             {/* Admin */}
             <Route path="/admin/login" element={<LoginPage />} />
