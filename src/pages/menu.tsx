@@ -1,82 +1,196 @@
+// src/pages/menu/MenuPage.tsx
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Heart, X, Menu } from "lucide-react";
+import { ShoppingCart, X, Menu } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 
 import { Filters } from "../components/menu/Filters";
+import { ProductGrid } from "../components/menu/ProductGrid";
 import { CakeCustomizer } from "../components/menu/CakeCustomizer";
+import type { CustomCakeData } from "../components/menu/CakeCustomizer";
 import { NAV_LINKS } from "../types/navs";
 import { useCart } from "../hooks/useCart";
 import { FooterSection } from "../landing/components/footer";
 
-import {
-  fetchProducts,
-  addFavorite,
-  removeFavorite,
-  requestCustomCake,
-} from "../api";
+import { fetchProducts, addFavorite, removeFavorite } from "../api";
+import type { Product } from "@/api/index";
 
-import type { Product, CustomCakeData } from "@/api/index";
+export type CartItem =
+  | { type: "product"; product: Product; quantity: number }
+  | {
+      type: "custom";
+      customCake: CustomCakeData & {
+        totalPrice: number;
+        id: string;
+        quantity: number;
+      };
+      quantity: number;
+    };
 
 export const MenuPage: React.FC = () => {
   const { cart, addToCart, removeFromCart, cartCount } = useCart();
-  const [products, setProducts] = useState<Product[]>([]);
-  const [wishList, setWishList] = useState<Record<string, boolean>>({});
-  const [showCustomizer, setShowCustomizer] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [isCartOpen, setIsCartOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Fetch products and filter for published ones
+  const [products, setProducts] = useState<Product[]>([]);
+  const [wishList, setWishList] = useState<Record<string, boolean>>({});
+  const [customCakes, setCustomCakes] = useState<
+    (CustomCakeData & { totalPrice: number; id: string; quantity: number })[]
+  >([]);
+  const [showCustomizer, setShowCustomizer] = useState(false);
+  const [showFilters, setShowFilters] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [query, setQuery] = useState("");
+
+  // Fetch products
   useEffect(() => {
+    setLoading(true);
     fetchProducts()
       .then((data: Product[]) => {
-        const publishedProducts = data.filter((p) => p.isPublished);
-        setProducts(publishedProducts);
+        const published = data.filter((p) => p.isPublished);
+        setProducts(published);
       })
-      .catch((err) => console.error("Failed to fetch products:", err));
-  }, []);
+      .catch(console.error)
+      .finally(() => setLoading(false));
+  }, [query]);
 
+  // Wishlist toggle
   const toggleWish = async (product: Product) => {
-    const productId = product._id;
-    setWishList((w) => ({ ...w, [productId]: !w[productId] }));
-
+    const id = product._id;
     try {
-      if (!wishList[productId]) {
-        await addFavorite(productId, "guest@example.com");
+      if (!wishList[id]) {
+        await addFavorite(id, "guest@example.com");
+        setWishList((w) => ({ ...w, [id]: true }));
       } else {
-        await removeFavorite(productId);
+        await removeFavorite(id);
+        setWishList((w) => ({ ...w, [id]: false }));
       }
     } catch (err) {
-      console.error("Favorite API error:", err);
+      console.error("Failed to update wishlist:", err);
     }
   };
 
-  const cartItems = cart.map((i) => ({
-    product: i.product,
-    quantity: i.quantity,
-  }));
+  // Calculate custom cake price dynamically
+  const calculateCustomCakePrice = (cake: CustomCakeData): number => {
+    let price = 50; // base price
+    switch (cake.size) {
+      case "8-inch":
+        price += 20;
+        break;
+      case "10-inch":
+        price += 40;
+        break;
+      case "12-inch":
+        price += 60;
+        break;
+    }
+    switch (cake.layers) {
+      case "Double":
+        price += 30;
+        break;
+      case "Triple":
+        price += 60;
+        break;
+    }
+    price += (cake.toppings?.length || 0) * 5;
+    return price;
+  };
 
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + (item.product?.price || 0) * item.quantity,
-    0
-  );
+  // Handle custom cake submission
+  const handleSubmitCustomCake = (customCake: CustomCakeData) => {
+    const totalPrice = calculateCustomCakePrice(customCake);
 
-  const handleSubmitCustomCake = async (customCakeData: CustomCakeData) => {
+    setCustomCakes((prev) => {
+      // Check if same cake exists
+      const existingIndex = prev.findIndex(
+        (c) =>
+          c.flavor === customCake.flavor &&
+          c.size === customCake.size &&
+          c.layers === customCake.layers &&
+          JSON.stringify(c.toppings) === JSON.stringify(customCake.toppings)
+      );
+
+      if (existingIndex !== -1) {
+        const updated = [...prev];
+        updated[existingIndex].quantity += 1;
+        return updated;
+      }
+
+      return [
+        ...prev,
+        { ...customCake, totalPrice, id: `custom-${Date.now()}`, quantity: 1 },
+      ];
+    });
+
+    setShowCustomizer(false);
+  };
+
+  // Remove custom cake
+  const removeCustomCake = (id: string) => {
+    setCustomCakes((prev) => prev.filter((c) => c.id !== id));
+  };
+
+  // Cart items & total
+  const cartItems: CartItem[] = [
+    ...cart.map((i) => ({
+      type: "product" as const,
+      product: i.product,
+      quantity: i.quantity,
+    })),
+    ...customCakes.map((c) => ({
+      type: "custom" as const,
+      customCake: c,
+      quantity: c.quantity,
+    })),
+  ];
+
+  const cartTotal = cartItems.reduce((total, item) => {
+    if (item.type === "product")
+      return total + (item.product.price || 0) * item.quantity;
+    if (item.type === "custom")
+      return total + (item.customCake.totalPrice || 0) * item.quantity;
+    return total;
+  }, 0);
+
+  // Apply filters
+  const handleApplyFilters = (newQuery: string) => {
+    setQuery(newQuery);
+    setShowFilters(false);
+  };
+
+  // Checkout
+  const handleCheckout = async () => {
+    const userName = prompt("Enter your name:");
+    const userEmail = prompt("Enter your email:");
+    const userPhone = prompt("Enter your phone:");
+
+    if (!userName || !userEmail || !userPhone) {
+      alert("Please fill in all user details to proceed.");
+      return;
+    }
+
+    const payload = {
+      user: { name: userName, email: userEmail, phone: userPhone },
+      cart: cartItems,
+      total: cartTotal,
+    };
+
     try {
-      const res = await requestCustomCake(customCakeData);
-      if (res?.id) {
-        alert("Custom cake request submitted successfully!");
-        setShowCustomizer(false);
-      }
-    } catch (err: unknown) {
-      if (err instanceof Error) {
-        console.error(err.message);
-        alert(`Failed to submit custom cake request: ${err.message}`);
-      } else {
-        console.error(err);
-        alert("Failed to submit custom cake request.");
-      }
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) throw new Error("Failed to create order");
+
+      alert("Order placed successfully!");
+      setCustomCakes([]);
+      navigate("/thank-you");
+    } catch (err) {
+      console.error(err);
+      alert("Failed to place order. Please try again.");
     }
   };
 
@@ -94,7 +208,11 @@ export const MenuPage: React.FC = () => {
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.path.startsWith("/") ? (
-                  <Link key={link.id} to={link.path} className="hover:underline">
+                  <Link
+                    key={link.id}
+                    to={link.path}
+                    className="hover:underline"
+                  >
                     {link.label}
                   </Link>
                 ) : (
@@ -121,7 +239,10 @@ export const MenuPage: React.FC = () => {
             >
               <ShoppingCart size={18} />
               <span className="sr-only">Cart</span>
-              <span className="text-sm font-medium">{cartCount}</span>
+              <span className="text-sm font-medium">
+                {cartCount +
+                  customCakes.reduce((sum, c) => sum + c.quantity, 0)}
+              </span>
             </button>
           </div>
         </div>
@@ -165,7 +286,7 @@ export const MenuPage: React.FC = () => {
       </nav>
 
       {/* MAIN CONTENT */}
-      <main className="px-6 sm:px-10 lg:px-20 py-12">
+      <main className="px-6 sm:px-10 lg:px-20 py-8">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -176,91 +297,71 @@ export const MenuPage: React.FC = () => {
           <p className="mt-2 text-slate-600">
             Browse our collection or customize your own cake 🍰
           </p>
-          {cartCount > 0 && (
+          {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0) >
+            0 && (
             <div className="mt-3 inline-block px-4 py-2 rounded-lg bg-rose-100 text-rose-700 font-medium">
-              🛒 {cartCount} item{cartCount > 1 ? "s" : ""} in cart
+              🛒{" "}
+              {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0)}{" "}
+              item
+              {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0) >
+              1
+                ? "s"
+                : ""}{" "}
+              in cart
             </div>
           )}
         </motion.div>
 
-        <Filters
-          onApply={(query: string) => {
-            setProducts((prevProducts) =>
-              prevProducts.filter((product) =>
-                product.name.toLowerCase().includes(query.toLowerCase())
-              )
-            );
-          }}
-        />
-
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {products.map((p, i) => (
-            <motion.article
-              key={p._id}
-              className="bg-white rounded-2xl shadow-md hover:shadow-xl transition-shadow duration-300 flex flex-col overflow-hidden group"
-              initial={{ opacity: 0, y: 30 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, delay: i * 0.1 }}
-            >
-              <div className="relative aspect-square">
-                <motion.img
-                  src={
-                    p.image && p.image.trim() !== ""
-                      ? p.image
-                      : "/placeholder.png"
-                  }
-                  alt={p.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  whileHover={{ scale: 1.05 }}
-                />
-                <motion.button
-                  className="absolute right-3 top-3 bg-white/90 p-2 rounded-full shadow hover:bg-rose-100 transition"
-                  onClick={() => toggleWish(p)}
-                  aria-label="wishlist"
-                  whileTap={{ scale: 0.9 }}
-                >
-                  <Heart
-                    size={18}
-                    className={`${
-                      wishList[p._id] ? "text-rose-500 fill-rose-500" : "text-slate-600"
-                    }`}
-                  />
-                </motion.button>
-              </div>
-
-              <div className="p-4 flex-1 flex flex-col">
-                <h3 className="font-semibold text-lg text-slate-800">{p.name}</h3>
-                <p className="text-sm text-slate-500 mt-1 flex-1">
-                  {p.description}
-                </p>
-                <div className="mt-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-                  <div className="text-lg font-bold text-rose-600">
-                    GHS {p.price}
-                  </div>
-                  <motion.button
-                    onClick={() => addToCart(p)}
-                    className="px-3 py-2 flex items-center justify-center gap-2 rounded-lg bg-rose-500 text-white text-sm hover:bg-rose-600 transition"
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    <ShoppingCart size={16} /> Add to Cart
-                  </motion.button>
-                </div>
-              </div>
-            </motion.article>
-          ))}
-        </div>
-
-        {/* Customizer Button */}
-        <div className="text-center mt-12">
+        {/* Buttons */}
+        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+          <button
+            onClick={() => setShowFilters(true)}
+            className="px-6 py-3 bg-slate-100 text-slate-800 font-semibold rounded-xl shadow hover:bg-slate-200 transition"
+          >
+            Filters
+          </button>
           <button
             onClick={() => setShowCustomizer(true)}
-            className="px-6 py-3 bg-rose-600 text-white font-semibold rounded-xl shadow hover:bg-rose-700 transition"
+            className="px-6 py-3 bg-rose-500 text-white font-semibold rounded-xl shadow hover:bg-rose-700 transition"
           >
             Customize Your Cake
           </button>
         </div>
 
+        {/* Product grid */}
+        <ProductGrid
+          products={products}
+          loading={loading}
+          wishList={wishList}
+          toggleWish={toggleWish}
+          addToCart={addToCart}
+        />
+
+        {/* Filters sidebar */}
+        <AnimatePresence>
+          {showFilters && (
+            <motion.div
+              className="fixed inset-0 z-50 bg-black/40 flex"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setShowFilters(false)}
+            >
+              <motion.div
+                initial={{ x: "-100%" }}
+                animate={{ x: 0 }}
+                exit={{ x: "-100%" }}
+                transition={{ duration: 0.3 }}
+                className="bg-white w-80 max-w-full h-full shadow-xl overflow-y-auto p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Filters onApply={handleApplyFilters} />
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* Cake Customizer */}
         <AnimatePresence>
           {showCustomizer && (
             <CakeCustomizer
@@ -293,13 +394,21 @@ export const MenuPage: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold">Your Cart ({cartCount})</h3>
-                <button onClick={() => setIsCartOpen(false)} aria-label="close cart">
-                  <X size={24} className="text-slate-500 hover:text-slate-800" />
+                <h3 className="text-xl font-bold">
+                  Your Cart ({cartItems.length})
+                </h3>
+                <button
+                  onClick={() => setIsCartOpen(false)}
+                  aria-label="close cart"
+                >
+                  <X
+                    size={24}
+                    className="text-slate-500 hover:text-slate-800"
+                  />
                 </button>
               </div>
 
-              {cartCount === 0 ? (
+              {cartItems.length === 0 ? (
                 <div className="text-center text-slate-500 py-8">
                   <ShoppingCart size={48} className="mx-auto text-slate-300" />
                   <p className="mt-2">Your cart is empty.</p>
@@ -307,46 +416,106 @@ export const MenuPage: React.FC = () => {
               ) : (
                 <>
                   <ul className="space-y-4 pr-2">
-                    {cartItems.map(({ product, quantity }) => {
-                      if (!product) return null; // FIX: Ensure product exists
-                      return (
-                        <li key={product._id} className="flex items-center gap-4">
-                          <img
-                            src={
-                              product.image && product.image.trim() !== ""
-                                ? product.image
-                                : "/placeholder.png"
-                            }
-                            alt={product.name}
-                            className="w-16 h-16 object-cover rounded-lg"
-                          />
-                          <div className="flex-1">
-                            <h4 className="font-semibold">{product.name}</h4>
-                            <div className="text-sm text-slate-500">
-                              GHS {product.price}
-                            </div>
+                    {cartItems.map((item) => (
+                      <li
+                        key={
+                          item.type === "product"
+                            ? item.product._id
+                            : item.customCake.id
+                        }
+                        className="flex items-center gap-4"
+                      >
+                        <img
+                          src={
+                            item.type === "product"
+                              ? item.product.image?.trim() || "/placeholder.png"
+                              : "/custom-placeholder.png"
+                          }
+                          alt={
+                            item.type === "product"
+                              ? item.product.name
+                              : "Custom Cake"
+                          }
+                          className="w-24 h-16 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <h4 className="font-semibold">
+                            {item.type === "product"
+                              ? item.product.name
+                              : `${item.customCake.flavor} Cake (${item.customCake.size}, ${item.customCake.layers} layers)`}
+                          </h4>
+                          <div className="text-sm text-slate-500">
+                            GHS{" "}
+                            {item.type === "product"
+                              ? item.product.price
+                              : item.customCake.totalPrice}
                           </div>
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => removeFromCart(product)}
-                              className="px-2 py-1 border rounded-lg hover:bg-slate-100"
-                            >
-                              -
-                            </button>
-                            <span className="w-6 text-center">{quantity}</span>
-                            <button
-                              onClick={() => addToCart(product)}
-                              className="px-2 py-1 border rounded-lg hover:bg-slate-100"
-                            >
-                              +
-                            </button>
-                          </div>
-                        </li>
-                      );
-                    })}
+                        </div>
+
+                        {/* Quantity controls */}
+                        <div className="flex items-center gap-2">
+                          {item.type === "product" && (
+                            <>
+                              <button
+                                onClick={() => removeFromCart(item.product)}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center">
+                                {item.quantity}
+                              </span>
+                              <button
+                                onClick={() => addToCart(item.product)}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                +
+                              </button>
+                            </>
+                          )}
+
+                          {item.type === "custom" && (
+                            <>
+                              <button
+                                onClick={() => {
+                                  if (item.customCake.quantity > 1) {
+                                    setCustomCakes((prev) =>
+                                      prev.map((c) =>
+                                        c.id === item.customCake.id
+                                          ? { ...c, quantity: c.quantity - 1 }
+                                          : c
+                                      )
+                                    );
+                                  } else removeCustomCake(item.customCake.id);
+                                }}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center">
+                                {item.customCake.quantity}
+                              </span>
+                              <button
+                                onClick={() =>
+                                  setCustomCakes((prev) =>
+                                    prev.map((c) =>
+                                      c.id === item.customCake.id
+                                        ? { ...c, quantity: c.quantity + 1 }
+                                        : c
+                                    )
+                                  )
+                                }
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                +
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </li>
+                    ))}
                   </ul>
 
-                  {/* Total & Checkout */}
                   <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
                     <span>GHS {cartTotal.toFixed(2)}</span>
@@ -355,10 +524,7 @@ export const MenuPage: React.FC = () => {
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                      onClick={() => {
-                        setIsCartOpen(false);
-                        navigate("/checkout");
-                      }}
+                      onClick={handleCheckout}
                     >
                       Proceed to Checkout
                     </button>

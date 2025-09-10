@@ -1,16 +1,9 @@
 // src/pages/menu/components/CakeCustomizer.tsx
 import { X, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useCart } from "@/hooks/useCart";
 import type { Product } from "@/api/index";
-
-type Customer = {
-  name: string;
-  phone: string;
-  email: string;
-  address: string;
-};
 
 export type CustomCakeData = {
   flavor: string;
@@ -19,21 +12,23 @@ export type CustomCakeData = {
   icing: string;
   toppings: string[];
   notes?: string;
+  totalPrice: number; // Include calculated price
 };
 
 type CakeCustomizerProps = {
   isOpen: boolean;
   onClose: () => void;
-  customer: Customer;
+  onSubmit: (customCake: CustomCakeData) => void;
 };
 
 export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
   isOpen,
   onClose,
-  customer,
+  onSubmit,
 }) => {
   const { addToCart } = useCart();
 
+  // Option selections
   const [flavor, setFlavor] = useState("Chocolate");
   const [size, setSize] = useState("6-inch");
   const [layers, setLayers] = useState("Single");
@@ -41,9 +36,53 @@ export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
   const [toppings, setToppings] = useState<string[]>([]);
   const [notes, setNotes] = useState("");
   const [showToast, setShowToast] = useState(false);
-  const [loading, setLoading] = useState(false);
 
-  const API_URL = import.meta.env.VITE_API_URL;
+  // Pricing map (future-proof)
+  const flavorPrices: Record<string, number> = {
+    Chocolate: 0,
+    Vanilla: 0,
+    "Red Velvet": 5,
+    Strawberry: 5,
+    Lemon: 5,
+  };
+  const sizePrices: Record<string, number> = {
+    "6-inch": 20,
+    "8-inch": 30,
+    "10-inch": 40,
+    "12-inch": 50,
+  };
+  const layerPrices: Record<string, number> = {
+    Single: 0,
+    Double: 10,
+    Triple: 20,
+  };
+  const icingPrices: Record<string, number> = {
+    Buttercream: 0,
+    Fondant: 10,
+    "Whipped Cream": 5,
+    Ganache: 10,
+  };
+  const toppingPrices: Record<string, number> = {
+    Berries: 5,
+    Oreos: 3,
+    Sprinkles: 2,
+    Nuts: 4,
+    "Chocolate Chips": 3,
+    Candies: 2,
+  };
+
+  // Compute total dynamically
+  const totalPrice = useMemo(() => {
+    const toppingsTotal = toppings.reduce((acc, t) => acc + (toppingPrices[t] || 0), 0);
+    return (
+      50 + // base price
+      (flavorPrices[flavor] || 0) +
+      (sizePrices[size] || 0) +
+      (layerPrices[layers] || 0) +
+      (icingPrices[icing] || 0) +
+      toppingsTotal
+    );
+  }, [flavorPrices, sizePrices, layerPrices, icingPrices, toppingPrices, ]);
 
   const toggleTopping = (t: string) => {
     setToppings((prev) =>
@@ -51,56 +90,37 @@ export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
     );
   };
 
-  const handleAddToCart = async () => {
-    setLoading(true);
-
-    const orderData = {
-      customCake: {
-        flavor,
-        size,
-        layers,
-        icing,
-        toppings,
-        notes,
-      },
-      customerDetails: customer,
+  const handleAddToCart = () => {
+    const customCake: CustomCakeData = {
+      flavor,
+      size,
+      layers,
+      icing,
+      toppings,
+      notes,
+      totalPrice,
     };
 
-    try {
-      const res = await fetch(`${API_URL}/api/custom-cakes`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(orderData),
-      });
+    const product: Product & { customCakeData?: CustomCakeData } = {
+      _id: `custom-${Date.now()}`,
+      name: `${flavor} Cake (${size}, ${layers} layers)`,
+      description: `Icing: ${icing}. Extra Toppings: ${
+        toppings.join(", ") || "None"
+      }. ${notes || ""}`,
+      price: totalPrice,
+      image: "",
+      isPublished: true,
+      isFeatured: false,
+      slug: `custom-${Date.now()}`,
+      customized: true,
+      customCakeData: customCake,
+    };
 
-      if (!res.ok) throw new Error("Failed to create custom cake");
-
-      const created = await res.json();
-
-      const product: Product = {
-        _id: created._id,
-        name: `${flavor} Cake (${size}, ${layers} layers)`,
-        description: `Icing: ${icing}. Extra Toppings: ${
-          toppings.join(", ") || "None"
-        }. ${notes || ""}`,
-        price: 50 + toppings.length * 5,
-        image: "",
-        isPublished: true,
-        isFeatured: false,
-        slug: `custom-${created._id}`,
-        customized: true,
-      };
-
-      addToCart(product);
-      setShowToast(true);
-      setTimeout(() => setShowToast(false), 2000);
-      onClose();
-    } catch (error) {
-      console.error(error);
-      alert("Could not add custom cake. Please try again.");
-    } finally {
-      setLoading(false);
-    }
+    addToCart(product);
+    onSubmit(customCake);
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 2000);
+    onClose();
   };
 
   return (
@@ -131,97 +151,83 @@ export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
             <h2 className="text-3xl font-bold text-slate-800 mb-2">
               Customize Your Cake 🎂
             </h2>
-            <p className="text-slate-500 mb-6 text-sm">
-              Choose your favorite flavor, size, layers, icing, and toppings.
-              Add any special instructions below.
+            <p className="text-slate-500 mb-4 text-sm">
+              Select options below. Total updates dynamically.
             </p>
 
-            <div className="space-y-5">
+            <div className="space-y-4">
               {/* Flavor */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Flavor
-                </label>
+                <label htmlFor="flavour" className="font-semibold text-slate-700 block mb-1">Flavor</label>
                 <select
                   value={flavor}
                   onChange={(e) => setFlavor(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
+                  className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-rose-400 transition"
                 >
-                  {["Chocolate", "Vanilla", "Red Velvet", "Strawberry", "Lemon"].map(
-                    (f) => (
-                      <option key={f}>{f}</option>
-                    )
-                  )}
+                  {Object.keys(flavorPrices).map((f) => (
+                    <option key={f} value={f}>
+                      {f} (+GHS {flavorPrices[f]})
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Size */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Size
-                </label>
+                <label  htmlFor="size" className="font-semibold text-slate-700 block mb-1">Size</label>
                 <select
                   value={size}
                   onChange={(e) => setSize(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
+                  className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-rose-400 transition"
                 >
-                  {["6-inch", "8-inch", "10-inch", "12-inch"].map((s) => (
-                    <option key={s}>{s}</option>
+                  {Object.keys(sizePrices).map((s) => (
+                    <option key={s} value={s}>
+                      {s} (+GHS {sizePrices[s]})
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* Layers */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Layers
-                </label>
+                <label htmlFor="layers"  className="font-semibold text-slate-700 block mb-1">Layers</label>
                 <select
                   value={layers}
                   onChange={(e) => setLayers(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
+                  className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-rose-400 transition"
                 >
-                  {["Single", "Double", "Triple"].map((l) => (
-                    <option key={l}>{l}</option>
+                  {Object.keys(layerPrices).map((l) => (
+                    <option key={l} value={l}>
+                      {l} (+GHS {layerPrices[l]})
+                    </option>
                   ))}
                 </select>
               </div>
 
               {/* Icing */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Icing
-                </label>
+                <label htmlFor="icing" className="font-semibold text-slate-700 block mb-1">Icing</label>
                 <select
                   value={icing}
                   onChange={(e) => setIcing(e.target.value)}
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
+                  className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-rose-400 transition"
                 >
-                  {["Buttercream", "Fondant", "Whipped Cream", "Ganache"].map(
-                    (i) => (
-                      <option key={i}>{i}</option>
-                    )
-                  )}
+                  {Object.keys(icingPrices).map((i) => (
+                    <option key={i} value={i}>
+                      {i} (+GHS {icingPrices[i]})
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Toppings */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Extra Toppings
-                </label>
+                <label htmlFor="Extra Toppings" className="font-semibold text-slate-700 block mb-1">Extra Toppings</label>
                 <div className="flex flex-wrap gap-2">
-                  {[
-                    "Berries",
-                    "Oreos",
-                    "Sprinkles",
-                    "Nuts",
-                    "Chocolate Chips",
-                    "Candies",
-                  ].map((t) => (
+                  {Object.keys(toppingPrices).map((t) => (
                     <label
                       key={t}
-                      className={`flex items-center gap-2 px-4 py-3 border rounded-full cursor-pointer transition-colors ${
+                      className={`flex items-center gap-2 px-3 py-2 border rounded-full cursor-pointer transition-colors ${
                         toppings.includes(t)
                           ? "bg-rose-500 text-white border-rose-500"
                           : "border-slate-200 hover:bg-rose-50"
@@ -233,7 +239,7 @@ export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
                         onChange={() => toggleTopping(t)}
                         className="hidden"
                       />
-                      {t}
+                      {t} (+GHS {toppingPrices[t]})
                     </label>
                   ))}
                 </div>
@@ -241,28 +247,28 @@ export const CakeCustomizer: React.FC<CakeCustomizerProps> = ({
 
               {/* Notes */}
               <div>
-                <label className="font-semibold text-slate-700 block mb-2">
-                  Special Instructions
-                </label>
+                <label htmlFor="notes" className="font-semibold text-slate-700 block mb-1">Special Instructions</label>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   placeholder="e.g., Write a message, gluten-free, less sugar..."
-                  className="w-full px-4 py-3 border border-slate-300 rounded-xl focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors resize-none h-24"
+                  className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-rose-400 transition resize-none h-20"
                 />
+              </div>
+
+              {/* Total */}
+              <div className="text-right font-bold text-lg">
+                Total: GHS {totalPrice}
               </div>
             </div>
 
             {/* Add to Cart */}
-            <div className="mt-8 relative">
-              <button
-                disabled={loading}
-                onClick={handleAddToCart}
-                className="w-full py-4 rounded-full bg-rose-600 text-white font-bold text-lg shadow-md hover:bg-rose-700 transition disabled:opacity-50"
-              >
-                {loading ? "Adding..." : "Add to Cart"}
-              </button>
-            </div>
+            <button
+              className="w-full mt-6 py-3 rounded-full bg-rose-600 text-white font-bold hover:bg-rose-700 transition"
+              onClick={handleAddToCart}
+            >
+              Add to Cart
+            </button>
           </motion.div>
 
           {/* Toast */}

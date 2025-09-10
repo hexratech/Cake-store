@@ -5,15 +5,15 @@ import type { Product } from "@/api/index";
 interface ProductCardProps {
   product: Product;
   isWished: boolean;
-  onToggleWish: (id: string) => void;
-  onAddToCart: (p: Product) => void;
+  toggleWish: (id: string) => void;
+  addToCart: (p: Product) => void;
 }
 
 export const ProductCard: React.FC<ProductCardProps> = ({
   product,
   isWished,
-  onToggleWish,
-  onAddToCart,
+  toggleWish,
+  addToCart,
 }) => {
   return (
     <motion.article
@@ -24,16 +24,18 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       transition={{ duration: 0.6 }}
     >
       {/* Image + Wishlist */}
-      <div className="relative aspect-square">
+      {/* This div container is the key to consistent image sizing */}
+      <div className="relative w-full aspect-square overflow-hidden">
         <motion.img
           src={product.image}
           alt={product.name}
+          // The object-cover class ensures the image fills the container without stretching
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           whileHover={{ scale: 1.05 }}
         />
         <motion.button
-          className="absolute right-4 top-4 bg-white/90 p-2 rounded-full shadow-lg hover:bg-rose-100 transition"
-          onClick={() => onToggleWish(product._id)}
+          className="absolute right-3 top-3 bg-white/90 p-2 rounded-full shadow-lg hover:bg-rose-100 transition"
+          onClick={() => toggleWish(product._id)}
           aria-label="wishlist"
           whileTap={{ scale: 0.9 }}
         >
@@ -47,27 +49,27 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       </div>
 
       {/* Content */}
-      <div className="p-5 flex-1 flex flex-col">
-        <h3 className="font-bold text-xl text-slate-800">
+      <div className="p-4 flex-1 flex flex-col">
+        <h3 className="font-bold text-lg text-slate-800 line-clamp-1">
           {product.name}
         </h3>
-        <p className="text-sm text-slate-500 mt-2 flex-1">
+        <p className="text-sm text-slate-500 mt-1 flex-1 line-clamp-2">
           {product.description}
         </p>
 
         {/* Price + Add to Cart */}
-        <div className="mt-4 flex items-center justify-between gap-2">
-          <div className="text-xl font-bold text-rose-600">
+        <div className="mt-3 flex items-center justify-between gap-2">
+          <div className="text-lg font-bold text-rose-600">
             GHS {product.price.toFixed(2)}
           </div>
 
           <motion.button
-            onClick={() => onAddToCart(product)}
-            className="px-4 py-2 flex items-center gap-2 rounded-full bg-rose-600 text-white font-medium hover:bg-rose-700 transition-colors shadow-md"
+            onClick={() => addToCart(product)}
+            className="px-3 py-2 flex items-center gap-2 rounded-full bg-rose-600 text-white font-medium hover:bg-rose-700 transition-colors shadow-md text-sm"
             whileTap={{ scale: 0.95 }}
           >
             <ShoppingCart size={16} />
-            Add to Cart
+            Add
           </motion.button>
         </div>
       </div>
