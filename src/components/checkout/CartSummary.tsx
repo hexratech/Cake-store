@@ -1,5 +1,6 @@
+// src/pages/menu/components/CartSummary.tsx
 import React from "react";
-import { Trash2 } from "lucide-react";
+import { Trash2, Wand2 } from "lucide-react"; // Wand2 = customization icon
 import { useCart } from "@/hooks/useCart";
 import type { Cart, Product } from "@/api";
 
@@ -40,21 +41,27 @@ const CartSummary: React.FC<Props> = ({ cart, onProceed }) => {
               className={`flex items-center justify-between py-3 border-b last:border-b-0
                 ${isCustomized ? "bg-yellow-50" : ""}`}
             >
-              <img
-                src={
-                  product.image.startsWith("http")
-                    ? product.image
-                    : `${BACKEND_URL}${product.image}`
-                }
-                alt={product.name}
-                className="w-16 h-16 object-cover rounded-lg mr-4"
-              />
+              {isCustomized ? (
+                <div className="w-16 h-16 flex items-center justify-center rounded-lg bg-yellow-100 text-yellow-600 mr-4">
+                  <Wand2 size={28} />
+                </div>
+              ) : (
+                <img
+                  src={
+                    product.image.startsWith("http")
+                      ? product.image
+                      : `${BACKEND_URL}${product.image}`
+                  }
+                  alt={product.name}
+                  className="w-16 h-16 object-cover rounded-lg mr-4"
+                />
+              )}
 
               <div className="flex-1">
                 <p className="font-medium text-slate-800">{product.name}</p>
                 {isCustomized && (
                   <span className="text-xs text-yellow-700 font-semibold">
-                    Customized 🎂 (Card Payment Required)
+                    Customized
                   </span>
                 )}
 

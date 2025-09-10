@@ -1,3 +1,4 @@
+// src/App.tsx
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./admin/context/AuthProvider";
 import ProtectedRoute from "./admin/components/ProtectedRoute";

@@ -204,11 +204,12 @@ export const MenuPage: React.FC = () => {
               transition={{ duration: 0.6, delay: i * 0.1 }}
             >
               <div className="relative aspect-square">
-
-
-
                 <motion.img
-                  src={p.image}
+                  src={
+                    p.image && p.image.trim() !== ""
+                      ? p.image
+                      : "/placeholder.png"
+                  }
                   alt={p.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   whileHover={{ scale: 1.05 }}
@@ -311,7 +312,11 @@ export const MenuPage: React.FC = () => {
                       return (
                         <li key={product._id} className="flex items-center gap-4">
                           <img
-                            src={product.image}
+                            src={
+                              product.image && product.image.trim() !== ""
+                                ? product.image
+                                : "/placeholder.png"
+                            }
                             alt={product.name}
                             className="w-16 h-16 object-cover rounded-lg"
                           />

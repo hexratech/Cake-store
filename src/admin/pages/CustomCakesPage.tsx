@@ -1,3 +1,4 @@
+// src/components/CustomCakesPage.tsx
 import AdminLayout from "../components/AdminLayout";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -14,13 +15,13 @@ import {
 
 export type CustomCake = {
   _id: string;
-  customerName: string;
-  email: string;
-  phone: string;
-  flavor: string;
-  size: string;
-  design: string;
-  note: string;
+  customerName?: string;
+  email?: string;
+  phone?: string;
+  flavor?: string;
+  size?: string;
+  design?: string;
+  note?: string;
   status: "Requested" | "In Progress" | "Ready" | "Completed" | "Cancelled";
   createdAt: string;
 };
@@ -43,7 +44,6 @@ const CustomCakesPage = () => {
   const API_URL = import.meta.env.VITE_API_URL;
   const token = localStorage.getItem("adminToken");
 
-  // Fetch all custom cake requests
   const fetchCustomCakes = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/custom-cakes`, {
@@ -63,7 +63,6 @@ const CustomCakesPage = () => {
     fetchCustomCakes();
   }, [fetchCustomCakes]);
 
-  // Update status of a specific cake request
   const updateStatus = async (id: string, status: CustomCake["status"]) => {
     try {
       const res = await fetch(`${API_URL}/api/custom-cakes/${id}/status`, {
@@ -100,12 +99,19 @@ const CustomCakesPage = () => {
     }
   };
 
+  // ✅ Safe filtering (prevents crashes)
   const filteredCakes = customCakes.filter((cake) => {
+    const search = searchTerm.toLowerCase();
     const matchesSearch =
-      cake.customerName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      cake.flavor.toLowerCase().includes(searchTerm.toLowerCase());
+      (cake.customerName &&
+        cake.customerName.toLowerCase().includes(search)) ||
+      (cake.flavor && cake.flavor.toLowerCase().includes(search)) ||
+      (cake.design && cake.design.toLowerCase().includes(search)) ||
+      false;
+
     const matchesStatus =
       statusFilter === "All" || cake.status === statusFilter;
+
     return matchesSearch && matchesStatus;
   });
 
@@ -138,21 +144,24 @@ const CustomCakesPage = () => {
   return (
     <AdminLayout>
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">
             Custom Cake Requests
           </h1>
           <div className="flex gap-4 items-center">
+            {/* Search */}
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
               <input
                 type="text"
-                placeholder="Search by customer or flavor..."
+                placeholder="Search by customer, flavor or design..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="w-full md:w-64 pl-12 pr-4 py-3 rounded-xl border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
               />
             </div>
+            {/* Status Filter */}
             <div className="relative">
               <select
                 value={statusFilter}
@@ -171,7 +180,7 @@ const CustomCakesPage = () => {
           </div>
         </div>
 
-        {/* Kanban Board Layout */}
+        {/* Kanban Board */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-6">
           {STATUS_OPTIONS.map((status) => (
             <div
@@ -192,7 +201,7 @@ const CustomCakesPage = () => {
                     >
                       <div className="flex justify-between items-center mb-2">
                         <span className="font-semibold text-gray-900">
-                          {cake.customerName}
+                          {cake.customerName || "Unnamed Customer"}
                         </span>
                         <span
                           className={`text-xs font-bold px-2 py-1 rounded-full ${getStatusBadge(
@@ -203,10 +212,14 @@ const CustomCakesPage = () => {
                         </span>
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
-                        <span className="font-medium">Details:</span> {cake.flavor}, {cake.size}, {cake.design}
+                        <span className="font-medium">Details:</span>{" "}
+                        {cake.flavor || "Unknown Flavor"},{" "}
+                        {cake.size || "Unknown Size"},{" "}
+                        {cake.design || "No Design"}
                       </p>
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
-                        {cake.status !== "Completed" && cake.status !== "Cancelled" && (
+                        {cake.status !== "Completed" &&
+                          cake.status !== "Cancelled" && (
                             <div className="relative group">
                               <select
                                 value={cake.status}
@@ -226,7 +239,7 @@ const CustomCakesPage = () => {
                               </select>
                               <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
                             </div>
-                        )}
+                          )}
                         <button
                           onClick={() => setSelectedCake(cake)}
                           className="flex items-center gap-1 text-sm text-gray-600 px-3 py-2 rounded-lg bg-gray-50 hover:bg-gray-200 transition"
@@ -237,7 +250,8 @@ const CustomCakesPage = () => {
                       </div>
                     </div>
                   ))}
-                {filteredCakes.filter((c) => c.status === status).length === 0 && (
+                {filteredCakes.filter((c) => c.status === status).length ===
+                  0 && (
                   <div className="text-center text-gray-400 p-4 text-sm italic">
                     No requests in this status.
                   </div>
@@ -263,30 +277,31 @@ const CustomCakesPage = () => {
               <div className="space-y-4 text-gray-700">
                 <p>
                   <span className="font-semibold">Customer:</span>{" "}
-                  {selectedCake.customerName}
+                  {selectedCake.customerName || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Email:</span>{" "}
-                  {selectedCake.email}
+                  {selectedCake.email || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Phone:</span>{" "}
-                  {selectedCake.phone}
+                  {selectedCake.phone || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Flavor:</span>{" "}
-                  {selectedCake.flavor}
+                  {selectedCake.flavor || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Size:</span>{" "}
-                  {selectedCake.size}
+                  {selectedCake.size || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Design:</span>{" "}
-                  {selectedCake.design}
+                  {selectedCake.design || "N/A"}
                 </p>
                 <p>
-                  <span className="font-semibold">Note:</span> {selectedCake.note}
+                  <span className="font-semibold">Note:</span>{" "}
+                  {selectedCake.note || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Date:</span>{" "}
