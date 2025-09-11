@@ -92,17 +92,24 @@ export const MenuPage: React.FC = () => {
               className="h-10 w-auto rounded-md"
             />
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
-              {NAV_LINKS.map((link) =>
-                link.path.startsWith("/") ? (
+              {NAV_LINKS.map((link) => {
+                let to = link.path;
+                if (link.id === "products") to = "/#products";
+                if (link.id === "about") to = "/#about";
+                if (link.id === "contact") to = "/#contact";
+                if (["products", "about", "contact"].includes(link.id)) {
+                  return (
+                    <a key={link.id} href={to} className="hover:underline">
+                      {link.label}
+                    </a>
+                  );
+                }
+                return (
                   <Link key={link.id} to={link.path} className="hover:underline">
                     {link.label}
                   </Link>
-                ) : (
-                  <a key={link.id} href={link.path} className="hover:underline">
-                    {link.label}
-                  </a>
-                )
-              )}
+                );
+              })}
             </div>
           </div>
 
@@ -137,8 +144,24 @@ export const MenuPage: React.FC = () => {
               className="md:hidden bg-white border-t overflow-hidden"
             >
               <div className="px-6 py-4 flex flex-col gap-3">
-                {NAV_LINKS.map((link) =>
-                  link.path.startsWith("/") ? (
+                {NAV_LINKS.map((link) => {
+                  let to = link.path;
+                  if (link.id === "products") to = "/#products";
+                  if (link.id === "about") to = "/#about";
+                  if (link.id === "contact") to = "/#contact";
+                  if (["products", "about", "contact"].includes(link.id)) {
+                    return (
+                      <a
+                        key={link.id}
+                        href={to}
+                        className="py-2"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {link.label}
+                      </a>
+                    );
+                  }
+                  return (
                     <Link
                       key={link.id}
                       to={link.path}
@@ -147,17 +170,8 @@ export const MenuPage: React.FC = () => {
                     >
                       {link.label}
                     </Link>
-                  ) : (
-                    <a
-                      key={link.id}
-                      href={link.path}
-                      className="py-2"
-                      onClick={() => setMenuOpen(false)}
-                    >
-                      {link.label}
-                    </a>
-                  )
-                )}
+                  );
+                })}
               </div>
             </motion.div>
           )}

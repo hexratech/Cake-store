@@ -26,7 +26,7 @@ export default function CakeShop(): JSX.Element {
   const [reviews] = useState([
     { id: "1", name: "Newton", text: "Delicious cake and friendly service!", stars: 5 },
     { id: "2", name: "May", text: "Custom wedding cake was stunning.", stars: 5 },
-    { id: "3", name: "Spenzy", text: "Quick delivery but would like more flavor options.", stars: 4 },
+    { id: "3", name: "Fafa", text: "Quick delivery but would like more flavor options.", stars: 4 },
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
 

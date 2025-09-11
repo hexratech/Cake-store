@@ -4,8 +4,8 @@ import ProtectedRoute from "./admin/components/ProtectedRoute";
 import { CartProvider } from "./contexts/CartContext";
 
 // Frontend pages
-import Home from "./pages/Home";
-import { MenuPage } from "./pages/Menu";
+import Home from "./pages/home";
+import { MenuPage } from "./pages/menu";
 import CheckoutPage from "./pages/CheckoutPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 

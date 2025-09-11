@@ -1,8 +1,8 @@
 export const HERO_SLIDES = [
   {
     id: "h1",
-    title: "Handmade Cakes — Fresh Every Day",
-    subtitle: "Order online or visit our shop for custom designs.",
+    title: "Handmade Cakes Fresh Every Day",
+    subtitle: "Order online and get a discount.",
     image: "https://i.pinimg.com/736x/94/bb/df/94bbdf9a15b3822fab1bb287a0aadf9b.jpg",
   },
   {

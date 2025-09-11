@@ -84,7 +84,6 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
                       alt={`${selectedType}-${i}`}
                     />
                     <div className="absolute inset-0 bg-black bg-opacity-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
-                      <span className="text-white text-lg font-bold">View</span>
                     </div>
                   </div>
                 ))}

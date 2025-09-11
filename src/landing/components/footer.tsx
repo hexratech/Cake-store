@@ -29,7 +29,7 @@ export const FooterSection: React.FC = () => {
             className="h-14 w-auto rounded-xl shadow-lg"
           />
           <p className="text-sm text-rose-100 mt-4 leading-relaxed">
-            Handmade cakes & pastries from the heart of Accra. Crafted fresh, baked with love. 🎂
+            Handmade cakes & pastries from the heart of Accra. Taste like no other. 🎂
           </p>
           <div className="mt-6 flex items-center gap-5">
             <a
@@ -40,7 +40,7 @@ export const FooterSection: React.FC = () => {
               <Instagram className="w-5 h-5" />
             </a>
             <a
-              href="#"
+              href="https://snapchat.com/t/yFVelzpX"
               aria-label="Twitter"
               className="p-3 bg-white/20 rounded-full hover:bg-white hover:text-rose-600 transition-all duration-300 transform hover:scale-110"
             >
