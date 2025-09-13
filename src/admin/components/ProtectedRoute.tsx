@@ -1,12 +1,12 @@
+// src/components/ProtectedRoute.tsx
 import { Navigate, useLocation } from "react-router-dom";
 import type { ReactNode } from "react";
-import {jwtDecode } from "jwt-decode";
+import { jwtDecode } from "jwt-decode";
 
 interface ProtectedRouteProps {
   children: ReactNode;
   allowedRoles?: ("admin" | "superadmin")[]; // optional roles
 }
-
 
 interface AdminTokenPayload {
   id: string;
@@ -20,6 +20,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const location = useLocation();
 
   if (!token) {
+    console.warn("No token found. Redirecting to login.");
     return <Navigate to="/admin/login" replace state={{ from: location }} />;
   }
 
@@ -27,14 +28,26 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
     const decoded = jwtDecode<AdminTokenPayload>(token);
     const userRole = decoded.role;
 
-    if (allowedRoles && !allowedRoles.includes(userRole)) {
-      // redirect if user's role is not allowed
+    if (!userRole) {
+      console.warn("Token does not contain role. Redirecting to login.");
+      return <Navigate to="/admin/login" replace />;
+    }
+
+    // Case-insensitive role check
+    if (
+      allowedRoles &&
+      !allowedRoles.some(
+        (role) => role.toLowerCase() === userRole.toLowerCase()
+      )
+    ) {
+      console.warn(`Access denied for role: ${userRole}`);
       return <Navigate to="/admin" replace />;
     }
 
+    // User is allowed
     return <>{children}</>;
   } catch (err) {
-    console.error("Invalid token", err);
+    console.error("Invalid or expired token. Redirecting to login.", err);
     return <Navigate to="/admin/login" replace />;
   }
 };

@@ -1,4 +1,3 @@
-// src/components/CustomCakesPage.tsx
 import AdminLayout from "../components/AdminLayout";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -13,20 +12,50 @@ import {
   XCircle,
 } from "lucide-react";
 
-export type CustomCake = {
+// Status type
+type Status = "Requested" | "In Progress" | "Ready" | "Completed" | "Cancelled";
+
+// Backend response type for a custom cake
+type CustomCakeResponse = {
   _id: string;
-  customerName?: string;
-  email?: string;
-  phone?: string;
+  customerName: string;
+  email: string;
+  phone: string;
   flavor?: string;
   size?: string;
+  layers?: number;
+  icing?: string;
+  toppings?: string[];
   design?: string;
-  note?: string;
-  status: "Requested" | "In Progress" | "Ready" | "Completed" | "Cancelled";
+  designImage?: string;
+  notes?: string;
+  price?: number;
+  status: Status;
   createdAt: string;
 };
 
-const STATUS_OPTIONS: CustomCake["status"][] = [
+// Frontend CustomCake type used in state
+export type CustomCake = {
+  _id: string;
+  customerName: string;
+  email: string;
+  phone: string;
+  status: Status;
+  createdAt: string;
+  customDetails: {
+    base?: string;
+    size?: string;
+    layers?: number;
+    frosting?: string;
+    toppings?: string[];
+    design?: string;
+    designImage?: string;
+    note?: string;
+    estimatedPrice?: number;
+  };
+};
+
+const STATUS_OPTIONS: Status[] = [
   "Requested",
   "In Progress",
   "Ready",
@@ -38,20 +67,42 @@ const CustomCakesPage = () => {
   const [customCakes, setCustomCakes] = useState<CustomCake[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState<Status | "All">("All");
   const [selectedCake, setSelectedCake] = useState<CustomCake | null>(null);
 
-  const API_URL = import.meta.env.VITE_API_URL;
-  const token = localStorage.getItem("adminToken");
+  const API_URL = "http://localhost:5000";
+  const token = localStorage.getItem("adminToken") ?? "";
 
+  // Fetch all custom cakes
   const fetchCustomCakes = useCallback(async () => {
     try {
       const res = await fetch(`${API_URL}/api/custom-cakes`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       if (!res.ok) throw new Error("Failed to fetch custom cakes");
-      const data: CustomCake[] = await res.json();
-      setCustomCakes(data);
+      const data: CustomCakeResponse[] = await res.json();
+
+      const mappedCakes: CustomCake[] = data.map((cake) => ({
+        _id: cake._id,
+        customerName: cake.customerName,
+        email: cake.email,
+        phone: cake.phone,
+        status: cake.status,
+        createdAt: cake.createdAt,
+        customDetails: {
+          base: cake.flavor,
+          size: cake.size,
+          layers: cake.layers,
+          frosting: cake.icing,
+          toppings: cake.toppings,
+          design: cake.design,
+          designImage: cake.designImage,
+          note: cake.notes,
+          estimatedPrice: cake.price,
+        },
+      }));
+
+      setCustomCakes(mappedCakes);
     } catch (err) {
       console.error("Failed to load custom cakes", err);
     } finally {
@@ -63,9 +114,10 @@ const CustomCakesPage = () => {
     fetchCustomCakes();
   }, [fetchCustomCakes]);
 
-  const updateStatus = async (id: string, status: CustomCake["status"]) => {
+  // Update cake status
+  const updateStatus = async (cakeId: string, status: Status) => {
     try {
-      const res = await fetch(`${API_URL}/api/custom-cakes/${id}/status`, {
+      const res = await fetch(`${API_URL}/api/custom-cakes/${cakeId}/status`, {
         method: "PATCH",
         headers: {
           "Content-Type": "application/json",
@@ -74,17 +126,36 @@ const CustomCakesPage = () => {
         body: JSON.stringify({ status }),
       });
       if (!res.ok) throw new Error("Failed to update status");
-      const updated: CustomCake = await res.json();
+      const updated: CustomCakeResponse = await res.json();
+
       setCustomCakes((prev) =>
-        prev.map((cake) => (cake._id === id ? updated : cake))
+        prev.map((cake) =>
+          cake._id === updated._id
+            ? {
+                ...cake,
+                status: updated.status,
+                customDetails: {
+                  ...cake.customDetails,
+                  base: updated.flavor,
+                  size: updated.size,
+                  layers: updated.layers,
+                  frosting: updated.icing,
+                  toppings: updated.toppings,
+                  design: updated.design,
+                  designImage: updated.designImage,
+                  note: updated.notes,
+                  estimatedPrice: updated.price,
+                },
+              }
+            : cake
+        )
       );
     } catch (err) {
       console.error("Failed to update status", err);
-      alert("Failed to update status");
     }
   };
 
-  const getStatusBadge = (status: CustomCake["status"]) => {
+  const getStatusBadge = (status: Status) => {
     switch (status) {
       case "Requested":
         return "bg-yellow-100 text-yellow-800";
@@ -99,23 +170,7 @@ const CustomCakesPage = () => {
     }
   };
 
-  // ✅ Safe filtering (prevents crashes)
-  const filteredCakes = customCakes.filter((cake) => {
-    const search = searchTerm.toLowerCase();
-    const matchesSearch =
-      (cake.customerName &&
-        cake.customerName.toLowerCase().includes(search)) ||
-      (cake.flavor && cake.flavor.toLowerCase().includes(search)) ||
-      (cake.design && cake.design.toLowerCase().includes(search)) ||
-      false;
-
-    const matchesStatus =
-      statusFilter === "All" || cake.status === statusFilter;
-
-    return matchesSearch && matchesStatus;
-  });
-
-  const getStatusIcon = (status: CustomCake["status"]) => {
+  const getStatusIcon = (status: Status) => {
     switch (status) {
       case "Requested":
         return <Clock className="w-5 h-5 text-yellow-500" />;
@@ -127,10 +182,22 @@ const CustomCakesPage = () => {
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case "Cancelled":
         return <XCircle className="w-5 h-5 text-red-500" />;
-      default:
-        return null;
     }
   };
+
+  // Filter cakes by search term and status
+  const filteredCakes = customCakes.filter((cake) => {
+    const search = searchTerm.toLowerCase();
+    const matchesSearch =
+      cake.customerName.toLowerCase().includes(search) ||
+      cake.customDetails.base?.toLowerCase().includes(search) ||
+      cake.customDetails.design?.toLowerCase().includes(search);
+
+    const matchesStatus =
+      statusFilter === "All" || cake.status === statusFilter;
+
+    return matchesSearch && matchesStatus;
+  });
 
   if (loading)
     return (
@@ -144,7 +211,7 @@ const CustomCakesPage = () => {
   return (
     <AdminLayout>
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
-        {/* Header */}
+        {/* Header with search & filter */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">
             Custom Cake Requests
@@ -165,7 +232,9 @@ const CustomCakesPage = () => {
             <div className="relative">
               <select
                 value={statusFilter}
-                onChange={(e) => setStatusFilter(e.target.value)}
+                onChange={(e) =>
+                  setStatusFilter(e.target.value as Status | "All")
+                }
                 className="w-full md:w-48 appearance-none bg-white px-4 py-3 border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
               >
                 <option value="All">All Statuses</option>
@@ -213,9 +282,9 @@ const CustomCakesPage = () => {
                       </div>
                       <p className="text-sm text-gray-600 mb-2">
                         <span className="font-medium">Details:</span>{" "}
-                        {cake.flavor || "Unknown Flavor"},{" "}
-                        {cake.size || "Unknown Size"},{" "}
-                        {cake.design || "No Design"}
+                        {cake.customDetails.base || "Unknown Base"},{" "}
+                        {cake.customDetails.size || "Unknown Size"},{" "}
+                        {cake.customDetails.design || "No Design"}
                       </p>
                       <div className="flex items-center gap-2 mt-3 pt-3 border-t border-gray-100">
                         {cake.status !== "Completed" &&
@@ -226,7 +295,7 @@ const CustomCakesPage = () => {
                                 onChange={(e) =>
                                   updateStatus(
                                     cake._id,
-                                    e.target.value as CustomCake["status"]
+                                    e.target.value as Status
                                   )
                                 }
                                 className="w-full appearance-none bg-white px-4 py-2 text-sm rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
@@ -250,8 +319,7 @@ const CustomCakesPage = () => {
                       </div>
                     </div>
                   ))}
-                {filteredCakes.filter((c) => c.status === status).length ===
-                  0 && (
+                {filteredCakes.filter((c) => c.status === status).length === 0 && (
                   <div className="text-center text-gray-400 p-4 text-sm italic">
                     No requests in this status.
                   </div>
@@ -288,20 +356,32 @@ const CustomCakesPage = () => {
                   {selectedCake.phone || "N/A"}
                 </p>
                 <p>
-                  <span className="font-semibold">Flavor:</span>{" "}
-                  {selectedCake.flavor || "N/A"}
+                  <span className="font-semibold">Base:</span>{" "}
+                  {selectedCake.customDetails.base || "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Frosting:</span>{" "}
+                  {selectedCake.customDetails.frosting || "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Filling:</span>{" "}
+                  {selectedCake.customDetails.layers || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Size:</span>{" "}
-                  {selectedCake.size || "N/A"}
+                  {selectedCake.customDetails.size || "N/A"}
+                </p>
+                <p>
+                  <span className="font-semibold">Toppings:</span>{" "}
+                  {selectedCake.customDetails.toppings?.join(", ") || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Design:</span>{" "}
-                  {selectedCake.design || "N/A"}
+                  {selectedCake.customDetails.design || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Note:</span>{" "}
-                  {selectedCake.note || "N/A"}
+                  {selectedCake.customDetails.note || "N/A"}
                 </p>
                 <p>
                   <span className="font-semibold">Date:</span>{" "}

@@ -9,10 +9,14 @@ import { useCart } from "@/hooks/useCart";
 export const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { cart, addToCart, removeFromCart } = useCart();
+  const { cart, addToCart, removeFromCart, removeCustomCakeFromCart } = useCart();
 
-  const cartCount = cart.reduce((sum, i) => sum + i.quantity, 0);
-  const cartTotal = cart.reduce((sum, i) => sum + i.product.price * i.quantity, 0);
+  const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const cartTotal = cart.reduce((sum, item) => {
+    if (item.type === "product") return sum + item.product.price * item.quantity;
+    if (item.type === "custom") return sum + item.customCake.totalPrice * item.quantity;
+    return sum;
+  }, 0);
 
   return (
     <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
@@ -21,7 +25,7 @@ export const Navbar: React.FC = () => {
           <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
           <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
             {NAV_LINKS.map((link) =>
-              link.path?.startsWith("/") ? (
+              link.path.startsWith("/") ? (
                 <Link key={link.id} to={link.path} className="hover:underline">
                   {link.label}
                 </Link>
@@ -67,7 +71,7 @@ export const Navbar: React.FC = () => {
           >
             <div className="px-6 py-4 flex flex-col gap-3">
               {NAV_LINKS.map((link) =>
-                link.path?.startsWith("/") ? (
+                link.path.startsWith("/") ? (
                   <Link
                     key={link.id}
                     to={link.path}
@@ -92,7 +96,7 @@ export const Navbar: React.FC = () => {
         )}
       </AnimatePresence>
 
-      {/* CART POPUP */}
+      {/* Cart Popup */}
       <AnimatePresence>
         {isCartOpen && (
           <motion.div
@@ -126,33 +130,64 @@ export const Navbar: React.FC = () => {
               ) : (
                 <>
                   <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {cart.map(({ product, quantity }) => (
-                      <li key={product._id} className="flex items-center gap-4">
+                    {cart.map((item) => (
+                      <li
+                        key={item.type === "product" ? item.product._id : item.customCake.id}
+                        className="flex items-center gap-4"
+                      >
                         <img
-                          src={product.image}
-                          alt={product.name}
+                          src={
+                            item.type === "product"
+                              ? item.product.image || "/placeholder.png"
+                              : "/custom-placeholder.png"
+                          }
+                          alt={item.type === "product" ? item.product.name : "Custom Cake"}
                           className="w-16 h-16 object-cover rounded-lg"
                         />
                         <div className="flex-1">
-                          <h4 className="font-semibold">{product.name}</h4>
+                          <h4 className="font-semibold">
+                            {item.type === "product"
+                              ? item.product.name
+                              : `${item.customCake.flavor} Cake`}
+                          </h4>
                           <div className="text-sm text-slate-500">
-                            GHS {product.price}
+                            GHS{" "}
+                            {item.type === "product"
+                              ? item.product.price
+                              : item.customCake.totalPrice}
                           </div>
                         </div>
+
                         <div className="flex items-center gap-2">
-                          <button
-                            onClick={() => removeFromCart(product)}
-                            className="px-2 py-1 border rounded-lg hover:bg-slate-100"
-                          >
-                            -
-                          </button>
-                          <span className="w-6 text-center">{quantity}</span>
-                          <button
-                            onClick={() => addToCart(product)}
-                            className="px-2 py-1 border rounded-lg hover:bg-slate-100"
-                          >
-                            +
-                          </button>
+                          {item.type === "product" && (
+                            <>
+                              <button
+                                onClick={() => removeFromCart(item.product)}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center">{item.quantity}</span>
+                              <button
+                                onClick={() => addToCart(item.product)}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                +
+                              </button>
+                            </>
+                          )}
+
+                          {item.type === "custom" && (
+                            <>
+                              <button
+                                onClick={() => removeCustomCakeFromCart(item.customCake.id)}
+                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
+                              >
+                                -
+                              </button>
+                              <span className="w-6 text-center">{item.quantity}</span>
+                            </>
+                          )}
                         </div>
                       </li>
                     ))}

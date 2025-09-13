@@ -46,7 +46,7 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
   }, [products]);
 
   return (
-    <section id="products" className="mt-12 rounded-[2rem] shadow-2xl p-8 lg:p-12 bg-white">
+    <section id="products" className="mt-12 ">
       <h2 className="text-3xl font-extrabold text-slate-800 mb-6">Today's Treats</h2>
       <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {dailyProducts.map((p) => (

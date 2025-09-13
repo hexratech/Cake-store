@@ -32,52 +32,67 @@ const Dashboard = () => {
   const navigate = useNavigate();
 
   // State
-  const [products, setProducts] = useState<Product[]>([]);
-  const [customCakes, setCustomCakes] = useState<CustomCake[]>([]);
-  const [users, setUsers] = useState<User[]>([]);
+  const [products, setProducts] = useState<Product[] | null>(null);
+  const [customCakes, setCustomCakes] = useState<CustomCake[] | null>(null);
+  const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(true);
 
-  // Fetch Data
+  const token = localStorage.getItem("adminToken");
+
   useEffect(() => {
-    const token = localStorage.getItem("adminToken");
-    if (!token) return;
+    if (!token) {
+      console.error("No admin token found in localStorage");
+      setLoading(false);
+      return;
+    }
 
-    const fetchData = async () => {
+    // --- Fetch each independently ---
+    const fetchProducts = async () => {
       try {
-        const [productsRes, cakesRes, usersRes] = await Promise.all([
-          fetch(`${API_URL}/api/products`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch products");
-            return res.json();
-          }),
-
-          fetch(`${API_URL}/api/custom-cakes`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch custom cakes");
-            return res.json();
-          }),
-
-          fetch(`${API_URL}/api/users`, {
-            headers: { Authorization: `Bearer ${token}` },
-          }).then((res) => {
-            if (!res.ok) throw new Error("Failed to fetch users");
-            return res.json();
-          }),
-        ]);
-
-        setProducts(productsRes);
-        setCustomCakes(cakesRes);
-        setUsers(usersRes);
+        const res = await fetch(`${API_URL}/api/products`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch products");
+        const data: Product[] = await res.json();
+        setProducts(data || []);
       } catch (err) {
-        console.error("Failed to fetch dashboard data", err);
-      } finally {
-        setLoading(false);
+        console.error(err);
+        setProducts([]);
       }
     };
 
-    fetchData();
+    const fetchCustomCakes = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/custom-cakes`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch custom cakes");
+        const data: CustomCake[] = await res.json();
+        setCustomCakes(data || []);
+      } catch (err) {
+        console.error(err);
+        setCustomCakes([]);
+      }
+    };
+
+    const fetchUsers = async () => {
+      try {
+        const res = await fetch(`${API_URL}/api/users`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Failed to fetch users");
+        const data: User[] = await res.json();
+        setUsers(data || []);
+      } catch (err) {
+        console.error(err);
+        setUsers([]);
+      }
+    };
+
+    // Run all fetches concurrently
+    Promise.all([fetchProducts(), fetchCustomCakes(), fetchUsers()]).finally(() =>
+      setLoading(false)
+    );
   }, []);
 
   // Helpers
@@ -96,9 +111,8 @@ const Dashboard = () => {
     }
   };
 
-  const pendingCakes = customCakes.filter(
-    (cake) => cake.status === "Pending"
-  ).length;
+  const pendingCakes = customCakes?.filter((cake) => cake.status === "Pending")
+    .length;
 
   if (loading) {
     return (
@@ -127,7 +141,7 @@ const Dashboard = () => {
                 Products
               </span>
               <p className="text-4xl font-extrabold text-gray-800 mt-1">
-                {products.length}
+                {products?.length ?? 0}
               </p>
             </div>
             <div className="bg-rose-100 p-3 rounded-full text-rose-600">
@@ -142,7 +156,7 @@ const Dashboard = () => {
                 Custom Cakes
               </span>
               <p className="text-4xl font-extrabold text-gray-800 mt-1">
-                {customCakes.length}
+                {customCakes?.length ?? 0}
               </p>
             </div>
             <div className="bg-yellow-100 p-3 rounded-full text-yellow-600">
@@ -155,7 +169,7 @@ const Dashboard = () => {
             <div>
               <span className="text-gray-500 font-semibold text-sm">Users</span>
               <p className="text-4xl font-extrabold text-gray-800 mt-1">
-                {users.length}
+                {users?.length ?? 0}
               </p>
             </div>
             <div className="bg-blue-100 p-3 rounded-full text-blue-600">
@@ -178,7 +192,7 @@ const Dashboard = () => {
               </Link>
             </div>
             <div className="space-y-4">
-              {customCakes.length > 0 ? (
+              {customCakes && customCakes.length > 0 ? (
                 customCakes.slice(0, 4).map((cake) => (
                   <div
                     key={cake._id}
@@ -230,12 +244,12 @@ const Dashboard = () => {
                     Custom Cake Status
                   </p>
                   <p className="text-sm text-gray-500">
-                    {pendingCakes} pending requests
+                    {pendingCakes ?? 0} pending requests
                   </p>
                 </div>
                 <div className="flex items-center gap-1 text-sm text-gray-600">
                   <Clock className="w-4 h-4 text-yellow-500" />
-                  <span className="font-bold">{pendingCakes}</span>
+                  <span className="font-bold">{pendingCakes ?? 0}</span>
                   <span className="text-xs">Pending</span>
                 </div>
               </div>
@@ -246,7 +260,8 @@ const Dashboard = () => {
                   <Info className="w-5 h-5 text-rose-600" />
                   Low Stock Alerts
                 </h4>
-                {products.filter((p) => p.stock < 5).length > 0 ? (
+                {products &&
+                products.filter((p) => p.stock < 5).length > 0 ? (
                   <ul className="space-y-1 text-sm text-gray-600">
                     {products
                       .filter((p) => p.stock < 5)

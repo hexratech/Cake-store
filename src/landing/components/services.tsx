@@ -61,7 +61,7 @@ export const ServicesSection: React.FC = () => {
   return (
     <section
       id="services"
-      className="mt-16 px-6 sm:px-10 lg:px-20 py-16 bg-gradient from-white/50 to-white rounded-[3rem] shadow-xl"
+      className="mt-16 px-6 sm:px-10 lg:px-20 py-16 bg-gradient from-white/50 to-white "
     >
       {/* Heading */}
       <h3 className="text-2xl sm:text-4xl font-extrabold text-black mb-30 text-center">

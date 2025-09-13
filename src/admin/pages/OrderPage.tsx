@@ -28,7 +28,7 @@ const OrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
 
   const token = localStorage.getItem("adminToken");
-  const API_URL = import.meta.env.VITE_API_URL;
+  const API_URL = "http://localhost:5000";
 
   // Fetch orders from admin API
   const fetchOrders = useCallback(async () => {
@@ -55,7 +55,7 @@ const OrdersPage = () => {
   const updateOrderStatus = useCallback(
     async (id: string, newStatus: Order["status"]) => {
       try {
-        const res = await fetch(`${API_URL}/api/orders/${id}`, {
+        const res = await fetch(`${API_URL}/api/orders/${id}/status`, {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
@@ -223,7 +223,7 @@ const OrdersPage = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => alert(`Details for order ${order.orderId}`)}
+                          onClick={() => console.log(`Details for order ${order.orderId}`)}
                           className="text-sm px-3 py-1 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
                           title="View Details"
                         >

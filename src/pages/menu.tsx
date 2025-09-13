@@ -1,4 +1,5 @@
 // src/pages/menu/MenuPage.tsx
+
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Menu } from "lucide-react";
@@ -15,27 +16,13 @@ import { FooterSection } from "../landing/components/footer";
 import { fetchProducts, addFavorite, removeFavorite } from "../api";
 import type { Product } from "@/api/index";
 
-export type CartItem =
-  | { type: "product"; product: Product; quantity: number }
-  | {
-      type: "custom";
-      customCake: CustomCakeData & {
-        totalPrice: number;
-        id: string;
-        quantity: number;
-      };
-      quantity: number;
-    };
-
 export const MenuPage: React.FC = () => {
-  const { cart, addToCart, removeFromCart, cartCount } = useCart();
+  const { cart, addToCart, removeFromCart, cartCount, addCustomCakeToCart, removeCustomCakeFromCart } = useCart();
   const navigate = useNavigate();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
-  const [customCakes, setCustomCakes] = useState<
-    (CustomCakeData & { totalPrice: number; id: string; quantity: number })[]
-  >([]);
+
   const [showCustomizer, setShowCustomizer] = useState(false);
   const [showFilters, setShowFilters] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -46,10 +33,14 @@ export const MenuPage: React.FC = () => {
   // Fetch products
   useEffect(() => {
     setLoading(true);
-    fetchProducts()
+    fetchProducts(query)
       .then((data: Product[]) => {
-        const published = data.filter((p) => p.isPublished);
-        setProducts(published);
+        // ✅ The fix is to remove this line.
+        // const published = data.filter((p) => p.isPublished);
+        // setProducts(published);
+
+        // ✅ Instead, directly set the products from the API response.
+        setProducts(data);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
@@ -71,127 +62,16 @@ export const MenuPage: React.FC = () => {
     }
   };
 
-  // Calculate custom cake price dynamically
-  const calculateCustomCakePrice = (cake: CustomCakeData): number => {
-    let price = 50; // base price
-    switch (cake.size) {
-      case "8-inch":
-        price += 20;
-        break;
-      case "10-inch":
-        price += 40;
-        break;
-      case "12-inch":
-        price += 60;
-        break;
-    }
-    switch (cake.layers) {
-      case "Double":
-        price += 30;
-        break;
-      case "Triple":
-        price += 60;
-        break;
-    }
-    price += (cake.toppings?.length || 0) * 5;
-    return price;
-  };
-
   // Handle custom cake submission
   const handleSubmitCustomCake = (customCake: CustomCakeData) => {
-    const totalPrice = calculateCustomCakePrice(customCake);
-
-    setCustomCakes((prev) => {
-      // Check if same cake exists
-      const existingIndex = prev.findIndex(
-        (c) =>
-          c.flavor === customCake.flavor &&
-          c.size === customCake.size &&
-          c.layers === customCake.layers &&
-          JSON.stringify(c.toppings) === JSON.stringify(customCake.toppings)
-      );
-
-      if (existingIndex !== -1) {
-        const updated = [...prev];
-        updated[existingIndex].quantity += 1;
-        return updated;
-      }
-
-      return [
-        ...prev,
-        { ...customCake, totalPrice, id: `custom-${Date.now()}`, quantity: 1 },
-      ];
-    });
-
+    addCustomCakeToCart(customCake);
     setShowCustomizer(false);
   };
 
-  // Remove custom cake
-  const removeCustomCake = (id: string) => {
-    setCustomCakes((prev) => prev.filter((c) => c.id !== id));
-  };
-
-  // Cart items & total
-  const cartItems: CartItem[] = [
-    ...cart.map((i) => ({
-      type: "product" as const,
-      product: i.product,
-      quantity: i.quantity,
-    })),
-    ...customCakes.map((c) => ({
-      type: "custom" as const,
-      customCake: c,
-      quantity: c.quantity,
-    })),
-  ];
-
-  const cartTotal = cartItems.reduce((total, item) => {
-    if (item.type === "product")
-      return total + (item.product.price || 0) * item.quantity;
-    if (item.type === "custom")
-      return total + (item.customCake.totalPrice || 0) * item.quantity;
-    return total;
-  }, 0);
-
-  // Apply filters
+  // The handleApplyFilters function is also correct.
   const handleApplyFilters = (newQuery: string) => {
     setQuery(newQuery);
     setShowFilters(false);
-  };
-
-  // Checkout
-  const handleCheckout = async () => {
-    const userName = prompt("Enter your name:");
-    const userEmail = prompt("Enter your email:");
-    const userPhone = prompt("Enter your phone:");
-
-    if (!userName || !userEmail || !userPhone) {
-      alert("Please fill in all user details to proceed.");
-      return;
-    }
-
-    const payload = {
-      user: { name: userName, email: userEmail, phone: userPhone },
-      cart: cartItems,
-      total: cartTotal,
-    };
-
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/orders`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) throw new Error("Failed to create order");
-
-      alert("Order placed successfully!");
-      setCustomCakes([]);
-      navigate("/thank-you");
-    } catch (err) {
-      console.error(err);
-      alert("Failed to place order. Please try again.");
-    }
   };
 
   return (
@@ -200,19 +80,11 @@ export const MenuPage: React.FC = () => {
       <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <img
-              src="logo.png"
-              alt="3vivi bakery"
-              className="h-10 w-auto rounded-md"
-            />
+            <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.path.startsWith("/") ? (
-                  <Link
-                    key={link.id}
-                    to={link.path}
-                    className="hover:underline"
-                  >
+                  <Link key={link.id} to={link.path} className="hover:underline">
                     {link.label}
                   </Link>
                 ) : (
@@ -240,8 +112,7 @@ export const MenuPage: React.FC = () => {
               <ShoppingCart size={18} />
               <span className="sr-only">Cart</span>
               <span className="text-sm font-medium">
-                {cartCount +
-                  customCakes.reduce((sum, c) => sum + c.quantity, 0)}
+                {cartCount}
               </span>
             </button>
           </div>
@@ -294,20 +165,10 @@ export const MenuPage: React.FC = () => {
           className="text-center mb-10"
         >
           <h1 className="text-4xl font-extrabold text-slate-800">Our Menu</h1>
-          <p className="mt-2 text-slate-600">
-            Browse our collection or customize your own cake 🍰
-          </p>
-          {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0) >
-            0 && (
+          <p className="mt-2 text-slate-600">Browse our collection or customize your own cake 🍰</p>
+          {cartCount > 0 && (
             <div className="mt-3 inline-block px-4 py-2 rounded-lg bg-rose-100 text-rose-700 font-medium">
-              🛒{" "}
-              {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0)}{" "}
-              item
-              {cartCount + customCakes.reduce((sum, c) => sum + c.quantity, 0) >
-              1
-                ? "s"
-                : ""}{" "}
-              in cart
+              🛒 {cartCount} item{cartCount > 1 ? "s" : ""} in cart
             </div>
           )}
         </motion.div>
@@ -394,21 +255,13 @@ export const MenuPage: React.FC = () => {
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex justify-between items-center mb-4">
-                <h3 className="text-xl font-bold">
-                  Your Cart ({cartItems.length})
-                </h3>
-                <button
-                  onClick={() => setIsCartOpen(false)}
-                  aria-label="close cart"
-                >
-                  <X
-                    size={24}
-                    className="text-slate-500 hover:text-slate-800"
-                  />
+                <h3 className="text-xl font-bold">Your Cart ({cart.length})</h3>
+                <button onClick={() => setIsCartOpen(false)} aria-label="close cart">
+                  <X size={24} className="text-slate-500 hover:text-slate-800" />
                 </button>
               </div>
 
-              {cartItems.length === 0 ? (
+              {cart.length === 0 ? (
                 <div className="text-center text-slate-500 py-8">
                   <ShoppingCart size={48} className="mx-auto text-slate-300" />
                   <p className="mt-2">Your cart is empty.</p>
@@ -416,13 +269,9 @@ export const MenuPage: React.FC = () => {
               ) : (
                 <>
                   <ul className="space-y-4 pr-2">
-                    {cartItems.map((item) => (
+                    {cart.map((item) => (
                       <li
-                        key={
-                          item.type === "product"
-                            ? item.product._id
-                            : item.customCake.id
-                        }
+                        key={item.type === "product" ? item.product._id : item.customCake.id}
                         className="flex items-center gap-4"
                       >
                         <img
@@ -431,11 +280,7 @@ export const MenuPage: React.FC = () => {
                               ? item.product.image?.trim() || "/placeholder.png"
                               : "/custom-placeholder.png"
                           }
-                          alt={
-                            item.type === "product"
-                              ? item.product.name
-                              : "Custom Cake"
-                          }
+                          alt={item.type === "product" ? item.product.name : "Custom Cake"}
                           className="w-24 h-16 object-cover rounded-lg"
                         />
                         <div className="flex-1">
@@ -446,9 +291,7 @@ export const MenuPage: React.FC = () => {
                           </h4>
                           <div className="text-sm text-slate-500">
                             GHS{" "}
-                            {item.type === "product"
-                              ? item.product.price
-                              : item.customCake.totalPrice}
+                            {item.type === "product" ? item.product.price : item.customCake.totalPrice}
                           </div>
                         </div>
 
@@ -462,9 +305,7 @@ export const MenuPage: React.FC = () => {
                               >
                                 -
                               </button>
-                              <span className="w-6 text-center">
-                                {item.quantity}
-                              </span>
+                              <span className="w-6 text-center">{item.quantity}</span>
                               <button
                                 onClick={() => addToCart(item.product)}
                                 className="px-2 py-1 border rounded-lg hover:bg-slate-100"
@@ -477,38 +318,14 @@ export const MenuPage: React.FC = () => {
                           {item.type === "custom" && (
                             <>
                               <button
-                                onClick={() => {
-                                  if (item.customCake.quantity > 1) {
-                                    setCustomCakes((prev) =>
-                                      prev.map((c) =>
-                                        c.id === item.customCake.id
-                                          ? { ...c, quantity: c.quantity - 1 }
-                                          : c
-                                      )
-                                    );
-                                  } else removeCustomCake(item.customCake.id);
-                                }}
+                                onClick={() => removeCustomCakeFromCart(item.customCake.id)}
                                 className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                               >
                                 -
                               </button>
-                              <span className="w-6 text-center">
-                                {item.customCake.quantity}
-                              </span>
-                              <button
-                                onClick={() =>
-                                  setCustomCakes((prev) =>
-                                    prev.map((c) =>
-                                      c.id === item.customCake.id
-                                        ? { ...c, quantity: c.quantity + 1 }
-                                        : c
-                                    )
-                                  )
-                                }
-                                className="px-2 py-1 border rounded-lg hover:bg-slate-100"
-                              >
-                                +
-                              </button>
+                              <span className="w-6 text-center">{item.quantity}</span>
+                              {/* NOTE: You probably don't want to increment custom cake quantity */}
+                              {/* as a new custom cake has a unique ID and should be added as a new item */}
                             </>
                           )}
                         </div>
@@ -518,13 +335,18 @@ export const MenuPage: React.FC = () => {
 
                   <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
-                    <span>GHS {cartTotal.toFixed(2)}</span>
+                    <span>GHS {cart.reduce((total, item) => {
+                      if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
+                      if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
+                      return total;
+                    }, 0).toFixed(2)}</span>
                   </div>
 
+                  {/* Proceed to Checkout */}
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                      onClick={handleCheckout}
+                      onClick={() => navigate("/checkout")}
                     >
                       Proceed to Checkout
                     </button>

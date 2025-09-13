@@ -22,22 +22,20 @@ export default function CakeShop(): JSX.Element {
   const [selectedType, setSelectedType] = useState<string | null>("birthday");
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
   const [rating] = useState(4.6);
-  const navigate = useNavigate();
   const [reviews] = useState([
     { id: "1", name: "Newton", text: "Delicious cake and friendly service!", stars: 5 },
     { id: "2", name: "May", text: "Custom wedding cake was stunning.", stars: 5 },
     { id: "3", name: "Spenzy", text: "Quick delivery but would like more flavor options.", stars: 4 },
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
 
-  // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
         const data: Product[] = await res.json();
-        const published = data.filter((p) => p.isPublished);
-        setProducts(published);
+        setProducts(data.filter((p) => p.isPublished));
       } catch (err) {
         console.error("Failed to fetch products:", err);
       }
@@ -45,16 +43,16 @@ export default function CakeShop(): JSX.Element {
     fetchProducts();
   }, []);
 
-  function toggleWish(_id: string) {
+  const toggleWish = (_id: string) => {
     setWishList((w) => ({ ...w, [_id]: !w[_id] }));
-  }
+  };
 
-  const cartItems = cart.map(({ product, quantity }) => ({ product, quantity }));
-
-  const cartTotal = cartItems.reduce(
-    (total, item) => total + (item.product?.price || 0) * item.quantity,
-    0
-  );
+  // Calculate total
+  const cartTotal = cart.reduce((total, item) => {
+    if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
+    if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
+    return total;
+  }, 0);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
@@ -63,7 +61,6 @@ export default function CakeShop(): JSX.Element {
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
-
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
               {NAV_LINKS.map((link) =>
                 link.id === "menu" ? (
@@ -130,12 +127,7 @@ export default function CakeShop(): JSX.Element {
         <HeroSection />
         <div className="max-w-7xl mx-auto px-6 pb-16">
           <AboutSection selectedType={selectedType} setSelectedType={setSelectedType} />
-          <ProductsSection
-            products={products} // ✅ fixed: pass backend data
-            wishList={wishList}
-            addToCart={addToCart}
-            toggleWish={toggleWish}
-          />
+          <ProductsSection products={products} wishList={wishList} addToCart={addToCart} toggleWish={toggleWish} />
           <ServicesSection />
           <FaqSection />
           <ContactSection rating={rating} reviews={reviews} />
@@ -170,58 +162,63 @@ export default function CakeShop(): JSX.Element {
                 </button>
               </div>
 
-              {cartCount === 0 ? (
+              {cart.length === 0 ? (
                 <div className="text-center text-slate-500 py-8">
                   <ShoppingCart size={48} className="mx-auto text-slate-300" />
                   <p className="mt-2">Your cart is empty.</p>
                 </div>
               ) : (
-                <>
-                  <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
-                    {cartItems.map(({ product, quantity }) => (
-                      <li key={product._id} className="flex items-center gap-4">
-                        <img
-                          src={product.image}
-                          alt={product.name}
-                          className="w-16 h-16 object-cover rounded-lg"
-                        />
+                <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
+                  {cart.map((item) => {
+                    const name = item.type === "product" ? item.product.name : `${item.customCake.flavor} Cake`;
+                    const price = item.type === "product" ? item.product.price : item.customCake.totalPrice;
+                    const image = item.type === "product" ? item.product.image || "/placeholder.png" : "/custom-placeholder.png";
+
+                    return (
+                      <li key={item.type === "product" ? item.product._id : item.customCake.id} className="flex items-center gap-4">
+                        <img src={image} alt={name} className="w-16 h-16 object-cover rounded-lg" />
                         <div className="flex-1">
-                          <h4 className="font-semibold">{product.name}</h4>
-                          <div className="text-sm text-slate-500">GHS {product.price}</div>
+                          <h4 className="font-semibold">{name}</h4>
+                          <div className="text-sm text-slate-500">GHS {price}</div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
-                            onClick={() => removeFromCart(product)}
+                            onClick={() => {
+                              if (item.type === "product") removeFromCart(item.product);
+                              else removeFromCart(item.customCake as unknown as Product);
+                            }}
                             className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                           >
                             -
                           </button>
-                          <span className="w-6 text-center">{quantity}</span>
+                          <span className="w-6 text-center">{item.quantity}</span>
                           <button
-                            onClick={() => addToCart(product)}
+                            onClick={() => {
+                              if (item.type === "product") addToCart(item.product);
+                              else addToCart(item.customCake as unknown as Product);
+                            }}
                             className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                           >
                             +
                           </button>
                         </div>
                       </li>
-                    ))}
-                  </ul>
+                    );
+                  })}
+                </ul>
+              )}
 
-                  <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
-                    <span>Total:</span>
-                    <span>GHS {cartTotal.toFixed(2)}</span>
-                  </div>
-
-                  <div className="mt-6">
-                    <button
-                      className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                      onClick={() => navigate("/checkout")}
-                    >
-                      Proceed to Checkout
-                    </button>
-                  </div>
-                </>
+              {cart.length > 0 && (
+                <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
+                  <span>Total:</span>
+                  <span>GHS {cartTotal.toFixed(2)}</span>
+                  <button
+                    className="w-full mt-4 py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
+                    onClick={() => navigate("/checkout")}
+                  >
+                    Proceed to Checkout
+                  </button>
+                </div>
               )}
             </motion.div>
           </motion.div>

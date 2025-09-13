@@ -8,7 +8,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
   return (
     <section
       id="about"
-      className="mt-16 bg-gradient-to-br from-white-50 to-white-100 rounded-[3rem] shadow-2xl p-8 lg:p-12"
+      className="mt-16 bg-gradient-to-br from-white-50 to-white-100 "
     >
       <div className="flex flex-col gap-10">
         <div className="w-full">

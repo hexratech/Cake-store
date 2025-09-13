@@ -1,16 +1,16 @@
 import path from "path";
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
-import tailwindcss from 'tailwindcss';
-import autoprefixer from 'autoprefixer';
-import { tanstackRouter } from '@tanstack/router-plugin/vite';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "tailwindcss";
+import autoprefixer from "autoprefixer";
+import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
-// https://vite.dev/config/
+
 export default defineConfig({
   plugins: [
     react(),
     tanstackRouter({
-      target: 'react',
+      target: "react",
       autoCodeSplitting: true,
     }),
   ],
@@ -24,4 +24,21 @@ export default defineConfig({
       plugins: [tailwindcss, autoprefixer],
     },
   },
+  build: {
+    target: "esnext", // modern JS target
+    outDir: "dist",
+    sourcemap: false,
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes("node_modules")) {
+
+            return "vendor";
+          }
+        },
+      },
+    },
+    chunkSizeWarningLimit: 1000,
+  },
+  base: "/",
 });

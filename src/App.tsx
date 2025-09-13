@@ -2,12 +2,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./admin/context/AuthProvider";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
-import { CartProvider } from "./contexts/CartContext";
+import { CartProvider } from "./contexts/CartProvider";
 
 // Frontend pages
-import Home from "./pages/Home";
-import { MenuPage } from "./pages/Menu";
-import CheckoutPage from "./pages/CheckoutPage";
+import Home from "./pages/home";
+import { MenuPage } from "./pages/menu";
+import { CheckoutPage } from "./pages/CheckoutPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
 // Admin pages
@@ -23,6 +23,18 @@ import MessagesPage from "./admin/pages/MessagesPage";
 // ✅ Import the hook
 import { useKeepAlive } from "./hooks/useKeepAlive";
 
+// ✅ ScrollToTop component
+import { useEffect } from "react";
+import { useLocation } from "react-router-dom";
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
 function App() {
   // ✅ Activate keep-alive pings
   useKeepAlive();
@@ -31,6 +43,9 @@ function App() {
     <AuthProvider>
       <CartProvider>
         <Router>
+          {/* ✅ Scroll to top on every route change */}
+          <ScrollToTop />
+
           <Routes>
             {/* Customer Site */}
             <Route path="/" element={<Home />} />
