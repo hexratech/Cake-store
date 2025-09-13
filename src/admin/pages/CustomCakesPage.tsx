@@ -70,7 +70,7 @@ const CustomCakesPage = () => {
   const [statusFilter, setStatusFilter] = useState<Status | "All">("All");
   const [selectedCake, setSelectedCake] = useState<CustomCake | null>(null);
 
-  const API_URL = "http://localhost:5000";
+  const API_URL = import.meta.env.VITE_API_URL as string;
   const token = localStorage.getItem("adminToken") ?? "";
 
   // Fetch all custom cakes

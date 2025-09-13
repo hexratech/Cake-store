@@ -12,7 +12,7 @@ export const useKeepAlive = () => {
     }
 
     // Set the ping interval to 7 minutes (7 * 60 * 1000 milliseconds).
-    const intervalInMs = 7 * 60 * 1000;
+    const intervalInMs = 21 * 60 * 1000;
 
     const pingBackend = () => {
       // Use a lightweight endpoint to avoid unnecessary processing.

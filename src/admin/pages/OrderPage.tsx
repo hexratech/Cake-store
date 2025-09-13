@@ -28,7 +28,7 @@ const OrdersPage = () => {
   const [statusFilter, setStatusFilter] = useState("All");
 
   const token = localStorage.getItem("adminToken");
-  const API_URL = "http://localhost:5000";
+  const API_URL =  import.meta.env.VITE_API_URL as string;
 
   // Fetch orders from admin API
   const fetchOrders = useCallback(async () => {
