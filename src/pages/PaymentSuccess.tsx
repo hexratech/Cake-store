@@ -1,3 +1,4 @@
+// src/pages/payment/PaymentSuccess.tsx
 import React, { useEffect, useState } from "react";
 import { Link, useSearchParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -52,9 +53,11 @@ interface PaymentVerificationResponse {
   };
 }
 
-const API_URL = "https://cake-store-60hq.onrender.com";
+// ✅ Use env variable or fallback to Render backend
+const API_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://cake-store-60hq.onrender.com";
 
-// ✅ SVG Icons
 const CheckCircleIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-green-500 mx-auto">
     <path
@@ -100,7 +103,9 @@ const PaymentSuccess: React.FC = () => {
 
     const verifyPaymentAndSaveOrder = async () => {
       try {
-        const res = await axios.get<PaymentVerificationResponse>(`${API_URL}/api/payments/complete-order/${reference}`);
+        const res = await axios.get<PaymentVerificationResponse>(
+          `${API_URL}/api/payments/complete-order/${reference}`
+        );
 
         if (res.data.payment.status !== "success") {
           setVerificationStatus("failed");
