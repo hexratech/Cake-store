@@ -52,7 +52,7 @@ interface PaymentVerificationResponse {
   };
 }
 
-const API_URL = "http://localhost:5000";
+const API_URL = "https://cake-store-60hq.onrender.com";
 
 // ✅ SVG Icons
 const CheckCircleIcon = () => (
