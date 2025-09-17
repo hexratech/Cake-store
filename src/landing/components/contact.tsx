@@ -52,11 +52,11 @@ export const ContactSection: React.FC<{
         <div className="mt-6 text-sm text-slate-700 space-y-2">
           <div className="flex items-center gap-2">
             <Phone className="w-4 h-4 text-rose-600" />
-            <span>+233 24 000 0000</span>
+            <span>+233 24 881 2860</span>
           </div>
           <div className="flex items-center gap-2">
             <Mail className="w-4 h-4 text-rose-600" />
-            <span>info@3vivi-bakery.com</span>
+            <span>3vivibakery@gmail.com</span>
           </div>
         </div>
       </motion.div>
