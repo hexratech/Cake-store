@@ -48,6 +48,7 @@ export const Navbar: React.FC = () => {
           </button>
 
           <button
+            id="navbar-cart-icon"
             className="relative p-2 rounded-lg border flex items-center gap-2"
             aria-label="cart"
             onClick={() => setIsCartOpen(true)}

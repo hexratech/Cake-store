@@ -1,6 +1,7 @@
 import React from "react";
 import { motion } from "framer-motion";
 import { ShoppingCart, Heart } from "lucide-react";
+import { toast } from "sonner";
 import type { Product } from "@/api/index";
 
 interface ProductGridProps {
@@ -94,7 +95,17 @@ export const ProductGrid: React.FC<ProductGridProps> = ({
                     GHS {p.price.toFixed(2)}
                   </div>
                   <motion.button
-                    onClick={() => addToCart(p)}
+                    onClick={() => {
+                      addToCart(p);
+                      const cartIcon = document.getElementById('navbar-cart-icon');
+                      toast("Added to cart", {
+                        description: (
+                          <span className="text-slate-700">{p.name} has been added to your cart.</span>
+                        ),
+                        position: "top-right",
+                        ...(cartIcon ? { anchor: cartIcon } : {}),
+                      });
+                    }}
                     className="w-full sm:w-auto px-3 py-2 flex items-center justify-center gap-2 rounded-lg bg-rose-500 text-white text-sm hover:bg-rose-600 transition"
                     whileTap={{ scale: 0.95 }}
                   >

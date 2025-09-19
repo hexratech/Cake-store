@@ -55,13 +55,16 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
       (acc, t) => acc + (toppingPrices[t] || 0),
       0
     );
-    return (
+    // Base price is flavor + size + icing + toppings
+    const basePrice =
       (flavorPrices[flavor] || 0) +
       (sizePrices[size] || 0) +
-      (layerPrices[layers] || 0) +
       (icingPrices[icing] || 0) +
-      toppingsTotal
-    );
+      toppingsTotal;
+    let multiplier = 1;
+    if (layers === "Double") multiplier = 2;
+    if (layers === "Triple") multiplier = 3;
+    return basePrice * multiplier;
   }, [flavor, size, layers, icing, toppings]);
 
   const toggleTopping = (t: string) => {

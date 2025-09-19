@@ -1,6 +1,7 @@
 // src/components/landing/components/product-card.tsx
 import { Heart, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
+import { toast } from "sonner";
 import type { Product } from "@/api/index";
 
 type ProductCardProps = {
@@ -16,6 +17,17 @@ export const ProductCard: React.FC<ProductCardProps> = ({
   toggleWish,
   addToCart,
 }) => {
+  const handleAddToCart = (product: Product) => {
+    addToCart(product);
+    const cartIcon = document.getElementById('navbar-cart-icon');
+    toast("Added to cart", {
+      description: (
+        <span className="text-slate-700">{product.name} has been added to your cart.</span>),
+      position: "top-right",
+      ...(cartIcon ? { anchor: cartIcon } : {}),
+    });
+    
+  };
   return (
     <motion.article
       key={product._id}
@@ -52,7 +64,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Content */}
       <div className="p-3 flex-1 flex flex-col">
-        <h3 className="font-semibold text-base text-slate-800 line-clamp-1">
+  <h3 className="font-semibold text-sm sm:text-base text-slate-800 line-clamp-1">
           {product.name}
         </h3>
         <p className="text-sm text-slate-500 mt-1 flex-1 line-clamp-2">
@@ -65,7 +77,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
             GHS {product.price.toFixed(2)}
           </div>
           <motion.button
-            onClick={() => addToCart(product)}
+            onClick={() => handleAddToCart(product)}
             className="w-full sm:w-auto px-3 py-2 flex items-center justify-center gap-1 rounded-full bg-rose-500 text-white text-xs sm:text-sm hover:bg-rose-600 transition shadow-md"
             whileTap={{ scale: 0.95 }}
           >

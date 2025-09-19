@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./admin/context/AuthProvider";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
 import { CartProvider } from "./contexts/CartProvider";
+import { Toaster } from "./components/ui/sonner";
 
 // Frontend pages
 import Home from "./pages/home";
@@ -45,7 +46,7 @@ function App() {
         <Router>
           {/* ✅ Scroll to top on every route change */}
           <ScrollToTop />
-
+          <Toaster />
           <Routes>
             {/* Customer Site */}
             <Route path="/" element={<Home />} />
@@ -55,64 +56,15 @@ function App() {
 
             {/* Admin */}
             <Route path="/admin/login" element={<LoginPage />} />
-            <Route
-              path="/admin"
-              element={
-                <ProtectedRoute>
-                  <Dashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/orders"
-              element={
-                <ProtectedRoute>
-                  <OrderPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/custom-cakes"
-              element={
-                <ProtectedRoute>
-                  <CustomCakesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/products"
-              element={
-                <ProtectedRoute>
-                  <ProductsPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/messages"
-              element={
-                <ProtectedRoute>
-                  <MessagesPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/admin/users"
-              element={
-                <ProtectedRoute>
-                  <UsersPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/admin" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
+            <Route path="/admin/orders" element={<ProtectedRoute><OrderPage /></ProtectedRoute>} />
+            <Route path="/admin/custom-cakes" element={<ProtectedRoute><CustomCakesPage /></ProtectedRoute>} />
+            <Route path="/admin/products" element={<ProtectedRoute><ProductsPage /></ProtectedRoute>} />
+            <Route path="/admin/messages" element={<ProtectedRoute><MessagesPage /></ProtectedRoute>} />
+            <Route path="/admin/users" element={<ProtectedRoute><UsersPage /></ProtectedRoute>} />
 
             {/* Settings page only for superadmin */}
-            <Route
-              path="/admin/settings"
-              element={
-                <ProtectedRoute allowedRoles={["superadmin"]}>
-                  <SettingsPage />
-                </ProtectedRoute>
-              }
-            />
+            <Route path="/admin/settings" element={<ProtectedRoute allowedRoles={["superadmin"]}><SettingsPage /></ProtectedRoute>} />
           </Routes>
         </Router>
       </CartProvider>
