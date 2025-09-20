@@ -11,7 +11,7 @@ export const FaqSection: React.FC = () => {
     },
     {
       q: "What is your cancellation policy?",
-      a: "Orders canceled 72+ hours before pickup are eligible for a partial refund. Within 72 hours, cancellations are non-refundable.",
+      a: "Orders canceled 72+ hours before pickup are eligible for a partial refund. Within 72 hours, cancellations are non-refundable.Please read our full policy for more details.",
     },
     {
       q: "Do you offer tastings?",

@@ -50,7 +50,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
 
       {/* Content */}
       <div className="p-4 flex-1 flex flex-col">
-        <h3 className="font-bold text-lg text-slate-800 line-clamp-1">
+        <h3 className="font-semibold text-sm sm:text-base text-slate-800 line-clamp-1">
           {product.name}
         </h3>
         <p className="text-sm text-slate-500 mt-1 flex-1 line-clamp-2">

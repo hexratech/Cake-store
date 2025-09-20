@@ -83,7 +83,7 @@ export const ContactSection: React.FC<{
               />
             ))}
           </div>
-          <span className="text-sm text-slate-600">({reviews.length} reviews)</span>
+         
         </div>
 
         <div className="mt-6 space-y-4">

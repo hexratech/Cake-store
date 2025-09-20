@@ -47,13 +47,6 @@ export default function CakeShop(): JSX.Element {
     setWishList((w) => ({ ...w, [_id]: !w[_id] }));
   };
 
-  // Calculate total
-  const cartTotal = cart.reduce((total, item) => {
-    if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
-    if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
-    return total;
-  }, 0);
-
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
       {/* NAV */}
@@ -209,16 +202,27 @@ export default function CakeShop(): JSX.Element {
               )}
 
               {cart.length > 0 && (
-                <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
-                  <span>Total:</span>
-                  <span>GHS {cartTotal.toFixed(2)}</span>
-                  <button
-                    className="w-full mt-4 py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
-                    onClick={() => navigate("/checkout")}
-                  >
-                    Proceed to Checkout
-                  </button>
-                </div>
+                <>
+                  <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
+                    <span>Total:</span>
+                    <span>GHS {cart.reduce((total, item) => {
+                      if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
+                      if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
+                      return total;
+                    }, 0).toFixed(2)}</span>
+                  </div>
+
+                  {/* Proceed to Checkout */}
+
+                  <div className="mt-6">
+                    <button
+                      className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
+                      onClick={() => navigate("/checkout")}
+                    >
+                      Proceed to Checkout
+                    </button>
+                  </div>
+                </>
               )}
             </motion.div>
           </motion.div>

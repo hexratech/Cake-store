@@ -57,9 +57,9 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
     );
     // Base price is flavor + size + icing + toppings
     const basePrice =
-      (flavorPrices[flavor] || 0) +
+      Number(flavorPrices[flavor] || 0) +
       (sizePrices[size] || 0) +
-      (icingPrices[icing] || 0) +
+      Number(icingPrices[icing] || 0) +
       toppingsTotal;
     let multiplier = 1;
     if (layers === "Double") multiplier = 2;
@@ -134,7 +134,7 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
                 >
                   {Object.keys(flavorPrices).map((f) => (
                     <option key={f} value={f}>
-                      {f} (+GHS {flavorPrices[f]})
+                      {f}  {flavorPrices[f]}
                     </option>
                   ))}
                 </select>
@@ -188,7 +188,7 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
                 >
                   {Object.keys(icingPrices).map((i) => (
                     <option key={i} value={i}>
-                      {i} (+GHS {icingPrices[i]})
+                      {i}  {icingPrices[i]}
                     </option>
                   ))}
                 </select>

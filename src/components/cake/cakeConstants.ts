@@ -1,11 +1,11 @@
 // cakeConstants.ts
 
-export const flavorPrices: { [key: string]: number } = {
-    "Vanilla":0 ,
-    "Chocolate":0 ,
-    "Red Velvet":0 ,
-    "Strawberry":0 ,
-    "Lemon":0 ,
+export const flavorPrices: { [key: string]: string } = {
+    "Vanilla":"",
+    "Chocolate":"" ,
+    "Red Velvet":"" ,
+    "Strawberry":"" ,
+    "Lemon":"" ,
 };
 
 export const sizePrices: { [key: string]: number } = {
@@ -21,10 +21,10 @@ export const layerPrices: { [key: string]: string } = {
     "Triple":"times 3 of the price", 
 };
 
-export const icingPrices: { [key: string]: number } = {
-    "Buttercream":0,
-    "Fondant":0,
-    "Cream Cheese":0,
+export const icingPrices: { [key: string]: string } = {
+    "Buttercream":"",
+    "Fondant":"",
+    "Cream Cheese":"",
 };
 
 export const toppingPrices: { [key: string]: number } = {
