@@ -82,8 +82,46 @@ export const MenuPage: React.FC = () => {
           <div className="flex items-center gap-4">
             <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
             <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
-              {NAV_LINKS.map((link) =>
-                link.path.startsWith("/") ? (
+              {NAV_LINKS.map((link) => {
+                if (link.id === "contact") {
+                  return (
+                    <Link
+                      key={link.id}
+                      to="/"
+                      className="hover:underline"
+                      onClick={e => {
+                        e.preventDefault();
+                        navigate("/");
+                        setTimeout(() => {
+                          const section = document.getElementById("contact");
+                          if (section) section.scrollIntoView({ behavior: "smooth" });
+                        }, 100);
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                }
+                if (["about", "products"].includes(link.id)) {
+                  return (
+                    <Link
+                      key={link.id}
+                      to="/"
+                      className="hover:underline"
+                      onClick={e => {
+                        e.preventDefault();
+                        navigate("/");
+                        setTimeout(() => {
+                          const section = document.getElementById(link.id);
+                          if (section) section.scrollIntoView({ behavior: "smooth" });
+                        }, 100);
+                      }}
+                    >
+                      {link.label}
+                    </Link>
+                  );
+                }
+                return link.path.startsWith("/") ? (
                   <Link key={link.id} to={link.path} className="hover:underline">
                     {link.label}
                   </Link>
@@ -91,8 +129,8 @@ export const MenuPage: React.FC = () => {
                   <a key={link.id} href={link.path} className="hover:underline">
                     {link.label}
                   </a>
-                )
-              )}
+                );
+              })}
             </div>
           </div>
 
@@ -164,7 +202,7 @@ export const MenuPage: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl font-extrabold text-slate-800">Our Menu</h1>
+          <h1 className="text-4xl font-extrabold text-slate-800">Sweet Selections</h1>
           <p className="mt-2 text-slate-600">Browse our collection or customize your own cake 🍰</p>
           {cartCount > 0 && (
             <div className="mt-3 inline-block px-4 py-2 rounded-lg bg-rose-100 text-rose-700 font-medium">

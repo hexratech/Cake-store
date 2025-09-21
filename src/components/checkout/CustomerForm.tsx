@@ -9,19 +9,26 @@ export type CustomerData = {
   email: string;
   phone: string;
   address: string;
+  deliveryDate?: string;
+  deliveryTime?: string;
 };
 
 type CustomerFormProps = {
   onComplete: (data: CustomerData) => void;
+  initialValues?: CustomerData;
 };
 
-export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete }) => {
-  const [formData, setFormData] = useState<CustomerData>({
-    name: "",
-    email: "",
-    phone: "",
-    address: "",
-  });
+export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialValues }) => {
+  const [formData, setFormData] = useState<CustomerData>(
+    initialValues || {
+      name: "",
+      email: "",
+      phone: "",
+      address: "",
+      deliveryDate: "",
+      deliveryTime: "",
+    }
+  );
   const [error, setError] = useState<string | null>(null);
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,14 +69,26 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete }) => {
         <Input id="phone" name="phone" type="tel" value={formData.phone} onChange={handleChange} />
       </div>
 
+
       <div className="space-y-1">
         <Label htmlFor="email">Email <span className="text-rose-500">*</span></Label>
-        <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} />
+        <Input id="email" name="email" type="email" value={formData.email} onChange={handleChange} className="text-sm px-2 py-1 h-8" />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="address">Delivery Address <span className="text-rose-500">*</span></Label>
-        <Input id="address" name="address" value={formData.address} onChange={handleChange} />
+        <Input id="address" name="address" value={formData.address} onChange={handleChange} className="text-sm px-2 py-1 h-8" />
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="deliveryDate">Delivery Date <span className="text-rose-500">*</span></Label>
+        <Input id="deliveryDate" name="deliveryDate" type="date" className="text-sm px-2 py-1 h-8" value={formData.deliveryDate} onChange={handleChange} />
+      </div>
+
+      <div className="space-y-1">
+        <Label htmlFor="deliveryTime">Delivery Time <span className="text-rose-500">*</span></Label>
+        <Input id="deliveryTime" name="deliveryTime" type="time" min="08:00" max="17:00" className="text-sm px-2 py-1 h-8" value={formData.deliveryTime} onChange={handleChange}/>
+        <span className="text-xs text-slate-500">Delivery available between 8:00am and 5:00pm</span>
       </div>
 
       <button type="submit" className="w-full py-3 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition-colors">

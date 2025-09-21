@@ -36,7 +36,7 @@ export const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full object-cover object-center sm:object-center md:object-top"
+            className="absolute inset-0 w-full h-full object-cover object-center"
           />
         </AnimatePresence>
         {/* Dark overlay */}
@@ -50,7 +50,7 @@ export const HeroSection: React.FC = () => {
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.6 }}
-          className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-extrabold drop-shadow text-balance"
+          className="text-2xl sm:text-3xl md:text-5xl lg:text-6xl font-serif drop-shadow text-balance"
         >
           {HERO_SLIDES[slideIndex].title}
         </motion.h1>
@@ -59,7 +59,7 @@ export const HeroSection: React.FC = () => {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ duration: 0.8 }}
-          className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg max-w-xl mx-auto drop-shadow text-balance"
+          className="mt-3 sm:mt-4 text-sm sm:text-base md:text-lg italic max-w-xl mx-auto drop-shadow text-balance"
         >
           {HERO_SLIDES[slideIndex].subtitle}
         </motion.p>

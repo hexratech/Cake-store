@@ -13,7 +13,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
       <div className="flex flex-col gap-10">
         <div className="w-full">
           <h2 className="text-4xl font-extrabold text-black mb-4">Our Story 🍰</h2>
-          <p className="text-lg text-black leading-relaxed mb-8">
+          <p className="text-lg text-black leading-relaxed mb-8 font-sans">
             3vivi Bakery is a family-owned bakery where we believe every celebration deserves a centerpiece.
             We specialize in custom cakes, baked with passion and crafted from the finest{" "}
             <strong className="text-black">locally-sourced ingredients</strong>.

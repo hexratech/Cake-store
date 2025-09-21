@@ -1,11 +1,30 @@
 import { Star, Phone, Mail, Send } from "lucide-react";
 import { motion } from "framer-motion";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const ContactSection: React.FC<{
   rating: number;
   reviews: { id: string; name: string; text: string; stars: number }[];
 }> = ({ rating, reviews }) => {
   const totalStars = 5;
+  const [form, setForm] = useState({ name: "", contact: "", message: "" });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    // Simulate sending
+    setTimeout(() => {
+      setLoading(false);
+      toast.success("Message sent! You will hear from us soon.");   
+      setForm({ name: "", contact: "", message: "" });
+    }, 1500);
+  };
 
   return (
     <section
@@ -25,26 +44,44 @@ export const ContactSection: React.FC<{
           Have a question or custom order? Send us a message and we’ll reply within 24 hours.
         </p>
 
-        <form className="mt-6 space-y-4" onSubmit={(e) => e.preventDefault()}>
+        <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
           <input
+            name="name"
+            value={form.name}
+            onChange={handleChange}
             className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             placeholder="Your name"
+            required
           />
           <input
+            type="email"
+            name="contact"
+            value={form.contact}
+            onChange={handleChange}
             className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             placeholder="Email or phone"
+            required
           />
           <textarea
+            name="message"
+            value={form.message}
+            onChange={handleChange}
             className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             placeholder="Message"
             rows={4}
+            required
           />
           <button
             type="submit"
-            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition"
+            disabled={loading}
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl bg-rose-600 text-white font-semibold transition ${loading ? "opacity-60 cursor-not-allowed" : "hover:bg-rose-700"}`}
           >
-            <Send className="w-5 h-5" />
-            Send Message
+            {loading ? (
+              <span className="animate-spin mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
+            ) : (
+              <Send className="w-5 h-5" />
+            )}
+            {loading ? "Sending..." : "Send Message"}
           </button>
         </form>
 
@@ -109,7 +146,7 @@ export const ContactSection: React.FC<{
                   ))}
                 </div>
               </div>
-              <p className="mt-2 text-sm text-slate-600">{r.text}</p>
+              <p className="mt-2 text-sm text-slate-600 italic">{r.text}</p>
             </motion.div>
           ))}
         </div>

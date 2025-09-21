@@ -144,6 +144,7 @@ export const CheckoutPage: React.FC = () => {
                   exit={{ opacity: 0, y: -20 }}
                 >
                   <CustomerForm
+                    initialValues={customerData ?? undefined}
                     onComplete={(data) => {
                       setCustomerData(data);
                       setActiveSection("delivery");
@@ -157,6 +158,12 @@ export const CheckoutPage: React.FC = () => {
                     <p className="text-slate-600">Email: {customerData?.email}</p>
                     <p className="text-slate-600">Phone: {customerData?.phone}</p>
                     <p className="text-slate-600">Address: {customerData?.address}</p>
+                    {customerData?.deliveryDate && (
+                      <p className="text-slate-600">Delivery Date: {customerData.deliveryDate}</p>
+                    )}
+                    {customerData?.deliveryTime && (
+                      <p className="text-slate-600">Delivery Time: {customerData.deliveryTime}</p>
+                    )}
                   </motion.div>
                 )
               )}

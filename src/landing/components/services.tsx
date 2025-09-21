@@ -30,7 +30,7 @@ export const ServicesSection: React.FC = () => {
     {
       icon: <Truck className="w-6 h-6 text-rose-600" />,
       title: "Catering & Delivery",
-      desc: "We cater for birthdays, office events, and parties — with doorstep delivery available.",
+      desc: "We cater for birthdays, office events, and parties with doorstep delivery available.",
     },
   ];
 
@@ -45,9 +45,9 @@ export const ServicesSection: React.FC = () => {
       title: "Order Process",
       desc: (
         <ol className="text-sm text-slate-600 mt-2 list-decimal list-inside space-y-1">
-          <li>Choose a cake from our Products</li>
-          <li>Add to cart & select pickup or delivery</li>
-          <li>Pay with Momo (MTN/AT/Telcel) or Mastercard</li>
+          <li>Add cake to cart.</li>
+          <li>Proceed to checkout and fill in your details.</li>
+          <li>Place your order and make payment.</li>
         </ol>
       ),
     },
@@ -64,7 +64,7 @@ export const ServicesSection: React.FC = () => {
       className="mt-16 px-6 sm:px-10 lg:px-20 py-16  bg-gradient-to-b from-rose-50 to-white rounded-[2rem] shadow-xl "
     >
       {/* Heading */}
-      <h3 className="text-2xl sm:text-4xl font-extrabold text-black mb-30 text-center">
+      <h3 className="text-2xl sm:text-4xl font-extrabold text-black mb-30 text-center pb-8">
         Our Sweet Services <span className="text-center">🍰</span>
       </h3>
 
