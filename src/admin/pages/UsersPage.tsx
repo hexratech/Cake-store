@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, ChevronDown, User, Info, XCircle, Trash2, Edit } from "lucide-react";
+import { Search, ChevronDown, User,Users, Info, XCircle, Trash2, Edit } from "lucide-react";
 
 interface User {
   _id: string;
@@ -115,7 +115,10 @@ const UsersPage = () => {
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
         {/* Header & Filters */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Users</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <Users className="w-8 h-8 text-rose-600" />
+          Users
+        </h1>
           <div className="flex gap-4 items-center">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
