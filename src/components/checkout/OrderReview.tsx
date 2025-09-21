@@ -8,7 +8,7 @@ export const OrderReview: React.FC = () => {
 
   return (
     <div className="border rounded-2xl p-6 bg-white shadow-sm space-y-6">
-      <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">Review Your Order</h2>
+      <h2 className="text-xl  font-serif font-semibold text-slate-800 border-b pb-2">Review Your Order</h2>
 
       <div className="space-y-2">
         {cart.length === 0 ? (

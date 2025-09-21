@@ -20,7 +20,7 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({ selectedMethod
   return (
     <>
       <div className="border rounded-2xl p-6 bg-white shadow-sm space-y-5">
-        <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">Delivery Options</h2>
+        <h2 className="text-xl font-serif font-semibold text-slate-800 border-b pb-2">Delivery Options</h2>
 
         <div className="space-y-3">
           {/* Delivery */}
@@ -62,15 +62,16 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({ selectedMethod
       {/* Modal for Yango delivery info */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
-          <div className="bg-white rounded-2xl shadow-xl p-4 sm:p-8 w-full max-w-md mx-auto text-center relative">
-            <h3 className="text-lg sm:text-xl font-bold text-rose-600 mb-4">Delivery Information</h3>
-            <p className="text-slate-700 mb-6 text-sm sm:text-base">
+          <div className="bg-white rounded-2xl shadow-xl p-3 sm:p-8 w-full max-w-md mx-auto text-center relative"
+            style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+            <h3 className="text-base sm:text-xl font-bold text-rose-600 mb-4">Delivery Information</h3>
+            <p className="text-slate-700 mb-6 text-xs sm:text-base">
               We partner with Yango for all our delivery services. Please note that delivery 
               prices are subject to change due to factors like traffic, and are determined by Yango.
-               You'll pay for your delivery upon arrival at your location.
+              You'll pay for your delivery upon arrival at your location.
             </p>
             <button
-              className="mt-2 px-4 py-2 sm:px-6 sm:py-2 rounded-lg bg-rose-600 text-white font-semibold shadow hover:bg-rose-700 transition w-full sm:w-auto"
+              className="mt-2 px-3 py-2 sm:px-6 sm:py-2 rounded-lg bg-rose-600 text-white font-semibold shadow hover:bg-rose-700 transition w-full sm:w-auto"
               onClick={() => setShowModal(false)}
             >
               OK

@@ -24,9 +24,9 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-    <section className="relative text-center text-white overflow-hidden h-screen">
+  <section className="relative text-center text-white overflow-hidden min-h-screen w-full">
       {/* Background slides with overlay */}
-      <div className="absolute inset-0 w-full h-full">
+  <div className="absolute inset-0 w-full h-full min-h-screen">
         <AnimatePresence initial={false}>
           <motion.img
             key={HERO_SLIDES[slideIndex].id}
@@ -36,7 +36,8 @@ export const HeroSection: React.FC = () => {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
-            className="absolute inset-0 w-full h-full object-cover object-center"
+            className="absolute inset-0 w-full h-full min-h-screen object-cover object-center"
+            style={{ minHeight: '100vh', width: '100vw', maxWidth: '100%', maxHeight: '100vh' }}
           />
         </AnimatePresence>
         {/* Dark overlay */}
@@ -44,7 +45,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       {/* Content overlay (centered) */}
-      <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-6">
+        <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-6 min-h-screen w-full text-center">
         <motion.h1
           key={HERO_SLIDES[slideIndex].title}
           initial={{ y: -30, opacity: 0 }}

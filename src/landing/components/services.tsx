@@ -64,7 +64,7 @@ export const ServicesSection: React.FC = () => {
       className="mt-16 px-6 sm:px-10 lg:px-20 py-16  bg-gradient-to-b from-rose-50 to-white rounded-[2rem] shadow-xl "
     >
       {/* Heading */}
-      <h3 className="text-2xl sm:text-4xl font-extrabold text-black mb-30 text-center pb-8">
+      <h3 className="text-2xl sm:text-4xl font-serif  text-black mb-30 text-center pb-8">
         Our Sweet Services <span className="text-center">🍰</span>
       </h3>
 
@@ -88,7 +88,7 @@ export const ServicesSection: React.FC = () => {
       </div>
 
       {/* Procedure */}
-      <h4 className="text-2xl font-bold text-center text-black mb-8">How It Works 💡</h4>
+      <h4 className="text-2xl font-semibold font-sans text-center text-black mb-8">How It Works 💡</h4>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {process.map((p, i) => (

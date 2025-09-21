@@ -1,4 +1,3 @@
-// src/components/checkout/CartSummary.tsx
 import React from "react";
 import type { CartItem } from "@/contexts/CartContext";
 
@@ -9,7 +8,7 @@ type CartSummaryProps = {
 
 export const CartSummary: React.FC<CartSummaryProps> = ({ cart, cartTotal }) => (
   <div className="p-6 bg-white rounded-2xl shadow-lg border border-slate-200">
-    <h3 className="text-2xl font-bold text-slate-800 mb-4">Order Summary</h3>
+    <h3 className="text-2xl font-serif font-semibold text-slate-800 mb-4">Order Summary</h3>
 
     {cart.length === 0 ? (
       <p className="text-slate-500 text-center py-4">Your cart is empty.</p>

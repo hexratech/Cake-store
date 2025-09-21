@@ -30,7 +30,7 @@ export const FaqSection: React.FC = () => {
     >
       <div className="flex items-center justify-center gap-3 mb-10">
         <HelpCircle className="w-7 h-7 text-rose-600" />
-        <h3 className="text-3xl sm:text-4xl font-extrabold text-black">
+        <h3 className="text-3xl sm:text-4xl font-serif  text-black">
           Frequently Asked Questions
         </h3>
       </div>

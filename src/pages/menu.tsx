@@ -202,7 +202,7 @@ export const MenuPage: React.FC = () => {
           transition={{ duration: 0.6 }}
           className="text-center mb-10"
         >
-          <h1 className="text-4xl font-extrabold text-slate-800">Sweet Selections</h1>
+          <h1 className="text-4xl font-serif text-slate-800">Sweet Selections</h1>
           <p className="mt-2 text-slate-600">Browse our collection or customize your own cake 🍰</p>
           {cartCount > 0 && (
             <div className="mt-3 inline-block px-4 py-2 rounded-lg bg-rose-100 text-rose-700 font-medium">

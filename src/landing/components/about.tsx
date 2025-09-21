@@ -12,7 +12,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
     >
       <div className="flex flex-col gap-10">
         <div className="w-full">
-          <h2 className="text-4xl font-extrabold text-black mb-4">Our Story 🍰</h2>
+          <h2 className="text-4xl font-serif text-black mb-4">Our Story 🍰</h2>
           <p className="text-lg text-black leading-relaxed mb-8 font-sans">
             3vivi Bakery is a family-owned bakery where we believe every celebration deserves a centerpiece.
             We specialize in custom cakes, baked with passion and crafted from the finest{" "}
@@ -21,10 +21,10 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
           </p>
 
           <div className="mt-8">
-            <h3 className="text-2xl font-bold text-black mb-4">Our Cake Collections</h3>
+            <h3 className="text-2xl font-serif text-black mb-4">Our Cake Collections</h3>
 
             {/* Mobile Dropdown */}
-            <div className="sm:hidden mb-6">
+            <div className="sm:hidden mb-6 ">
               <select
                 onChange={(e) => setSelectedType(e.target.value || null)}
                 value={selectedType || ""}
@@ -55,7 +55,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
                 <button
                   key={t.key}
                   onClick={() => setSelectedType(t.key)}
-                  className={`px-6 py-3 rounded-full font-semibold transition-all duration-300 ease-in-out ${
+                  className={`px-6 py-3 rounded-full font-semibold font-serif transition-all duration-300 ease-in-out ${
                     selectedType === t.key
                       ? "bg-rose-600 text-white shadow-lg scale-105"
                       : "bg-rose-200 text-black hover:bg-rose-300"
@@ -67,7 +67,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
             </div>
 
             <div className="mt-6">
-              <h4 className="font-bold text-3xl text-black mb-4">
+              <h4 className=" font-serif text-3xl text-black mb-4">
                 {selectedType ? CAKE_TYPES.find((c) => c.key === selectedType)?.label : "All Cakes"}
               </h4>
 

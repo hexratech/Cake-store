@@ -39,7 +39,7 @@ export const ContactSection: React.FC<{
         viewport={{ once: true }}
         className="bg-gradient-to-b from-rose-50 to-white rounded-3xl p-8 shadow-lg"
       >
-        <h3 className="text-4xl font-extrabold text-black">Contact Us</h3>
+        <h3 className="text-4xl font-serif text-black">Contact Us</h3>
         <p className="text-sm text-slate-600 mt-2">
           Have a question or custom order? Send us a message and we’ll reply within 24 hours.
         </p>
@@ -106,10 +106,10 @@ export const ContactSection: React.FC<{
         viewport={{ once: true }}
         className="bg-gradient-to-b from-rose-50 to-white rounded-3xl p-8 shadow-lg"
       >
-        <h3 className="text-4xl font-extrabold text-black">Customer Reviews</h3>
+        <h3 className="text-4xl font-serif text-black">Customer Reviews</h3>
 
         <div className="flex items-center gap-4 mt-3">
-          <div className="text-4xl font-bold text-slate-800">{rating.toFixed(1)}</div>
+          <div className="text-4xl font-sans font-semibold text-slate-800">{rating.toFixed(1)}</div>
           <div className="flex">
             {Array.from({ length: totalStars }, (_, idx) => (
               <Star

@@ -56,7 +56,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
 
   return (
     <form onSubmit={handleSubmit} className="border rounded-2xl p-6 bg-white shadow-sm space-y-5">
-      <h2 className="text-xl font-semibold text-slate-800 border-b pb-2">Customer Information</h2>
+      <h2 className="text-xl font-serif font-semibold text-slate-800 border-b pb-2">Customer Information</h2>
       {error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded-lg">{error}</p>}
 
       <div className="space-y-1">
