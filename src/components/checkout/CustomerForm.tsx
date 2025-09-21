@@ -1,5 +1,6 @@
 // src/components/checkout/CustomerForm.tsx
 import React, { useState } from "react";
+import { toast } from "sonner";
 import type { FormEvent } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -34,6 +35,15 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "deliveryDate") {
+      const today = new Date();
+      const selectedDate = new Date(value);
+      const diffDays = Math.floor((selectedDate.getTime() - today.setHours(0,0,0,0)) / (1000 * 60 * 60 * 24));
+      if (diffDays === 0 || diffDays === 1) {
+        toast("Extra fee will be paid for quick service");
+      }
+    }
   };
 
   const handleSubmit = (e: FormEvent) => {
@@ -82,13 +92,13 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
 
       <div className="space-y-1">
         <Label htmlFor="deliveryDate">Delivery Date <span className="text-rose-500">*</span></Label>
-        <Input id="deliveryDate" name="deliveryDate" type="date" className="text-sm px-2 py-1 h-8" value={formData.deliveryDate} onChange={handleChange} />
+  <Input id="deliveryDate" name="deliveryDate" type="date" className="text-sm px-2 py-1 h-8" value={formData.deliveryDate} onChange={handleChange} min={new Date().toISOString().split('T')[0]} />
       </div>
 
       <div className="space-y-1">
         <Label htmlFor="deliveryTime">Delivery Time <span className="text-rose-500">*</span></Label>
         <Input id="deliveryTime" name="deliveryTime" type="time" min="08:00" max="17:00" className="text-sm px-2 py-1 h-8" value={formData.deliveryTime} onChange={handleChange}/>
-        <span className="text-xs text-slate-500">Delivery available between 8:00am and 5:00pm</span>
+        <span className="text-xs text-slate-500">Get your deliveries between 8:00am and 5:00pm</span>
       </div>
 
       <button type="submit" className="w-full py-3 rounded-xl bg-rose-600 text-white font-semibold hover:bg-rose-700 transition-colors">

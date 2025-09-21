@@ -62,8 +62,8 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({ selectedMethod
       {/* Modal for Yango delivery info */}
       {showModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-2">
-          <div className="bg-white rounded-2xl shadow-xl p-3 sm:p-8 w-full max-w-md mx-auto text-center relative"
-            style={{ maxHeight: '90vh', overflowY: 'auto' }}>
+          <div className="bg-white rounded-2xl shadow-xl p-2 sm:p-8 w-[95vw] max-w-xs sm:max-w-md mx-auto text-center relative"
+            style={{ maxHeight: '60vh', overflowY: 'auto' }}>
             <h3 className="text-base sm:text-xl font-bold text-rose-600 mb-4">Delivery Information</h3>
             <p className="text-slate-700 mb-6 text-xs sm:text-base">
               We partner with Yango for all our delivery services. Please note that delivery 

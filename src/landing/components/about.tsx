@@ -14,14 +14,18 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
         <div className="w-full">
           <h2 className="text-4xl font-serif text-black mb-4">Our Story 🍰</h2>
           <p className="text-lg text-black leading-relaxed mb-8 font-sans">
-            3vivi Bakery is a family-owned bakery where we believe every celebration deserves a centerpiece.
-            We specialize in custom cakes, baked with passion and crafted from the finest{" "}
-            <strong className="text-black">locally-sourced ingredients</strong>.
-            Our goal is to create not just a cake, but a memorable experience that brings people together.
+            <span className="text-black font-mono font-semibold">3vivi Bakery </span>is a family-owned bakery where we believe every celebration deserves
+             a centerpiece. We specialize in custom cakes, baked with passion and crafted from the
+              finest locally-sourced ingredients. Our goal is to create not just a cake, but a 
+              memorable experience that brings people together.
+              From elegant wedding tiers to whimsical birthday creations, we work closely with 
+             you to design a cake that perfectly captures the spirit of your event and reflects your personal
+                story. We take pride in our artistry, ensuring each detail is meticulously handcrafted, because for
+           us, every slice is a promise of a beautiful memory.
           </p>
 
           <div className="mt-8">
-            <h3 className="text-2xl font-serif text-black mb-4">Our Cake Collections</h3>
+            <h3 className="text-3xl font-serif text-black mb-4">Our Cake Collections</h3>
 
             {/* Mobile Dropdown */}
             <div className="sm:hidden mb-6 ">
@@ -67,7 +71,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
             </div>
 
             <div className="mt-6">
-              <h4 className=" font-serif text-3xl text-black mb-4">
+              <h4 className=" font-serif text-center shadow-orange-100 text-3xl text-black mb-4">
                 {selectedType ? CAKE_TYPES.find((c) => c.key === selectedType)?.label : "All Cakes"}
               </h4>
 
