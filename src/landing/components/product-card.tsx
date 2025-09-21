@@ -1,7 +1,7 @@
 // src/components/landing/components/product-card.tsx
 import { Heart, ShoppingCart } from "lucide-react";
 import { motion } from "framer-motion";
-import { toast } from "sonner";
+import {toast} from "sonner";
 import type { Product } from "@/api/index";
 
 type ProductCardProps = {
@@ -26,7 +26,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({
       position: "top-right",
       ...(cartIcon ? { anchor: cartIcon } : {}),
     });
-    
+
   };
   return (
     <motion.article

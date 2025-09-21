@@ -5,7 +5,6 @@ import tailwindcss from "tailwindcss";
 import autoprefixer from "autoprefixer";
 import { tanstackRouter } from "@tanstack/router-plugin/vite";
 
-
 export default defineConfig({
   plugins: [
     react(),
@@ -25,14 +24,13 @@ export default defineConfig({
     },
   },
   build: {
-    target: "esnext", // modern JS target
+    target: "esnext",
     outDir: "dist",
     sourcemap: false,
     rollupOptions: {
       output: {
         manualChunks(id) {
           if (id.includes("node_modules")) {
-
             return "vendor";
           }
         },
@@ -40,5 +38,5 @@ export default defineConfig({
     },
     chunkSizeWarningLimit: 1000,
   },
-  base: "/",
+  base: "/", // SPA routing works correctly on Vercel
 });

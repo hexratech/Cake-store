@@ -4,13 +4,15 @@ import {
   LogOut,
   Settings,
   Users,
-  BarChart,
+  Activity,
   ShoppingCart,
-  Cake,
+  Clipboard,
   Package,
   Mail,
   Menu,
   X,
+  Truck,
+  Cake,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -20,9 +22,11 @@ interface AdminLayoutProps {
 }
 
 const navItems = [
-  { name: "Dashboard", path: "/admin", icon: BarChart },
+  { name: "Dashboard", path: "/admin", icon: Activity },
+  { name: "Custom Cakes", path: "/admin/customcakes", icon: Cake},
   { name: "Orders", path: "/admin/orders", icon: ShoppingCart },
-  { name: "Custom Cakes", path: "/admin/custom-cakes", icon: Cake },
+  { name: "Order Status", path: "/admin/orderstatus", icon: Clipboard },
+  { name: "Delivery Status", path: "/admin/deliverystatus", icon: Truck},
   { name: "Products", path: "/admin/products", icon: Package },
   { name: "Messages", path: "/admin/messages", icon: Mail },
   { name: "Users", path: "/admin/users", icon: Users },

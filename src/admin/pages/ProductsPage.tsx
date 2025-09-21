@@ -9,6 +9,7 @@ import {
   Star,
   Package,
   ChevronDown,
+  Box as ProductIcon,
 } from "lucide-react";
 import AdminLayout from "@/admin/components/AdminLayout";
 
@@ -234,9 +235,10 @@ const ProductsPage = () => {
     <AdminLayout>
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">
-            Products
-          </h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <ProductIcon className="w-8 h-8 text-rose-600" />
+          Products
+        </h1>
           <button
             onClick={() => openModal(null)}
             className="flex items-center gap-2 px-6 py-3 bg-rose-600 text-white rounded-xl shadow-lg hover:bg-rose-700 transition transform hover:scale-105"

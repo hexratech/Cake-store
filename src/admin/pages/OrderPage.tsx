@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, ChevronDown, CheckCircle, Package, Truck, XCircle, Info } from "lucide-react";
+import { Search, ChevronDown, CheckCircle, Package, ShoppingCart, Truck, XCircle, Info } from "lucide-react";
+import OrderDetailsModal from "../components/OrderDetailsModal"; // import the modal
 
 interface OrderItem {
   name: string;
@@ -18,6 +19,8 @@ interface Order {
   status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
   createdAt: string;
   items: OrderItem[];
+  deliveryOption?: string;
+  type?: "Normal" | "CustomCake";
 }
 
 const OrdersPage = () => {
@@ -27,10 +30,12 @@ const OrdersPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
 
-  const token = localStorage.getItem("adminToken");
-  const API_URL =  import.meta.env.VITE_API_URL as string;
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // modal state
 
-  // Fetch orders from admin API
+  const token = localStorage.getItem("adminToken");
+  const API_URL = import.meta.env.VITE_API_URL as string;
+
+  // Fetch orders
   const fetchOrders = useCallback(async () => {
     setLoading(true);
     setError("");
@@ -51,7 +56,7 @@ const OrdersPage = () => {
     }
   }, [token, API_URL]);
 
-  // Update order status using admin API
+  // Update order status
   const updateOrderStatus = useCallback(
     async (id: string, newStatus: Order["status"]) => {
       try {
@@ -127,7 +132,10 @@ const OrdersPage = () => {
     <AdminLayout>
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
-          <h1 className="text-3xl font-bold text-gray-800 mb-4 sm:mb-0">Orders</h1>
+          <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
+          <ShoppingCart className="w-8 h-8 text-rose-600" />
+          Orders
+        </h1>
           <div className="flex gap-4 items-center">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -223,7 +231,7 @@ const OrdersPage = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => console.log(`Details for order ${order.orderId}`)}
+                          onClick={() => setSelectedOrder(order)} // open modal
                           className="text-sm px-3 py-1 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
                           title="View Details"
                         >
@@ -236,6 +244,14 @@ const OrdersPage = () => {
               </tbody>
             </table>
           </div>
+        )}
+
+        {/* Render the modal */}
+        {selectedOrder && (
+          <OrderDetailsModal
+            order={selectedOrder}
+            onClose={() => setSelectedOrder(null)}
+          />
         )}
       </div>
     </AdminLayout>

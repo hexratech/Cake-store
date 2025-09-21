@@ -18,6 +18,8 @@ export type CustomCakeData = {
   layers: string;
   icing: string;
   toppings: string[];
+  note?: string;
+  design?: string;
   designImage?: string;
   totalPrice: number;
 };
@@ -36,6 +38,8 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
   const [icing, setIcing] = useState("Buttercream");
   const [toppings, setToppings] = useState<string[]>([]);
   const [designImage, setDesignImage] = useState<File | null>(null);
+  const [note, setNote] = useState("");
+  const [design, setDesign] = useState("");
   const [showToast, setShowToast] = useState(false);
 
   const designImageUrl = useMemo(
@@ -83,6 +87,8 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
       toppings,
       totalPrice,
       designImage: designImageUrl,
+      note,
+      design,
     };
 
     onSubmit(customCake);
@@ -219,6 +225,33 @@ export const CakeCustomizer: React.FC<Props> = ({ isOpen, onClose, onSubmit }) =
                     </label>
                   ))}
                 </div>
+              </div>
+
+              {/* Note */}
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">
+                  Note (Optional)
+                </label>
+                <textarea
+                  value={note}
+                  onChange={(e) => setNote(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-xl"
+                  placeholder="Any special instructions"
+                />
+              </div>
+
+              {/* Design Text */}
+              <div>
+                <label className="font-semibold text-slate-700 block mb-1">
+                  Design Description (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={design}
+                  onChange={(e) => setDesign(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-xl"
+                  placeholder="Describe your cake design"
+                />
               </div>
 
               {/* Optional Image Upload */}

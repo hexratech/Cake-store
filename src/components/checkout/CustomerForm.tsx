@@ -1,6 +1,6 @@
 // src/components/checkout/CustomerForm.tsx
 import React, { useState } from "react";
-import { toast } from "sonner";
+import { toast} from "sonner";
 import type { FormEvent } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
