@@ -11,19 +11,33 @@ export const ContactSection: React.FC<{
   const [form, setForm] = useState({ name: "", contact: "", message: "" });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    // Simulate sending
-    setTimeout(() => {
-      setLoading(false);
-      toast.success("Message sent! You will hear from us soon.");   
+
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
+
+      if (!res.ok) throw new Error("Failed to send message");
+
+      toast.success("Message sent! You will hear from us soon.");
       setForm({ name: "", contact: "", message: "" });
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -41,7 +55,8 @@ export const ContactSection: React.FC<{
       >
         <h3 className="text-4xl font-serif text-black">Contact Us</h3>
         <p className="text-sm text-slate-600 mt-2">
-          Have a question or custom order? Send us a message and we’ll reply within 24 hours.
+          Have a question or custom order? Send us a message and we’ll reply
+          within 24 hours.
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
@@ -54,7 +69,7 @@ export const ContactSection: React.FC<{
             required
           />
           <input
-            type="email"
+            type="text"
             name="contact"
             value={form.contact}
             onChange={handleChange}
@@ -74,7 +89,9 @@ export const ContactSection: React.FC<{
           <button
             type="submit"
             disabled={loading}
-            className={`flex items-center gap-2 px-5 py-3 rounded-xl bg-rose-600 text-white font-semibold transition ${loading ? "opacity-60 cursor-not-allowed" : "hover:bg-rose-700"}`}
+            className={`flex items-center gap-2 px-5 py-3 rounded-xl bg-rose-600 text-white font-semibold transition ${
+              loading ? "opacity-60 cursor-not-allowed" : "hover:bg-rose-700"
+            }`}
           >
             {loading ? (
               <span className="animate-spin mr-2 w-5 h-5 border-2 border-white border-t-transparent rounded-full"></span>
@@ -87,14 +104,20 @@ export const ContactSection: React.FC<{
 
         {/* Quick Contact Info */}
         <div className="mt-6 text-sm text-slate-700 space-y-2">
-          <div className="flex items-center gap-2">
+          <a
+            href="tel:+233248812860"
+            className="flex items-center gap-2 hover:text-rose-600 transition"
+          >
             <Phone className="w-4 h-4 text-rose-600" />
             <span>+233 24 881 2860</span>
-          </div>
-          <div className="flex items-center gap-2">
+          </a>
+          <a
+            href="mailto:3vivibakery@gmail.com"
+            className="flex items-center gap-2 hover:text-rose-600 transition"
+          >
             <Mail className="w-4 h-4 text-rose-600" />
             <span>3vivibakery@gmail.com</span>
-          </div>
+          </a>
         </div>
       </motion.div>
 
@@ -109,18 +132,21 @@ export const ContactSection: React.FC<{
         <h3 className="text-4xl font-serif text-black">Customer Reviews</h3>
 
         <div className="flex items-center gap-4 mt-3">
-          <div className="text-4xl font-sans font-semibold text-slate-800">{rating.toFixed(1)}</div>
+          <div className="text-4xl font-sans font-semibold text-slate-800">
+            {rating.toFixed(1)}
+          </div>
           <div className="flex">
             {Array.from({ length: totalStars }, (_, idx) => (
               <Star
                 key={idx}
                 className={`w-6 h-6 ${
-                  idx < Math.round(rating) ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
+                  idx < Math.round(rating)
+                    ? "text-yellow-400 fill-yellow-400"
+                    : "text-slate-300"
                 }`}
               />
             ))}
           </div>
-         
         </div>
 
         <div className="mt-6 space-y-4">
@@ -140,7 +166,9 @@ export const ContactSection: React.FC<{
                     <Star
                       key={starIdx}
                       className={`w-4 h-4 ${
-                        starIdx < r.stars ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
+                        starIdx < r.stars
+                          ? "text-yellow-400 fill-yellow-400"
+                          : "text-slate-300"
                       }`}
                     />
                   ))}

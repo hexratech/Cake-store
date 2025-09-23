@@ -1,9 +1,7 @@
-// src/pages/menu/MenuPage.tsx
-
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Menu } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import { Filters } from "../components/menu/Filters";
 import { ProductGrid } from "../components/menu/ProductGrid";
@@ -17,8 +15,16 @@ import { fetchProducts, addFavorite, removeFavorite } from "../api";
 import type { Product } from "@/api/index";
 
 export const MenuPage: React.FC = () => {
-  const { cart, addToCart, removeFromCart, cartCount, addCustomCakeToCart, removeCustomCakeFromCart } = useCart();
+  const {
+    cart,
+    addToCart,
+    removeFromCart,
+    cartCount,
+    addCustomCakeToCart,
+    removeCustomCakeFromCart,
+  } = useCart();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const [products, setProducts] = useState<Product[]>([]);
   const [wishList, setWishList] = useState<Record<string, boolean>>({});
@@ -34,19 +40,23 @@ export const MenuPage: React.FC = () => {
   useEffect(() => {
     setLoading(true);
     fetchProducts(query)
-      .then((data: Product[]) => {
-        // ✅ The fix is to remove this line.
-        // const published = data.filter((p) => p.isPublished);
-        // setProducts(published);
-
-        // ✅ Instead, directly set the products from the API response.
-        setProducts(data);
-      })
+      .then((data: Product[]) => setProducts(data))
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [query]);
 
-  // Wishlist toggle
+  // Scroll into hash sections
+  useEffect(() => {
+    if (location.hash) {
+      const section = document.getElementById(location.hash.substring(1));
+      if (section) {
+        setTimeout(() => {
+          section.scrollIntoView({ behavior: "smooth" });
+        }, 100);
+      }
+    }
+  }, [location]);
+
   const toggleWish = async (product: Product) => {
     const id = product._id;
     try {
@@ -62,13 +72,11 @@ export const MenuPage: React.FC = () => {
     }
   };
 
-  // Handle custom cake submission
   const handleSubmitCustomCake = (customCake: CustomCakeData) => {
     addCustomCakeToCart(customCake);
     setShowCustomizer(false);
   };
 
-  // The handleApplyFilters function is also correct.
   const handleApplyFilters = (newQuery: string) => {
     setQuery(newQuery);
     setShowFilters(false);
@@ -77,63 +85,60 @@ export const MenuPage: React.FC = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
       {/* NAV */}
-      <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
+      <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          {/* Left: Logo */}
+          <Link to="/">
             <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
-            <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
-              {NAV_LINKS.map((link) => {
-                if (link.id === "contact") {
-                  return (
-                    <Link
-                      key={link.id}
-                      to="/"
-                      className="hover:underline"
-                      onClick={e => {
-                        e.preventDefault();
-                        navigate("/");
-                        setTimeout(() => {
-                          const section = document.getElementById("contact");
-                          if (section) section.scrollIntoView({ behavior: "smooth" });
-                        }, 100);
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                }
-                if (["about", "products"].includes(link.id)) {
-                  return (
-                    <Link
-                      key={link.id}
-                      to="/"
-                      className="hover:underline"
-                      onClick={e => {
-                        e.preventDefault();
-                        navigate("/");
-                        setTimeout(() => {
-                          const section = document.getElementById(link.id);
-                          if (section) section.scrollIntoView({ behavior: "smooth" });
-                        }, 100);
-                      }}
-                    >
-                      {link.label}
-                    </Link>
-                  );
-                }
-                return link.path.startsWith("/") ? (
-                  <Link key={link.id} to={link.path} className="hover:underline">
+          </Link>
+
+          {/* Nav Links (pushed right with ml-auto) */}
+          <div className="hidden md:flex items-center gap-6 text-sm text-slate-700 font-medium ml-auto mr-6">
+            {NAV_LINKS.map((link) => {
+              const commonClasses =
+                "relative group transition-colors duration-300 hover:text-rose-600";
+              const underlineClasses =
+                "absolute left-0 -bottom-1 w-full h-0.5 bg-rose-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded";
+
+              if (["about", "products", "contact"].includes(link.id)) {
+                return (
+                  <Link
+                    key={link.id}
+                    to={`/#${link.id}`}
+                    className={commonClasses}
+                    onClick={() => setMenuOpen(false)}
+                  >
                     {link.label}
+                    <span className={underlineClasses}></span>
                   </Link>
-                ) : (
-                  <a key={link.id} href={link.path} className="hover:underline">
-                    {link.label}
-                  </a>
                 );
-              })}
-            </div>
+              }
+
+              return link.path.startsWith("/") ? (
+                <Link
+                  key={link.id}
+                  to={link.path}
+                  className={commonClasses}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                  <span className={underlineClasses}></span>
+                </Link>
+              ) : (
+                <a
+                  key={link.id}
+                  href={link.path}
+                  className={commonClasses}
+                  onClick={() => setMenuOpen(false)}
+                >
+                  {link.label}
+                  <span className={underlineClasses}></span>
+                </a>
+              );
+            })}
           </div>
 
+          {/* Right: Cart + Mobile Toggle */}
           <div className="flex items-center gap-3">
             <button
               onClick={() => setMenuOpen((m) => !m)}
@@ -142,16 +147,23 @@ export const MenuPage: React.FC = () => {
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+
             <button
-              className="relative p-2 rounded-lg border flex items-center gap-2"
+              className="relative p-2 rounded-lg border flex items-center gap-2 hover:bg-rose-50 transition"
               aria-label="cart"
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart size={18} />
               <span className="sr-only">Cart</span>
-              <span className="text-sm font-medium">
-                {cartCount}
-              </span>
+              {/* Badge */}
+              {cartCount > 0 && (
+                <span
+                  className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full"
+                  aria-live="polite"
+                >
+                  {cartCount > 99 ? "99+" : cartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
@@ -167,12 +179,24 @@ export const MenuPage: React.FC = () => {
               className="md:hidden bg-white border-t overflow-hidden"
             >
               <div className="px-6 py-4 flex flex-col gap-3">
-                {NAV_LINKS.map((link) =>
-                  link.path.startsWith("/") ? (
+                {NAV_LINKS.map((link) => {
+                  if (["about", "products", "contact"].includes(link.id)) {
+                    return (
+                      <Link
+                        key={link.id}
+                        to={`/#${link.id}`}
+                        className="py-2 transition-colors hover:text-rose-600"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        {link.label}
+                      </Link>
+                    );
+                  }
+                  return link.path.startsWith("/") ? (
                     <Link
                       key={link.id}
                       to={link.path}
-                      className="py-2"
+                      className="py-2 transition-colors hover:text-rose-600"
                       onClick={() => setMenuOpen(false)}
                     >
                       {link.label}
@@ -181,21 +205,22 @@ export const MenuPage: React.FC = () => {
                     <a
                       key={link.id}
                       href={link.path}
-                      className="py-2"
+                      className="py-2 transition-colors hover:text-rose-600"
                       onClick={() => setMenuOpen(false)}
                     >
                       {link.label}
                     </a>
-                  )
-                )}
+                  );
+                })}
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </nav>
 
-      {/* MAIN CONTENT */}
+      {/* Main Content */}
       <main className="px-6 sm:px-10 lg:px-20 py-8">
+        {/* Title */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
@@ -227,7 +252,7 @@ export const MenuPage: React.FC = () => {
           </button>
         </div>
 
-        {/* Product grid */}
+        {/* Product Grid */}
         <ProductGrid
           products={products}
           loading={loading}
@@ -236,7 +261,7 @@ export const MenuPage: React.FC = () => {
           addToCart={addToCart}
         />
 
-        {/* Filters sidebar */}
+        {/* Filters Sidebar */}
         <AnimatePresence>
           {showFilters && (
             <motion.div
@@ -274,7 +299,7 @@ export const MenuPage: React.FC = () => {
 
       <FooterSection />
 
-      {/* CART MODAL */}
+      {/* Cart Modal */}
       <AnimatePresence>
         {isCartOpen && (
           <motion.div
@@ -328,12 +353,10 @@ export const MenuPage: React.FC = () => {
                               : `${item.customCake.flavor} Cake (${item.customCake.size}, ${item.customCake.layers} layers)`}
                           </h4>
                           <div className="text-sm text-slate-500">
-                            GHS{" "}
-                            {item.type === "product" ? item.product.price : item.customCake.totalPrice}
+                            GHS {item.type === "product" ? item.product.price : item.customCake.totalPrice}
                           </div>
                         </div>
 
-                        {/* Quantity controls */}
                         <div className="flex items-center gap-2">
                           {item.type === "product" && (
                             <>
@@ -362,8 +385,6 @@ export const MenuPage: React.FC = () => {
                                 -
                               </button>
                               <span className="w-6 text-center">{item.quantity}</span>
-                              {/* NOTE: You probably don't want to increment custom cake quantity */}
-                              {/* as a new custom cake has a unique ID and should be added as a new item */}
                             </>
                           )}
                         </div>
@@ -373,14 +394,20 @@ export const MenuPage: React.FC = () => {
 
                   <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
-                    <span>GHS {cart.reduce((total, item) => {
-                      if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
-                      if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
-                      return total;
-                    }, 0).toFixed(2)}</span>
+                    <span>
+                      GHS {" "}
+                      {cart
+                        .reduce((total, item) => {
+                          if (item.type === "product")
+                            return total + (item.product.price || 0) * item.quantity;
+                          if (item.type === "custom")
+                            return total + (item.customCake.totalPrice || 0) * item.quantity;
+                          return total;
+                        }, 0)
+                        .toFixed(2)}
+                    </span>
                   </div>
 
-                  {/* Proceed to Checkout */}
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"

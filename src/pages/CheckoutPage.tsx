@@ -94,7 +94,7 @@ export const CheckoutPage: React.FC = () => {
       const { authorization_url } = paymentResponse.data.payment;
 
       clearCart();
-      window.location.href = authorization_url; // Redirect to Paystack checkout
+      window.location.href = authorization_url; // Loader stays until Paystack redirects
     } catch (error: unknown) {
       let errorMessage = "Payment initiation failed.";
       if (axios.isAxiosError(error)) {
@@ -102,8 +102,7 @@ export const CheckoutPage: React.FC = () => {
       }
       console.error(error);
       setMessage(errorMessage);
-    } finally {
-      setIsProcessing(false);
+      setIsProcessing(false); // ❌ Only stop loader if an error occurs
     }
   };
 
@@ -255,6 +254,26 @@ export const CheckoutPage: React.FC = () => {
           </div>
         </div>
       </div>
+
+      {/* ✅ Loader Overlay */}
+      <AnimatePresence>
+        {isProcessing && (
+          <motion.div
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            {/* Spinner */}
+            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+
+            {/* Message */}
+            <p className="mt-6 text-white text-lg font-semibold">
+              Processing your order, please wait...
+            </p>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

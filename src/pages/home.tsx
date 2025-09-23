@@ -50,26 +50,41 @@ export default function CakeShop(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
       {/* NAV */}
-      <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
+      <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm">
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+          {/* Left: Logo */}
+          <a href="/">
             <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
-            <div className="hidden md:flex items-center gap-4 text-sm text-slate-700">
-              {NAV_LINKS.map((link) =>
-                link.id === "menu" ? (
-                  <Link key={link.id} to="/menu" className="hover:underline">
+          </a>
+
+          {/* Center: Nav Links */}
+          <div className="hidden md:flex items-center gap-6 text-sm text-slate-700 font-medium ml-auto mr-6">
+            {NAV_LINKS.map((link) => {
+              const commonClasses =
+                "relative group transition-colors duration-300 hover:text-rose-600";
+              const underlineClasses =
+                "absolute left-0 -bottom-1 w-full h-0.5 bg-rose-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded";
+
+              if (link.id === "menu") {
+                return (
+                  <Link key={link.id} to="/menu" className={commonClasses}>
                     {link.label}
+                    <span className={underlineClasses}></span>
                   </Link>
-                ) : (
-                  <a key={link.id} href={`#${link.id}`} className="hover:underline">
-                    {link.label}
-                  </a>
-                )
-              )}
-            </div>
+                );
+              }
+              return (
+                <a key={link.id} href={`#${link.id}`} className={commonClasses}>
+                  {link.label}
+                  <span className={underlineClasses}></span>
+                </a>
+              );
+            })}
           </div>
 
+          {/* Right: Cart + Mobile Toggle */}
           <div className="flex items-center gap-3">
+            {/* Mobile Menu Toggle */}
             <button
               onClick={() => setMenuOpen((m) => !m)}
               className="md:hidden p-2 rounded-md"
@@ -77,18 +92,25 @@ export default function CakeShop(): JSX.Element {
             >
               {menuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
+
+            {/* Cart Button */}
             <button
-              className="relative p-2 rounded-lg border flex items-center gap-2"
+              className="relative p-2 rounded-lg border flex items-center gap-2 hover:bg-rose-50 transition"
               aria-label="cart"
               onClick={() => setIsCartOpen(true)}
             >
               <ShoppingCart size={18} />
               <span className="sr-only">Cart</span>
-              <span className="text-sm font-medium">{cartCount}</span>
+              {cartCount > 0 && (
+                <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-xs w-5 h-5 flex items-center justify-center rounded-full">
+                  {cartCount}
+                </span>
+              )}
             </button>
           </div>
         </div>
 
+        {/* Mobile Nav */}
         <AnimatePresence>
           {menuOpen && (
             <motion.div
@@ -101,11 +123,21 @@ export default function CakeShop(): JSX.Element {
               <div className="px-6 py-4 flex flex-col gap-3">
                 {NAV_LINKS.map((link) =>
                   link.id === "menu" ? (
-                    <Link key={link.id} to="/menu" className="py-2" onClick={() => setMenuOpen(false)}>
+                    <Link
+                      key={link.id}
+                      to="/menu"
+                      className="py-2 transition-colors hover:text-rose-600"
+                      onClick={() => setMenuOpen(false)}
+                    >
                       {link.label}
                     </Link>
                   ) : (
-                    <a key={link.id} href={`#${link.id}`} className="py-2" onClick={() => setMenuOpen(false)}>
+                    <a
+                      key={link.id}
+                      href={`#${link.id}`}
+                      className="py-2 transition-colors hover:text-rose-600"
+                      onClick={() => setMenuOpen(false)}
+                    >
                       {link.label}
                     </a>
                   )
@@ -116,11 +148,17 @@ export default function CakeShop(): JSX.Element {
         </AnimatePresence>
       </nav>
 
+      {/* MAIN CONTENT */}
       <main>
         <HeroSection />
         <div className="max-w-7xl mx-auto px-6 pb-16">
           <AboutSection selectedType={selectedType} setSelectedType={setSelectedType} />
-          <ProductsSection products={products} wishList={wishList} addToCart={addToCart} toggleWish={toggleWish} />
+          <ProductsSection
+            products={products}
+            wishList={wishList}
+            addToCart={addToCart}
+            toggleWish={toggleWish}
+          />
           <ServicesSection />
           <FaqSection />
           <ContactSection rating={rating} reviews={reviews} />
@@ -129,7 +167,7 @@ export default function CakeShop(): JSX.Element {
 
       <FooterSection />
 
-      {/* Cart Dialog */}
+      {/* CART DIALOG */}
       <AnimatePresence>
         {isCartOpen && (
           <motion.div
@@ -163,22 +201,46 @@ export default function CakeShop(): JSX.Element {
               ) : (
                 <ul className="space-y-4 max-h-96 overflow-y-auto pr-2">
                   {cart.map((item) => {
-                    const name = item.type === "product" ? item.product.name : `${item.customCake.flavor} Cake`;
-                    const price = item.type === "product" ? item.product.price : item.customCake.totalPrice;
-                    const image = item.type === "product" ? item.product.image || "/placeholder.png" : "/custom-placeholder.png";
+                    const name =
+                      item.type === "product"
+                        ? item.product.name
+                        : `${item.customCake.flavor} Cake`;
+                    const price =
+                      item.type === "product"
+                        ? item.product.price
+                        : item.customCake.totalPrice;
+                    const image =
+                      item.type === "product"
+                        ? item.product.image || "/placeholder.png"
+                        : "/custom-placeholder.png";
 
                     return (
-                      <li key={item.type === "product" ? item.product._id : item.customCake.id} className="flex items-center gap-4">
-                        <img src={image} alt={name} className="w-16 h-16 object-cover rounded-lg" />
+                      <li
+                        key={
+                          item.type === "product"
+                            ? item.product._id
+                            : item.customCake.id
+                        }
+                        className="flex items-center gap-4"
+                      >
+                        <img
+                          src={image}
+                          alt={name}
+                          className="w-16 h-16 object-cover rounded-lg"
+                        />
                         <div className="flex-1">
                           <h4 className="font-semibold">{name}</h4>
-                          <div className="text-sm text-slate-500">GHS {price}</div>
+                          <div className="text-sm text-slate-500">
+                            GHS {price}
+                          </div>
                         </div>
                         <div className="flex items-center gap-2">
                           <button
                             onClick={() => {
-                              if (item.type === "product") removeFromCart(item.product);
-                              else removeFromCart(item.customCake as unknown as Product);
+                              if (item.type === "product")
+                                removeFromCart(item.product);
+                              else
+                                removeFromCart(item.customCake as unknown as Product);
                             }}
                             className="px-2 py-1 border rounded-lg hover:bg-slate-100"
                           >
@@ -205,15 +267,24 @@ export default function CakeShop(): JSX.Element {
                 <>
                   <div className="mt-6 pt-4 border-t-2 border-slate-100 flex justify-between items-center font-bold text-lg">
                     <span>Total:</span>
-                    <span>GHS {cart.reduce((total, item) => {
-                      if (item.type === "product") return total + (item.product.price || 0) * item.quantity;
-                      if (item.type === "custom") return total + (item.customCake.totalPrice || 0) * item.quantity;
-                      return total;
-                    }, 0).toFixed(2)}</span>
+                    <span>
+                      GHS{" "}
+                      {cart
+                        .reduce((total, item) => {
+                          if (item.type === "product")
+                            return total + (item.product.price || 0) * item.quantity;
+                          if (item.type === "custom")
+                            return (
+                              total +
+                              (item.customCake.totalPrice || 0) * item.quantity
+                            );
+                          return total;
+                        }, 0)
+                        .toFixed(2)}
+                    </span>
                   </div>
 
-                  {/* Proceed to Checkout */}
-
+                  {/* Checkout Button */}
                   <div className="mt-6">
                     <button
                       className="w-full py-3 rounded-lg bg-rose-500 text-white font-medium shadow-md hover:bg-rose-600 transition-colors"
