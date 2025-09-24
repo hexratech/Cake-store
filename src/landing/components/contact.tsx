@@ -60,32 +60,67 @@ export const ContactSection: React.FC<{
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          <input
-            name="name"
-            value={form.name}
-            onChange={handleChange}
-            className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-            placeholder="Your name"
-            required
-          />
-          <input
-            type="text"
-            name="contact"
-            value={form.contact}
-            onChange={handleChange}
-            className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-            placeholder="Email or phone"
-            required
-          />
-          <textarea
-            name="message"
-            value={form.message}
-            onChange={handleChange}
-            className="w-full rounded-xl border px-4 py-3 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-            placeholder="Message"
-            rows={4}
-            required
-          />
+          {/* Name Field with Floating Label */}
+          <div className="relative">
+            <input
+              id="name"
+              name="name"
+              type="text"
+              value={form.name}
+              onChange={handleChange}
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+              placeholder="Your name"
+              required
+            />
+            <label
+              htmlFor="name"
+              className="absolute left-4 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-rose-600"
+            >
+              Your name
+            </label>
+          </div>
+
+          {/* Contact Field with Floating Label */}
+          <div className="relative">
+            <input
+              id="contact"
+              name="contact"
+              type="text"
+              value={form.contact}
+              onChange={handleChange}
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+              placeholder="Email or phone"
+              required
+            />
+            <label
+              htmlFor="contact"
+              className="absolute left-4 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-rose-600"
+            >
+              Email or phone
+            </label>
+          </div>
+
+          {/* Message Field with Floating Label */}
+          <div className="relative">
+            <textarea
+              id="message"
+              name="message"
+              value={form.message}
+              onChange={handleChange}
+              rows={4}
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+              placeholder="Message"
+              required
+            />
+            <label
+              htmlFor="message"
+              className="absolute left-4 top-2 text-xs text-slate-500 transition-all peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400 peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs peer-focus:text-rose-600"
+            >
+              Message
+            </label>
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}

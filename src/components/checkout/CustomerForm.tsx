@@ -1,9 +1,6 @@
-// src/components/checkout/CustomerForm.tsx
 import React, { useState } from "react";
 import { toast } from "sonner";
 import type { FormEvent } from "react";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
 
 export type CustomerData = {
   name: string;
@@ -64,7 +61,6 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
       setEmailError("Email is required.");
       return false;
     }
-    // stricter: only accept emails ending with .com and common providers
     const emailRegex = /^[^\s@]+@[^\s@]+\.(com)$/i;
     if (!emailRegex.test(email)) {
       setEmailError("Email must be a valid address ending with .com (e.g., user@domain.com).");
@@ -104,77 +100,154 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
 
   return (
     <form onSubmit={handleSubmit} className="border rounded-2xl p-6 bg-white shadow-sm space-y-5">
-      <h2 className="text-xl font-serif font-semibold text-slate-800 border-b pb-2">Customer Information</h2>
+      <h2 className="text-xl font-serif font-semibold text-slate-800 border-b pb-2">
+        Customer Information
+      </h2>
 
       {error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded-lg">{error}</p>}
 
-      <div className="space-y-1">
-        <Label htmlFor="name">Full Name <span className="text-rose-500">*</span></Label>
-        <Input id="name" name="name" value={formData.name} onChange={handleChange} />
+      {/* Full Name Field with Floating Label */}
+      <div className="relative">
+        <input
+          id="name"
+          name="name"
+          type="text"
+          value={formData.name}
+          onChange={handleChange}
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Full Name"
+          required
+        />
+        <label
+          htmlFor="name"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Full Name <span className="text-rose-500">*</span>
+        </label>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="phone">Phone Number <span className="text-rose-500">*</span></Label>
-        <Input
+      {/* Phone Number Field */}
+      <div className="relative">
+        <input
           id="phone"
           name="phone"
           type="tel"
           value={formData.phone}
           onChange={handleChange}
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Phone Number"
+          required
         />
+        <label
+          htmlFor="phone"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Phone Number <span className="text-rose-500">*</span>
+        </label>
         {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="email">Email <span className="text-rose-500">*</span></Label>
-        <Input
+      {/* Email Field */}
+      <div className="relative">
+        <input
           id="email"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
-          className="text-sm px-2 py-1 h-8"
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Email"
+          required
         />
+        <label
+          htmlFor="email"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Email <span className="text-rose-500">*</span>
+        </label>
         {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="address">Delivery Address <span className="text-rose-500">*</span></Label>
-        <Input
+      {/* Address Field */}
+      <div className="relative">
+        <input
           id="address"
           name="address"
+          type="text"
           value={formData.address}
           onChange={handleChange}
-          className="text-sm px-2 py-1 h-8"
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Delivery Address"
+          required
         />
+        <label
+          htmlFor="address"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Delivery Address <span className="text-rose-500">*</span>
+        </label>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="deliveryDate">Delivery Date <span className="text-rose-500">*</span></Label>
-        <Input
+      {/* Delivery Date Field */}
+      <div className="relative">
+        <input
           id="deliveryDate"
           name="deliveryDate"
           type="date"
-          className="text-sm px-2 py-1 h-8"
           value={formData.deliveryDate}
           onChange={handleChange}
           min={new Date().toISOString().split("T")[0]}
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Delivery Date"
         />
+        <label
+          htmlFor="deliveryDate"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Delivery Date <span className="text-rose-500">*</span>
+        </label>
       </div>
 
-      <div className="space-y-1">
-        <Label htmlFor="deliveryTime">Delivery Time <span className="text-rose-500">*</span></Label>
-        <Input
+      {/* Delivery Time Field */}
+      <div className="relative">
+        <input
           id="deliveryTime"
           name="deliveryTime"
           type="time"
           min="08:00"
           max="17:00"
-          className="text-sm px-2 py-1 h-8"
           value={formData.deliveryTime}
           onChange={handleChange}
+          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          placeholder="Delivery Time"
         />
-        <span className="text-xs text-slate-500">Get your deliveries between 8:00am and 5:00pm</span>
+        <label
+          htmlFor="deliveryTime"
+          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
+          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
+          peer-focus:text-rose-600"
+        >
+          Delivery Time <span className="text-rose-500">*</span>
+        </label>
+        <span className="text-xs text-slate-500 block mt-1">
+          Get your deliveries between 8:00am and 5:00pm
+        </span>
       </div>
 
       <button

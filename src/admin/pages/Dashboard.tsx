@@ -157,7 +157,7 @@ const Dashboard = () => {
 
   return (
     <AdminLayout>
-      <div className="p-6 md:p-8 space-y-10">
+      <div className="p-6 md:p-8 space-y-10 bg-white min-h-full rounded-2xl shadow-lg">
         {/* Header */}
         <div>
           <h1 className="text-3xl font-bold text-gray-800 mb-2 flex items-center gap-2">
