@@ -204,19 +204,23 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
 
       {/* Delivery Date (modern UI) */}
       <div>
-        <label htmlFor="deliveryDate" className="block text-sm font-medium text-slate-700 mb-1">
-          Delivery Date <span className="text-rose-500">*</span>
-        </label>
-        <input
-          id="deliveryDate"
-          name="deliveryDate"
-          type="date"
-          value={formData.deliveryDate}
-          onChange={handleChange}
-          min={todayISO}
-          className="w-full rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-        />
-      </div>
+  <label
+    htmlFor="deliveryDate"
+    className="block text-sm font-medium text-slate-700 mb-1 whitespace-nowrap"
+  >
+    Delivery Date <span className="text-rose-500">*</span>
+  </label>
+  <input
+    id="deliveryDate"
+    name="deliveryDate"
+    type="date"
+    value={formData.deliveryDate}
+    onChange={handleChange}
+    min={todayISO}
+    className="w-52 rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+  />
+</div>
+
 
       {/* Delivery Time (modern UI) */}
       <div>
@@ -231,7 +235,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
           max="17:00"
           value={formData.deliveryTime}
           onChange={handleChange}
-          className="w-full rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
+          className="w-52 rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
         />
         <span className="text-xs text-slate-500 block mt-1">
           Deliveries are available between 8:00am and 5:00pm
