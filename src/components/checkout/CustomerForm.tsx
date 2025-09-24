@@ -32,6 +32,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
   const [emailError, setEmailError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
+  const todayISO = new Date().toISOString().split("T")[0];
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -106,7 +108,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
 
       {error && <p className="text-red-500 text-sm bg-red-50 p-2 rounded-lg">{error}</p>}
 
-      {/* Full Name Field with Floating Label */}
+      {/* Full Name */}
       <div className="relative">
         <input
           id="name"
@@ -129,7 +131,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
         </label>
       </div>
 
-      {/* Phone Number Field */}
+      {/* Phone Number */}
       <div className="relative">
         <input
           id="phone"
@@ -153,7 +155,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
         {phoneError && <p className="text-red-500 text-xs mt-1">{phoneError}</p>}
       </div>
 
-      {/* Email Field */}
+      {/* Email */}
       <div className="relative">
         <input
           id="email"
@@ -177,7 +179,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
         {emailError && <p className="text-red-500 text-xs mt-1">{emailError}</p>}
       </div>
 
-      {/* Address Field */}
+      {/* Address */}
       <div className="relative">
         <input
           id="address"
@@ -200,31 +202,27 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
         </label>
       </div>
 
-      {/* Delivery Date Field */}
-      <div className="relative">
+      {/* Delivery Date (modern UI) */}
+      <div>
+        <label htmlFor="deliveryDate" className="block text-sm font-medium text-slate-700 mb-1">
+          Delivery Date <span className="text-rose-500">*</span>
+        </label>
         <input
           id="deliveryDate"
           name="deliveryDate"
           type="date"
           value={formData.deliveryDate}
           onChange={handleChange}
-          min={new Date().toISOString().split("T")[0]}
-          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-          placeholder="Delivery Date"
+          min={todayISO}
+          className="w-full rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
         />
-        <label
-          htmlFor="deliveryDate"
-          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
-          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
-          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
-          peer-focus:text-rose-600"
-        >
-          Delivery Date <span className="text-rose-500">*</span>
-        </label>
       </div>
 
-      {/* Delivery Time Field */}
-      <div className="relative">
+      {/* Delivery Time (modern UI) */}
+      <div>
+        <label htmlFor="deliveryTime" className="block text-sm font-medium text-slate-700 mb-1">
+          Delivery Time <span className="text-rose-500">*</span>
+        </label>
         <input
           id="deliveryTime"
           name="deliveryTime"
@@ -233,20 +231,10 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
           max="17:00"
           value={formData.deliveryTime}
           onChange={handleChange}
-          className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-          placeholder="Delivery Time"
+          className="w-full rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
         />
-        <label
-          htmlFor="deliveryTime"
-          className="absolute left-4 top-2 text-xs text-slate-500 transition-all
-          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-slate-400
-          peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
-          peer-focus:text-rose-600"
-        >
-          Delivery Time <span className="text-rose-500">*</span>
-        </label>
         <span className="text-xs text-slate-500 block mt-1">
-          Get your deliveries between 8:00am and 5:00pm
+          Deliveries are available between 8:00am and 5:00pm
         </span>
       </div>
 
