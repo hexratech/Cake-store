@@ -1,31 +1,56 @@
-// src/components/menu/Filters.tsx
-
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import filtersidebar from "../../assets/filtersiderbar.jpg";
+
+// The image import was causing a compilation error, so we'll use a placeholder URL instead.
+// import filtersidebar from "../../assets/filtersiderbar.jpg";
+
+// FIX: Removed import.meta.env.VITE_API_URL as it is not supported in the target environment.
+// Please manually update this URL if your API is hosted elsewhere.
+const API_URL = "http://localhost:5000";
 
 interface FiltersProps {
-  onApply: (query: string) => void;
+  onApply: (url: string) => void; // send full API URL
 }
 
-// Consolidate filter options into a single component
+interface FilterState {
+  category: string;
+  flavor: string;
+  priceRange: string;
+  sort: string;
+}
+
 export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
   const [open, setOpen] = useState(true);
-
-  // Use a single state object for all filter selections
-  const [filters, setFilters] = useState({
+  const [filters, setFilters] = useState<FilterState>({
     category: "All",
     flavor: "All",
     priceRange: "All",
     sort: "Newest",
   });
 
-  // A more concise way to handle state changes
-  const handleFilterChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const { name, value } = event.target;
-    setFilters((prevFilters) => ({ ...prevFilters, [name]: value }));
+  const [categories, setCategories] = useState<string[]>([]);
+  const [flavors, setFlavors] = useState<string[]>([]);
+
+  // ✅ Fetch categories and flavors dynamically from backend
+  useEffect(() => {
+    // Added the /api prefix to the fetch calls
+    fetch(`${API_URL}/api/products/categories`)
+      .then((res) => res.json())
+      .then((data: string[]) => setCategories(data))
+      .catch((err) => console.error("Failed to fetch categories:", err));
+
+    fetch(`${API_URL}/api/products/flavors`)
+      .then((res) => res.json())
+      .then((data: string[]) => setFlavors(data))
+      .catch((err) => console.error("Failed to fetch flavors:", err));
+  }, []);
+
+  const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
+  // ✅ Build query params for backend
   const buildQuery = () => {
     const params = new URLSearchParams();
     const { category, flavor, priceRange, sort } = filters;
@@ -33,25 +58,24 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
     if (category !== "All") params.append("category", category.toLowerCase());
     if (flavor !== "All") params.append("flavor", flavor.toLowerCase());
 
-    // Use a map or switch for a cleaner price range logic
+    // Price range mapping
     const priceMap: Record<string, { minPrice?: string; maxPrice?: string }> = {
       "Under GHS 100": { maxPrice: "100" },
       "GHS 100 – 200": { minPrice: "100", maxPrice: "200" },
       "Above GHS 200": { minPrice: "200" },
     };
-
-    if (priceMap[priceRange]) {
+    if (priceRange !== "All" && priceMap[priceRange]) {
       const { minPrice, maxPrice } = priceMap[priceRange];
       if (minPrice) params.append("minPrice", minPrice);
       if (maxPrice) params.append("maxPrice", maxPrice);
     }
 
-    // Use a map for cleaner sort logic
+    // Sort mapping
     const sortMap: Record<string, string> = {
       "Price: Low to High": "priceAsc",
       "Price: High to Low": "priceDesc",
-      "Newest": "newest",
-      "Popular": "popular",
+      Newest: "newest",
+      Popular: "popular",
     };
     params.append("sort", sortMap[sort]);
 
@@ -60,7 +84,10 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
   const handleApplyFilters = () => {
     const query = buildQuery();
-    onApply(query);
+    // Added the /api prefix here as well
+    const url = `${API_URL}/api/products?${query}`; // ✅ full backend URL
+    console.log("Applying filters with URL:", url); // Add this line for debugging
+    onApply(url);
     setOpen(false);
   };
 
@@ -68,19 +95,15 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
     <div
       className="mb-6 relative rounded-xl overflow-hidden"
       style={{
-        backgroundImage: `url(${filtersidebar})`,
+        // Using a placeholder image to fix the compilation error
+        backgroundImage: `url(https://placehold.co/600x400/fff4f0/222?text=Filters)`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      {/* Overlay for readability */}
       <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" />
-
-      {/* Content */}
       <div className="relative p-4">
-        {/* Title */}
         <h2 className="text-xl font-bold mb-4">Filters</h2>
-
         <AnimatePresence>
           {open && (
             <motion.div
@@ -92,7 +115,9 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
             >
               {/* Category */}
               <div>
-                <label htmlFor="category" className="font-medium text-slate-700">Category</label>
+                <label htmlFor="category" className="font-medium text-slate-700">
+                  Category
+                </label>
                 <select
                   name="category"
                   value={filters.category}
@@ -100,15 +125,19 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
                   className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
                 >
                   <option>All</option>
-                  <option>Cakes</option>
-                  <option>Cupcakes</option>
-                  <option>Pastries</option>
+                  {categories.map((cat) => (
+                    <option key={cat}>
+                      {cat.charAt(0).toUpperCase() + cat.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Flavor */}
               <div>
-                <label htmlFor="flavor" className="font-medium text-slate-700">Flavor</label>
+                <label htmlFor="flavor" className="font-medium text-slate-700">
+                  Flavor
+                </label>
                 <select
                   name="flavor"
                   value={filters.flavor}
@@ -116,16 +145,19 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
                   className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
                 >
                   <option>All</option>
-                  <option>Chocolate</option>
-                  <option>Vanilla</option>
-                  <option>Red Velvet</option>
-                  <option>Strawberry</option>
+                  {flavors.map((flav) => (
+                    <option key={flav}>
+                      {flav.charAt(0).toUpperCase() + flav.slice(1)}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               {/* Price Range */}
               <div>
-                <label htmlFor="priceRange" className="font-medium text-slate-700">Price Range</label>
+                <label htmlFor="priceRange" className="font-medium text-slate-700">
+                  Price Range
+                </label>
                 <select
                   name="priceRange"
                   value={filters.priceRange}
@@ -141,7 +173,9 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
               {/* Sort */}
               <div>
-                <label htmlFor="sort" className="font-medium text-slate-700">Sort By</label>
+                <label htmlFor="sort" className="font-medium text-slate-700">
+                  Sort By
+                </label>
                 <select
                   name="sort"
                   value={filters.sort}
