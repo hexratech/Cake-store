@@ -65,21 +65,23 @@ export const HeroSection: React.FC = () => {
           {HERO_SLIDES[slideIndex].subtitle}
         </motion.p>
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
-          {/* ✅ Order Now goes to /menu */}
-          <button
-            onClick={() => navigate("/menu")}
-            className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
-          >
-            Order Now
-          </button>
-          {/* ✅ Learn More scrolls to Services */}
-          <button
-            onClick={handleLearnMore}
-            className="px-5 py-3 rounded-lg bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-colors"
-          >
-            Learn More
-          </button>
-        </div>
+  {/* ✅ Order Now goes to /menu */}
+  <button
+    onClick={() => navigate("/menu")}
+    className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
+  >
+    Order Now
+  </button>
+
+  {/* ✅ Learn More with glass effect */}
+  <button
+    onClick={handleLearnMore}
+    className="px-5 py-3 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-colors"
+  >
+    Learn More
+  </button>
+</div>
+
       </div>
     </section>
   );
