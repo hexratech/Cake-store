@@ -39,16 +39,13 @@ export const CheckoutPage: React.FC = () => {
     setMessage(null);
     setProgress(0);
 
-    const totalSteps = 4;
-    const progressPerStep = 100 / totalSteps;
-
     try {
-      // Step 1: Validate details
+      // Stage 1: Validate details
       setCurrentStepMessage("Validating your order details...");
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setProgress(progressPerStep);
+      await new Promise((resolve) => setTimeout(resolve, 500)); // small delay for UX
+      setProgress(25);
 
-      // Step 2: Create order in backend
+      // Stage 2: Create order
       setCurrentStepMessage("Placing your order with the bakery...");
       const mappedItems = cart.map((item: CartItem) => {
         if (item.type === "product") {
@@ -74,9 +71,7 @@ export const CheckoutPage: React.FC = () => {
       });
       const totalPrice =
         cart.reduce((acc, item) => {
-          if (item.type === "product") {
-            return acc + item.product.price * item.quantity;
-          }
+          if (item.type === "product") return acc + item.product.price * item.quantity;
           return acc + item.customCake.totalPrice * item.quantity;
         }, 0) || cartTotal;
 
@@ -92,26 +87,27 @@ export const CheckoutPage: React.FC = () => {
 
       const orderId = orderResponse.data._id;
       if (!orderId) throw new Error("Order creation failed: no ID returned");
-      setProgress(progressPerStep * 2);
 
-      // Step 3: Initiate payment with orderId
+      // Stage 3: Initiate payment
       setCurrentStepMessage("Initiating secure payment...");
+      setProgress(75);
       const paymentResponse = await axios.post(`${API_URL}/api/payments/initiate`, {
         email: customerData.email,
         totalPrice,
         orderId,
       });
+
       const { authorization_url } = paymentResponse.data.payment;
-      setProgress(progressPerStep * 3);
 
-      // Step 4: Finalize and redirect
-      setCurrentStepMessage("Finalizing your receipt and redirecting...");
-      setProgress(100);
-      clearCart();
+      // Final stage: Redirect
+setCurrentStepMessage("Finalizing your receipt and redirecting...");
+setProgress(100);
+clearCart();
 
-      setTimeout(() => {
-        window.location.href = authorization_url;
-      }, 500);
+// Give tiny delay for 100% progress to display before redirect
+setTimeout(() => {
+  window.location.href = authorization_url;
+}, 300);
 
     } catch (error: unknown) {
       let errorMessage = "Payment initiation failed.";
@@ -141,6 +137,7 @@ export const CheckoutPage: React.FC = () => {
             </div>
           )}
 
+          {/* Customer Details */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">1. Customer Details</h2>
@@ -175,18 +172,13 @@ export const CheckoutPage: React.FC = () => {
                     <p className="text-slate-600">Email: {customerData?.email}</p>
                     <p className="text-slate-600">Phone: {customerData?.phone}</p>
                     <p className="text-slate-600">Address: {customerData?.address}</p>
-                    {customerData?.deliveryDate && (
-                      <p className="text-slate-600">Delivery Date: {customerData.deliveryDate}</p>
-                    )}
-                    {customerData?.deliveryTime && (
-                      <p className="text-slate-600">Delivery Time: {customerData.deliveryTime}</p>
-                    )}
                   </motion.div>
                 )
               )}
             </AnimatePresence>
           </div>
 
+          {/* Delivery Options */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">2. Delivery Options</h2>
@@ -225,6 +217,7 @@ export const CheckoutPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
+          {/* Order Review */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">3. Order Review</h2>
@@ -270,6 +263,7 @@ export const CheckoutPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Processing Overlay */}
       <AnimatePresence>
         {isProcessing && (
           <motion.div
