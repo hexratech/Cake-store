@@ -1,23 +1,39 @@
 import { Star, Phone, Mail, Send } from "lucide-react";
 import { motion } from "framer-motion";
-import { useState } from "react";
+import { useState, type ChangeEvent, type  FormEvent } from "react";
 import { toast } from "sonner";
 
-export const ContactSection: React.FC<{
+// Type definitions
+type Review = {
+  id: string;
+  name: string;
+  text: string;
+  stars: number;
+};
+
+type ContactForm = {
+  name: string;
+  contact: string;
+  message: string;
+};
+
+type ContactSectionProps = {
   rating: number;
-  reviews: { id: string; name: string; text: string; stars: number }[];
-}> = ({ rating, reviews }) => {
+  reviews: Review[];
+};
+
+export const ContactSection: React.FC<ContactSectionProps> = ({ rating, reviews }) => {
   const totalStars = 5;
-  const [form, setForm] = useState({ name: "", contact: "", message: "" });
+  const [form, setForm] = useState<ContactForm>({ name: "", contact: "", message: "" });
   const [loading, setLoading] = useState(false);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
-  ) => {
+  // Handle input changes
+  const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Handle form submission
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
@@ -28,7 +44,11 @@ export const ContactSection: React.FC<{
         body: JSON.stringify(form),
       });
 
-      if (!res.ok) throw new Error("Failed to send message");
+      if (!res.ok) {
+        const text = await res.text();
+        console.error("Contact form error:", text);
+        throw new Error("Failed to send message");
+      }
 
       toast.success("Message sent! You will hear from us soon.");
       setForm({ name: "", contact: "", message: "" });
@@ -55,12 +75,11 @@ export const ContactSection: React.FC<{
       >
         <h3 className="text-4xl font-serif text-black">Contact Us</h3>
         <p className="text-sm text-slate-600 mt-2">
-          Have a question or custom order? Send us a message and we’ll reply
-          within 24 hours.
+          Have a question or custom order? Send us a message and we’ll reply within 24 hours.
         </p>
 
         <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
-          {/* Name Field with Floating Label */}
+          {/* Name */}
           <div className="relative">
             <input
               id="name"
@@ -68,9 +87,9 @@ export const ContactSection: React.FC<{
               type="text"
               value={form.name}
               onChange={handleChange}
-              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
               placeholder="Your name"
               required
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             />
             <label
               htmlFor="name"
@@ -80,7 +99,7 @@ export const ContactSection: React.FC<{
             </label>
           </div>
 
-          {/* Contact Field with Floating Label */}
+          {/* Contact */}
           <div className="relative">
             <input
               id="contact"
@@ -88,9 +107,9 @@ export const ContactSection: React.FC<{
               type="text"
               value={form.contact}
               onChange={handleChange}
-              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
               placeholder="Email or phone"
               required
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             />
             <label
               htmlFor="contact"
@@ -100,7 +119,7 @@ export const ContactSection: React.FC<{
             </label>
           </div>
 
-          {/* Message Field with Floating Label */}
+          {/* Message */}
           <div className="relative">
             <textarea
               id="message"
@@ -108,9 +127,9 @@ export const ContactSection: React.FC<{
               value={form.message}
               onChange={handleChange}
               rows={4}
-              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
               placeholder="Message"
               required
+              className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-sm text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
             />
             <label
               htmlFor="message"
@@ -120,7 +139,7 @@ export const ContactSection: React.FC<{
             </label>
           </div>
 
-          {/* Submit */}
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={loading}
@@ -167,17 +186,13 @@ export const ContactSection: React.FC<{
         <h3 className="text-4xl font-serif text-black">Customer Reviews</h3>
 
         <div className="flex items-center gap-4 mt-3">
-          <div className="text-4xl font-sans font-semibold text-slate-800">
-            {rating.toFixed(1)}
-          </div>
+          <div className="text-4xl font-sans font-semibold text-slate-800">{rating.toFixed(1)}</div>
           <div className="flex">
             {Array.from({ length: totalStars }, (_, idx) => (
               <Star
                 key={idx}
                 className={`w-6 h-6 ${
-                  idx < Math.round(rating)
-                    ? "text-yellow-400 fill-yellow-400"
-                    : "text-slate-300"
+                  idx < Math.round(rating) ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
                 }`}
               />
             ))}
@@ -201,9 +216,7 @@ export const ContactSection: React.FC<{
                     <Star
                       key={starIdx}
                       className={`w-4 h-4 ${
-                        starIdx < r.stars
-                          ? "text-yellow-400 fill-yellow-400"
-                          : "text-slate-300"
+                        starIdx < r.stars ? "text-yellow-400 fill-yellow-400" : "text-slate-300"
                       }`}
                     />
                   ))}
