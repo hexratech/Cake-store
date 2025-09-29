@@ -24,7 +24,7 @@ export const ServicesSection: React.FC = () => {
     },
     {
       icon: <Coffee className="w-6 h-6 text-rose-600" />,
-      title: "Pastries & Coffee",
+      title: "Breakfast & Brunch",
       desc: "Freshly baked pastries, cookies, and cupcakes paired with coffee, tea, or hot chocolate.",
     },
     {

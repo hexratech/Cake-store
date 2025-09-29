@@ -24,9 +24,9 @@ export const TYPE_GALLERY: Record<string, string[]> = {
     "https://i.pinimg.com/1200x/84/35/23/843523af7d4cd9b88e89d8cf744bc9ed.jpg",
     "https://i.pinimg.com/736x/02/91/d3/0291d37ea03cbce25e6fcb03d60da20a.jpg",
     "https://i.pinimg.com/736x/37/ef/99/37ef994107af27608b6b52b196727ba9.jpg",
-    "https://i.pinimg.com/736x/32/68/8a/32688a029e37f9dc1830d08a0e1abdbd.jpg",
+    "https://i.pinimg.com/1200x/b3/b9/a0/b3b9a01b7490dc180d703bbba8e66f72.jpg",
     "https://i.pinimg.com/736x/c1/3d/01/c13d0116d7352df0db9f31a0fae963c8.jpg",
-    "https://i.pinimg.com/1200x/9e/48/57/9e48579e76a297a54aac84e3e64b21d5.jpg",
+    "https://i.pinimg.com/736x/06/03/1b/06031b31458792be1b5727e4ed4dd0de.jpg",
     "https://i.pinimg.com/736x/53/d4/d5/53d4d5cbb79dac992dc56ce7dc960301.jpg  ",
   ],
   anniversary: [

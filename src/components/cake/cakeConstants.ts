@@ -25,12 +25,14 @@ export const icingPrices: { [key: string]: string } = {
     "Buttercream":"",
     "Fondant":"",
     "Cream Cheese":"",
+    "Whipped Cream":"",
+    "Swiss Meringue Buttercream":"",
 };
 
 export const toppingPrices: { [key: string]: number } = {
-    "Sprinkles":5,
-    "Chocolate Chips":5,
-    "Fresh Berries": 10,
-    "Edible Flowers":10,
+    "Sprinkles":10,
+    "Chocolate Chips":10,
+    "Fresh Fruits": 30,
+    "Edible Flowers":50,
     "Gold Flakes":10,
 };

@@ -17,4 +17,10 @@ export const HERO_SLIDES = [
     subtitle: "Tell us your idea-we'll bake it.",
     image: "bg3.jpg",
   },
+    {
+    id: "h3",
+    title: "Breakfast Bliss In A Basket",
+    subtitle: "Rise & shine with our breakfast basket",
+    image: "bg4.jpg",
+  },
 ];
