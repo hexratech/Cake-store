@@ -19,9 +19,11 @@ export const CheckoutPage: React.FC = () => {
   const [customerData, setCustomerData] = useState<CustomerData | null>(null);
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [activeSection, setActiveSection] =
-    useState<"details" | "delivery" | "review">("details");
+  const [activeSection, setActiveSection] = useState<"details" | "delivery" | "review">("details");
   const [message, setMessage] = useState<string | null>(null);
+
+  const [currentStepMessage, setCurrentStepMessage] = useState<string | null>(null);
+  const [progress, setProgress] = useState(0);
 
   const isFormComplete = !!customerData;
   const isCartEmpty = cart.length === 0;
@@ -35,9 +37,19 @@ export const CheckoutPage: React.FC = () => {
 
     setIsProcessing(true);
     setMessage(null);
+    setProgress(0);
+
+    const totalSteps = 4;
+    const progressPerStep = 100 / totalSteps;
 
     try {
-      // ✅ Step 1: Map cart items
+      // Step 1: Validate details
+      setCurrentStepMessage("Validating your order details...");
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setProgress(progressPerStep);
+
+      // Step 2: Create order in backend
+      setCurrentStepMessage("Placing your order with the bakery...");
       const mappedItems = cart.map((item: CartItem) => {
         if (item.type === "product") {
           return {
@@ -60,8 +72,6 @@ export const CheckoutPage: React.FC = () => {
           };
         }
       });
-
-      // ✅ Step 2: Calculate total
       const totalPrice =
         cart.reduce((acc, item) => {
           if (item.type === "product") {
@@ -70,7 +80,6 @@ export const CheckoutPage: React.FC = () => {
           return acc + item.customCake.totalPrice * item.quantity;
         }, 0) || cartTotal;
 
-      // ✅ Step 3: Create order in backend
       const orderResponse = await axios.post(`${API_URL}/api/orders`, {
         customerName: customerData.name,
         email: customerData.email,
@@ -83,18 +92,27 @@ export const CheckoutPage: React.FC = () => {
 
       const orderId = orderResponse.data._id;
       if (!orderId) throw new Error("Order creation failed: no ID returned");
+      setProgress(progressPerStep * 2);
 
-      // ✅ Step 4: Initiate payment with orderId
+      // Step 3: Initiate payment with orderId
+      setCurrentStepMessage("Initiating secure payment...");
       const paymentResponse = await axios.post(`${API_URL}/api/payments/initiate`, {
         email: customerData.email,
         totalPrice,
         orderId,
       });
-
       const { authorization_url } = paymentResponse.data.payment;
+      setProgress(progressPerStep * 3);
 
+      // Step 4: Finalize and redirect
+      setCurrentStepMessage("Finalizing your receipt and redirecting...");
+      setProgress(100);
       clearCart();
-      window.location.href = authorization_url; // Loader stays until Paystack redirects
+
+      setTimeout(() => {
+        window.location.href = authorization_url;
+      }, 500);
+
     } catch (error: unknown) {
       let errorMessage = "Payment initiation failed.";
       if (axios.isAxiosError(error)) {
@@ -102,14 +120,15 @@ export const CheckoutPage: React.FC = () => {
       }
       console.error(error);
       setMessage(errorMessage);
-      setIsProcessing(false); // ❌ Only stop loader if an error occurs
+      setIsProcessing(false);
+      setProgress(0);
+      setCurrentStepMessage(null);
     }
   };
 
   return (
     <div className="min-h-screen bg-white font-sans">
       <div className="max-w-7xl mx-auto px-4 py-12 md:flex md:gap-10">
-        {/* Left: Steps */}
         <div className="md:w-2/3 space-y-8">
           <h1 className="text-4xl font-extrabold text-rose-600 mb-8">Checkout</h1>
 
@@ -122,7 +141,6 @@ export const CheckoutPage: React.FC = () => {
             </div>
           )}
 
-          {/* Customer Details */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">1. Customer Details</h2>
@@ -169,7 +187,6 @@ export const CheckoutPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Delivery Options */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">2. Delivery Options</h2>
@@ -208,7 +225,6 @@ export const CheckoutPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* Order Review */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-2xl font-bold text-slate-800">3. Order Review</h2>
@@ -247,7 +263,6 @@ export const CheckoutPage: React.FC = () => {
           </div>
         </div>
 
-        {/* Right: Cart Summary */}
         <div className="md:w-1/3 mt-10 md:mt-0">
           <div className="sticky top-28 bg-rose-100 p-6 rounded-3xl shadow-xl">
             <CartSummary cart={cart} cartTotal={cartTotal} />
@@ -255,22 +270,28 @@ export const CheckoutPage: React.FC = () => {
         </div>
       </div>
 
-      {/* ✅ Loader Overlay */}
       <AnimatePresence>
         {isProcessing && (
           <motion.div
-            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/50 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black/70 backdrop-blur-sm p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            {/* Spinner */}
-            <div className="w-16 h-16 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
-
-            {/* Message */}
-            <p className="mt-6 text-white text-lg font-semibold">
-              Processing your order, please wait...
-            </p>
+            <div className="w-full max-w-md bg-white p-6 rounded-lg shadow-xl text-center">
+              <h2 className="text-2xl font-bold text-gray-800 mb-4">Placing Your Order...</h2>
+              <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden mb-4">
+                <motion.div
+                  className="h-full bg-rose-500 rounded-full"
+                  initial={{ width: 0 }}
+                  animate={{ width: `${progress}%` }}
+                  transition={{ duration: 0.5, ease: "easeInOut" }}
+                />
+              </div>
+              <p className="text-gray-600 font-medium text-lg">
+                {currentStepMessage || "Preparing to process..."}
+              </p>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
