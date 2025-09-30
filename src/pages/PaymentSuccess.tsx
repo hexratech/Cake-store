@@ -55,7 +55,7 @@ interface PaymentVerificationResponse {
 
 // ✅ Use env variable or fallback to Render backend
 const API_URL =
-  import.meta.env.VITE_API_BASE_URL || "https://cake-store-60hq.onrender.com";
+  import.meta.env.VITE_API_URL || "https://cakestore-production.up.railway.app";
 
 const CheckCircleIcon = () => (
   <svg
