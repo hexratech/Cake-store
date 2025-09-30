@@ -55,11 +55,15 @@ interface PaymentVerificationResponse {
 
 // ✅ Use env variable or fallback to Render backend
 const API_URL =
-  import.meta.env.VITE_API_BASE_URL ||
-  "https://cake-store-60hq.onrender.com";
+  import.meta.env.VITE_API_BASE_URL || "https://cake-store-60hq.onrender.com";
 
 const CheckCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-green-500 mx-auto">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="w-16 h-16 text-green-500 mx-auto"
+  >
     <path
       fillRule="evenodd"
       d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z"
@@ -69,13 +73,29 @@ const CheckCircleIcon = () => (
 );
 
 const SpinnerIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-16 h-16 text-blue-500 mx-auto animate-spin">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className="w-16 h-16 text-blue-500 mx-auto animate-spin"
+  >
     <path d="M21 12a9 9 0 1 1-6.219-8.56" />
   </svg>
 );
 
 const TimesCircleIcon = () => (
-  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-16 h-16 text-red-500 mx-auto">
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    className="w-16 h-16 text-red-500 mx-auto"
+  >
     <path
       fillRule="evenodd"
       d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25Zm-1.72 6.97a.75.75 0 1 0-1.06 1.06L10.94 12l-2.78 2.78a.75.75 0 1 0 1.06 1.06L12 13.06l2.78 2.78a.75.75 0 1 0 1.06-1.06L13.06 12l2.78-2.78a.75.75 0 0 0-1.06-1.06L12 10.94l-2.78-2.78Z"
@@ -89,8 +109,12 @@ const PaymentSuccess: React.FC = () => {
   const navigate = useNavigate();
   const reference = searchParams.get("reference");
 
-  const [verificationStatus, setVerificationStatus] = useState<"verifying" | "success" | "failed">("verifying");
-  const [paymentDetails, setPaymentDetails] = useState<PaymentVerificationResponse["payment"] | null>(null);
+  const [verificationStatus, setVerificationStatus] = useState<
+    "verifying" | "success" | "failed"
+  >("verifying");
+  const [paymentDetails, setPaymentDetails] = useState<
+    PaymentVerificationResponse["payment"] | null
+  >(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const { clearCart } = useCart();
@@ -109,7 +133,10 @@ const PaymentSuccess: React.FC = () => {
 
         if (res.data.payment.status !== "success") {
           setVerificationStatus("failed");
-          console.error("Payment status is not 'success'. Status:", res.data.payment.status);
+          console.error(
+            "Payment status is not 'success'. Status:",
+            res.data.payment.status
+          );
           setErrorMessage(res.data.message);
           return;
         }
@@ -119,8 +146,13 @@ const PaymentSuccess: React.FC = () => {
         clearCart();
       } catch (error) {
         if (axios.isAxiosError(error)) {
-          const message = error.response?.data?.message || "Payment verification failed. Please try again.";
-          console.error("Payment verification or order save failed:", error.response?.data || error.message);
+          const message =
+            error.response?.data?.message ||
+            "Payment verification failed. Please try again.";
+          console.error(
+            "Payment verification or order save failed:",
+            error.response?.data || error.message
+          );
           setErrorMessage(message);
         } else {
           console.error("An unexpected error occurred:", error);
@@ -135,7 +167,7 @@ const PaymentSuccess: React.FC = () => {
 
   useEffect(() => {
     if (verificationStatus === "success") {
-      const timer = setTimeout(() => navigate("/"), 5000);
+      const timer = setTimeout(() => navigate("/"), 8080);
       return () => clearTimeout(timer);
     }
   }, [verificationStatus, navigate]);
@@ -146,7 +178,9 @@ const PaymentSuccess: React.FC = () => {
         return (
           <>
             <SpinnerIcon />
-            <h2 className="mt-4 text-2xl font-bold text-slate-700">Verifying Payment...</h2>
+            <h2 className="mt-4 text-2xl font-bold text-slate-700">
+              Verifying Payment...
+            </h2>
             <p className="text-slate-500">Please do not close this page.</p>
           </>
         );
@@ -154,8 +188,12 @@ const PaymentSuccess: React.FC = () => {
         return (
           <>
             <CheckCircleIcon />
-            <h2 className="mt-4 text-2xl font-bold text-green-700">Payment Successful!</h2>
-            <p className="text-slate-600 mt-2">Your order has been placed successfully.</p>
+            <h2 className="mt-4 text-2xl font-bold text-green-700">
+              Payment Successful!
+            </h2>
+            <p className="text-slate-600 mt-2">
+              Your order has been placed successfully.
+            </p>
             {paymentDetails && (
               <div className="mt-4 text-sm text-slate-500 space-y-1">
                 <p>
@@ -174,7 +212,9 @@ const PaymentSuccess: React.FC = () => {
                 </p>
               </div>
             )}
-            <p className="mt-4 text-sm text-slate-500">Redirecting to the store in 5 seconds...</p>
+            <p className="mt-4 text-sm text-slate-500">
+              Redirecting to the store in 5 seconds...
+            </p>
             <Link
               to="/"
               className="mt-6 inline-block bg-rose-600 text-white font-medium py-2 px-6 rounded-full shadow hover:bg-rose-700 transition"
@@ -187,9 +227,12 @@ const PaymentSuccess: React.FC = () => {
         return (
           <>
             <TimesCircleIcon />
-            <h2 className="mt-4 text-2xl font-bold text-red-700">Payment Failed</h2>
+            <h2 className="mt-4 text-2xl font-bold text-red-700">
+              Payment Failed
+            </h2>
             <p className="text-slate-600 mt-2">
-              {errorMessage || "There was an issue verifying your payment. Please try again."}
+              {errorMessage ||
+                "There was an issue verifying your payment. Please try again."}
             </p>
             <Link
               to="/checkout"

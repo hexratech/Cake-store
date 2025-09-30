@@ -6,7 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 
 // FIX: Removed import.meta.env.VITE_API_URL as it is not supported in the target environment.
 // Please manually update this URL if your API is hosted elsewhere.
-const API_URL = "http://localhost:5000";
+const API_URL = "http://localhost:8080";
 
 interface FiltersProps {
   onApply: (url: string) => void; // send full API URL
@@ -115,7 +115,10 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
             >
               {/* Category */}
               <div>
-                <label htmlFor="category" className="font-medium text-slate-700">
+                <label
+                  htmlFor="category"
+                  className="font-medium text-slate-700"
+                >
                   Category
                 </label>
                 <select
@@ -155,7 +158,10 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
               {/* Price Range */}
               <div>
-                <label htmlFor="priceRange" className="font-medium text-slate-700">
+                <label
+                  htmlFor="priceRange"
+                  className="font-medium text-slate-700"
+                >
                   Price Range
                 </label>
                 <select

@@ -13,7 +13,10 @@ const MessagesPage = () => {
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [isSending, setIsSending] = useState(false);
-  const [alert, setAlert] = useState<{ message: string; type: "success" | "error" | null }>({
+  const [alert, setAlert] = useState<{
+    message: string;
+    type: "success" | "error" | null;
+  }>({
     message: "",
     type: null,
   });
@@ -65,23 +68,35 @@ const MessagesPage = () => {
     setIsSending(true);
     setAlert({ message: "", type: null });
 
-    const selectedEmails = emails.filter((e) => e.selected && e.email).map((e) => e.email);
+    const selectedEmails = emails
+      .filter((e) => e.selected && e.email)
+      .map((e) => e.email);
 
     if (selectedEmails.length === 0) {
-      setAlert({ message: "Please select at least one valid recipient", type: "error" });
+      setAlert({
+        message: "Please select at least one valid recipient",
+        type: "error",
+      });
       setIsSending(false);
       return;
     }
 
     try {
-      const res = await fetch(`${import.meta.env.VITE_API_URL}/api/messages/bulk`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ subject, message, recipients: selectedEmails }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_URL}/api/messages/bulk`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            subject,
+            message,
+            recipients: selectedEmails,
+          }),
+        }
+      );
 
       if (!res.ok) {
         const errorData = await res.json();
@@ -98,7 +113,7 @@ const MessagesPage = () => {
       });
     } finally {
       setIsSending(false);
-      setTimeout(() => setAlert({ message: "", type: null }), 5000);
+      setTimeout(() => setAlert({ message: "", type: null }), 8080);
     }
   };
 
@@ -113,11 +128,17 @@ const MessagesPage = () => {
         {alert.message && (
           <div
             className={`flex items-center gap-2 p-4 mb-6 rounded-xl ${
-              alert.type === "success" ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+              alert.type === "success"
+                ? "bg-green-100 text-green-700"
+                : "bg-red-100 text-red-700"
             }`}
             role="alert"
           >
-            {alert.type === "success" ? <CheckCircle className="w-5 h-5" /> : <XCircle className="w-5 h-5" />}
+            {alert.type === "success" ? (
+              <CheckCircle className="w-5 h-5" />
+            ) : (
+              <XCircle className="w-5 h-5" />
+            )}
             <span className="text-sm font-medium">{alert.message}</span>
           </div>
         )}
@@ -125,7 +146,9 @@ const MessagesPage = () => {
         <div className="flex mb-6 border-b border-gray-200">
           <button
             className={`px-4 py-2 font-medium ${
-              activeTab === "compose" ? "border-b-2 border-rose-600 text-rose-600" : "text-gray-500"
+              activeTab === "compose"
+                ? "border-b-2 border-rose-600 text-rose-600"
+                : "text-gray-500"
             }`}
             onClick={() => setActiveTab("compose")}
           >
@@ -133,7 +156,9 @@ const MessagesPage = () => {
           </button>
           <button
             className={`px-4 py-2 font-medium ${
-              activeTab === "emails" ? "border-b-2 border-rose-600 text-rose-600" : "text-gray-500"
+              activeTab === "emails"
+                ? "border-b-2 border-rose-600 text-rose-600"
+                : "text-gray-500"
             }`}
             onClick={() => setActiveTab("emails")}
           >
@@ -142,12 +167,20 @@ const MessagesPage = () => {
         </div>
 
         {activeTab === "compose" ? (
-          <form onSubmit={handleSendEmail} className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <form
+            onSubmit={handleSendEmail}
+            className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+          >
             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Compose Message</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Compose Message
+              </h2>
               <div className="space-y-4">
                 <div>
-                  <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="subject"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Subject
                   </label>
                   <input
@@ -162,7 +195,10 @@ const MessagesPage = () => {
                 </div>
 
                 <div>
-                  <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
+                  <label
+                    htmlFor="message"
+                    className="block text-sm font-medium text-gray-700 mb-1"
+                  >
                     Message
                   </label>
                   <textarea
@@ -180,7 +216,9 @@ const MessagesPage = () => {
                   type="submit"
                   disabled={isSending}
                   className={`w-full flex items-center justify-center gap-2 py-3 px-6 rounded-xl font-bold transition-colors duration-200 ${
-                    isSending ? "bg-gray-400 text-gray-100 cursor-not-allowed" : "bg-rose-600 text-white hover:bg-rose-700"
+                    isSending
+                      ? "bg-gray-400 text-gray-100 cursor-not-allowed"
+                      : "bg-rose-600 text-white hover:bg-rose-700"
                   }`}
                 >
                   {isSending ? (
@@ -197,18 +235,30 @@ const MessagesPage = () => {
             </div>
 
             <div className="bg-gray-50 p-6 rounded-2xl border border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-800 mb-4">Live Preview</h2>
+              <h2 className="text-xl font-semibold text-gray-800 mb-4">
+                Live Preview
+              </h2>
               <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-inner min-h-[400px] flex flex-col gap-4">
                 <div>
-                  <span className="text-sm font-medium text-gray-500">To: </span>
-                  <span className="font-semibold text-gray-800">Selected Recipients</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    To:{" "}
+                  </span>
+                  <span className="font-semibold text-gray-800">
+                    Selected Recipients
+                  </span>
                 </div>
                 <div>
-                  <span className="text-sm font-medium text-gray-500">Subject: </span>
-                  <span className="font-semibold text-gray-800">{subject || "Your Subject Here"}</span>
+                  <span className="text-sm font-medium text-gray-500">
+                    Subject:{" "}
+                  </span>
+                  <span className="font-semibold text-gray-800">
+                    {subject || "Your Subject Here"}
+                  </span>
                 </div>
                 <div className="prose max-w-none text-gray-700">
-                  <p className="whitespace-pre-line">{message || "Your message will appear here as you type."}</p>
+                  <p className="whitespace-pre-line">
+                    {message || "Your message will appear here as you type."}
+                  </p>
                 </div>
               </div>
             </div>
@@ -240,7 +290,10 @@ const MessagesPage = () => {
                 </div>
                 <ul className="max-h-[400px] overflow-y-auto space-y-2 text-gray-700">
                   {emails.map((user) => (
-                    <li key={user._id} className="flex items-center gap-2 border-b py-1">
+                    <li
+                      key={user._id}
+                      className="flex items-center gap-2 border-b py-1"
+                    >
                       <input
                         type="checkbox"
                         checked={user.selected}
@@ -248,14 +301,17 @@ const MessagesPage = () => {
                         className="w-4 h-4"
                       />
                       <span>
-                        {user.name} - <span className="font-mono">{user.email}</span>
+                        {user.name} -{" "}
+                        <span className="font-mono">{user.email}</span>
                       </span>
                     </li>
                   ))}
                 </ul>
               </>
             ) : (
-              <div className="text-gray-400 text-sm">No emails found for this selection.</div>
+              <div className="text-gray-400 text-sm">
+                No emails found for this selection.
+              </div>
             )}
           </div>
         )}

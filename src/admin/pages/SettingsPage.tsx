@@ -69,18 +69,18 @@ const SettingsPage = () => {
 
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const token = localStorage.getItem("adminToken");
-let role: "admin" | "superadmin" = "admin"; // default
+  let role: "admin" | "superadmin" = "admin"; // default
 
-if (token) {
-  try {
-    const decoded = jwtDecode<AdminTokenPayload>(token);
-    role = decoded.role;
-  } catch (err) {
-    console.error("Failed to decode token:", err);
+  if (token) {
+    try {
+      const decoded = jwtDecode<AdminTokenPayload>(token);
+      role = decoded.role;
+    } catch (err) {
+      console.error("Failed to decode token:", err);
+    }
   }
-}
 
-console.log("Logged in role:", role);
+  console.log("Logged in role:", role);
   const API_URL = import.meta.env.VITE_API_URL;
 
   // Fetch settings & admins
@@ -136,17 +136,28 @@ console.log("Logged in role:", role);
       setAlert({ message: "Settings saved successfully!", type: "success" });
     } catch (err: unknown) {
       console.error(err);
-      setAlert({ message: (err as Error).message || "Failed to save settings.", type: "error" });
+      setAlert({
+        message: (err as Error).message || "Failed to save settings.",
+        type: "error",
+      });
     } finally {
       setSaving(false);
-      setTimeout(() => setAlert({ message: "", type: null }), 5000);
+      setTimeout(() => setAlert({ message: "", type: null }), 8080);
     }
   };
 
   // Admin Handlers
   const handleAddAdmin = async () => {
-    if (!newAdmin.name || !newAdmin.email || !newAdmin.password || !newAdmin.role) {
-      setAlert({ message: "All fields including role are required.", type: "error" });
+    if (
+      !newAdmin.name ||
+      !newAdmin.email ||
+      !newAdmin.password ||
+      !newAdmin.role
+    ) {
+      setAlert({
+        message: "All fields including role are required.",
+        type: "error",
+      });
       return;
     }
 
@@ -170,14 +181,20 @@ console.log("Logged in role:", role);
       setAlert({ message: "Admin added successfully!", type: "success" });
     } catch (err: unknown) {
       console.error(err);
-      setAlert({ message: (err as Error).message || "Failed to add admin.", type: "error" });
+      setAlert({
+        message: (err as Error).message || "Failed to add admin.",
+        type: "error",
+      });
     }
   };
 
   const handleUpdateAdmin = async () => {
     if (!editingAdmin) return;
     if (!editingAdmin.name || !editingAdmin.email || !editingAdmin.role) {
-      setAlert({ message: "Name, email, and role are required.", type: "error" });
+      setAlert({
+        message: "Name, email, and role are required.",
+        type: "error",
+      });
       return;
     }
 
@@ -205,7 +222,10 @@ console.log("Logged in role:", role);
       setAlert({ message: "Admin updated successfully!", type: "success" });
     } catch (err: unknown) {
       console.error(err);
-      setAlert({ message: (err as Error).message || "Failed to update admin.", type: "error" });
+      setAlert({
+        message: (err as Error).message || "Failed to update admin.",
+        type: "error",
+      });
     }
   };
 
@@ -227,7 +247,10 @@ console.log("Logged in role:", role);
       setAlert({ message: "Admin removed successfully!", type: "success" });
     } catch (err: unknown) {
       console.error(err);
-      setAlert({ message: (err as Error).message || "Failed to remove admin.", type: "error" });
+      setAlert({
+        message: (err as Error).message || "Failed to remove admin.",
+        type: "error",
+      });
     }
   };
 
@@ -276,7 +299,10 @@ console.log("Logged in role:", role);
             </h2>
             <div className="space-y-4">
               <div>
-                <label htmlFor="siteName" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="siteName"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Site Name
                 </label>
                 <input
@@ -284,13 +310,18 @@ console.log("Logged in role:", role);
                   type="text"
                   name="siteName"
                   value={settings.siteName}
-                  onChange={(e) => setSettings({ ...settings, siteName: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, siteName: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                   placeholder="e.g., The Pastry Palace"
                 />
               </div>
               <div>
-                <label htmlFor="contactEmail" className="block text-sm font-medium text-gray-700 mb-1">
+                <label
+                  htmlFor="contactEmail"
+                  className="block text-sm font-medium text-gray-700 mb-1"
+                >
                   Contact Email
                 </label>
                 <input
@@ -298,7 +329,9 @@ console.log("Logged in role:", role);
                   type="email"
                   name="contactEmail"
                   value={settings.contactEmail}
-                  onChange={(e) => setSettings({ ...settings, contactEmail: e.target.value })}
+                  onChange={(e) =>
+                    setSettings({ ...settings, contactEmail: e.target.value })
+                  }
                   className="w-full px-4 py-3 border border-gray-300 rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-rose-500 transition"
                   placeholder="e.g., contact@bakery.com"
                 />
@@ -317,11 +350,16 @@ console.log("Logged in role:", role);
                 type="checkbox"
                 checked={settings.maintenanceMode}
                 onChange={(e) =>
-                  setSettings({ ...settings, maintenanceMode: e.target.checked })
+                  setSettings({
+                    ...settings,
+                    maintenanceMode: e.target.checked,
+                  })
                 }
                 className="h-5 w-5 text-rose-600 border-gray-300 rounded focus:ring-rose-500"
               />
-              <span className="text-gray-700">Enable maintenance mode (disable ordering)</span>
+              <span className="text-gray-700">
+                Enable maintenance mode (disable ordering)
+              </span>
             </label>
           </div>
 
@@ -395,14 +433,20 @@ console.log("Logged in role:", role);
                     placeholder="Email"
                     value={editingAdmin.email}
                     onChange={(e) =>
-                      setEditingAdmin({ ...editingAdmin, email: e.target.value })
+                      setEditingAdmin({
+                        ...editingAdmin,
+                        email: e.target.value,
+                      })
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-3"
                   />
                   <select
                     value={editingAdmin.role}
                     onChange={(e) =>
-                      setEditingAdmin({ ...editingAdmin, role: e.target.value as "admin" | "superadmin" })
+                      setEditingAdmin({
+                        ...editingAdmin,
+                        role: e.target.value as "admin" | "superadmin",
+                      })
                     }
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg mb-3"
                   >

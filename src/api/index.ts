@@ -1,6 +1,6 @@
 // src/api/index.ts
 
-export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
+export const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8080";
 
 /**
  * Product type
@@ -97,7 +97,9 @@ export type Order = {
  * API calls
  */
 export const fetchProducts = async (query?: string): Promise<Product[]> => {
-  const url = query ? `${API_URL}/api/products?${query}` : `${API_URL}/api/products`;
+  const url = query
+    ? `${API_URL}/api/products?${query}`
+    : `${API_URL}/api/products`;
 
   const res = await fetch(url);
 

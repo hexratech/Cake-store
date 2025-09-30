@@ -11,7 +11,7 @@ export const HeroSection: React.FC = () => {
   useEffect(() => {
     const t = setInterval(() => {
       setSlideIndex((s) => (s + 1) % HERO_SLIDES.length);
-    }, 5000);
+    }, 8080);
     return () => clearInterval(t);
   }, []);
 
@@ -24,9 +24,9 @@ export const HeroSection: React.FC = () => {
   };
 
   return (
-  <section className="relative text-center text-white overflow-hidden min-h-screen w-full">
+    <section className="relative text-center text-white overflow-hidden min-h-screen w-full">
       {/* Background slides with overlay */}
-  <div className="absolute inset-0 w-full h-full min-h-screen">
+      <div className="absolute inset-0 w-full h-full min-h-screen">
         <AnimatePresence initial={false}>
           <motion.img
             key={HERO_SLIDES[slideIndex].id}
@@ -37,7 +37,12 @@ export const HeroSection: React.FC = () => {
             exit={{ opacity: 0 }}
             transition={{ duration: 1.2, ease: "easeInOut" }}
             className="absolute inset-0 w-full h-full min-h-screen object-cover object-center"
-            style={{ minHeight: '100vh', width: '100vw', maxWidth: '100%', maxHeight: '100vh' }}
+            style={{
+              minHeight: "100vh",
+              width: "100vw",
+              maxWidth: "100%",
+              maxHeight: "100vh",
+            }}
           />
         </AnimatePresence>
         {/* Dark overlay */}
@@ -45,7 +50,7 @@ export const HeroSection: React.FC = () => {
       </div>
 
       {/* Content overlay (centered) */}
-        <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-6 min-h-screen w-full text-center">
+      <div className="relative z-20 flex flex-col items-center justify-center h-full px-4 sm:px-6 min-h-screen w-full text-center">
         <motion.h1
           key={HERO_SLIDES[slideIndex].title}
           initial={{ y: -30, opacity: 0 }}
@@ -65,23 +70,22 @@ export const HeroSection: React.FC = () => {
           {HERO_SLIDES[slideIndex].subtitle}
         </motion.p>
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
-  {/* ✅ Order Now goes to /menu */}
-  <button
-    onClick={() => navigate("/menu")}
-    className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
-  >
-    Order Now
-  </button>
+          {/* ✅ Order Now goes to /menu */}
+          <button
+            onClick={() => navigate("/menu")}
+            className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
+          >
+            Order Now
+          </button>
 
-  {/* ✅ Learn More with glass effect */}
-  <button
-    onClick={handleLearnMore}
-    className="px-5 py-3 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-colors"
-  >
-    Learn More
-  </button>
-</div>
-
+          {/* ✅ Learn More with glass effect */}
+          <button
+            onClick={handleLearnMore}
+            className="px-5 py-3 rounded-lg bg-white/10 backdrop-blur-md border border-white/20 text-white font-medium hover:bg-white/20 transition-colors"
+          >
+            Learn More
+          </button>
+        </div>
       </div>
     </section>
   );
