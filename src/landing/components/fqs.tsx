@@ -15,7 +15,7 @@ export const FaqSection: React.FC = () => {
     },
     {
       q: "Do you offer tastings?",
-      a: "Yes — tastings are available by appointment. Contact us to schedule your session.",
+      a: "Yes - tastings are available by appointment. Contact us to schedule your session.",
     },
     {
       q: "Do you provide delivery?",
