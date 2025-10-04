@@ -14,7 +14,7 @@ export const AboutSection: React.FC<{ selectedType: string | null; setSelectedTy
         <div className="w-full">
           <h2 className="text-4xl font-serif text-black mb-4">Our Story 🍰</h2>
           <p className="text-lg text-black leading-relaxed mb-8 font-sans">
-            <span className="text-black font-mono font-semibold">3vivi Bakery </span>is a family-owned bakery where we believe every celebration deserves
+            <span className="text-black font-mono font-semibold">Ɛvivi Bakery </span>is a family-owned bakery where we believe every celebration deserves
              a centerpiece. We specialize in custom cakes, baked with passion and crafted from the
               finest locally-sourced ingredients. Our goal is to create not just a cake, but a
               memorable experience that brings people together.
