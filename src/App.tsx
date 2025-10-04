@@ -50,8 +50,17 @@ function App() {
           <ScrollToTop />
           <Toaster />
           <Routes>
-            {/* Customer Site */}
+
+            {/* Home + section routes */}
             <Route path="/" element={<Home />} />
+            
+            <Route path="/about" element={<Home />} />
+            <Route path="/products" element={<Home />} />
+            <Route path="/services" element={<Home />} />
+            <Route path="/contact" element={<Home />} />
+
+
+            {/* Customer Site */}
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
