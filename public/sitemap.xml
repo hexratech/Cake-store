@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<urlset
-  xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
->
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
   <!-- Home -->
   <url>
     <loc>https://ɛvivibakery.com/</loc>
@@ -10,7 +9,7 @@
     <priority>1.0</priority>
   </url>
 
-  <!-- About Page -->
+  <!-- About Page (section inside homepage) -->
   <url>
     <loc>https://ɛvivibakery.com/#about</loc>
     <lastmod>2025-10-06</lastmod>
@@ -41,4 +40,5 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+
 </urlset>

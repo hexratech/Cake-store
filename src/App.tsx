@@ -7,7 +7,7 @@ import { Toaster } from "./components/ui/sonner";
 
 // Frontend pages
 import Home from "./pages/home";
-import { MenuPage } from "./pages/menu";
+import { MenuPage } from "./pages/shop";
 import { CheckoutPage } from "./pages/CheckoutPage";
 import PaymentSuccess from "./pages/PaymentSuccess";
 
@@ -53,7 +53,7 @@ function App() {
 
             {/* Home + section routes */}
             <Route path="/" element={<Home />} />
-            
+
             <Route path="/about" element={<Home />} />
             <Route path="/products" element={<Home />} />
             <Route path="/services" element={<Home />} />
@@ -61,7 +61,7 @@ function App() {
 
 
             {/* Customer Site */}
-            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/shop" element={<MenuPage />} />
             <Route path="/checkout" element={<CheckoutPage />} />
             <Route path="/payment-success" element={<PaymentSuccess />} />
 
