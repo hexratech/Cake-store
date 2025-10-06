@@ -5,7 +5,6 @@
     <link rel="icon" type="image/png" href="/logo.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
-    <!-- Primary SEO -->
     <title>Ɛvivi Bakery | Love at first bite</title>
     <meta
       name="description"
@@ -15,48 +14,56 @@
       name="keywords"
       content="3vivi, 3vivi Bakery,vivi bakery,Order Cake, Party,Best bakery in Accra, xn--vivibakery-kje.com, Ɛvivi Bakery, Evivi Bakery, Ghana bakery, cakes in Accra, custom cakes, birthday cakes, pastries, wedding cakes, cupcakes, desserts Ghana, breakfast basket, best cakes in accra"
     />
-    <meta name="hexratech" content="Ɛvivi Bakery" />
     <meta name="robots" content="index, follow" />
     <meta name="theme-color" content="#FF66B2" />
 
-    <!-- Open Graph (Facebook / Instagram / WhatsApp / LinkedIn) -->
+    <link rel="canonical" href="https://xn--vivibakery-kje.com" />
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Ɛvivi Bakery" />
-    <meta property="og:url" content="https://ɛvivibakery.com" />
+    <meta property="og:url" content="https://xn--vivibakery-kje.com" />
     <meta
       property="og:title"
-      content="Ɛvivi Bakery | Freshly Baked Cakes & Pastries in Ghana,  Love at first bite"
+      content="Ɛvivi Bakery | Freshly Baked Cakes & Pastries in Ghana"
     />
     <meta
       property="og:description"
       content="Baked fresh daily — Ɛvivi Bakery crafts beautiful cakes and pastries with love and the finest ingredients."
     />
-    <meta property="og:image" content="https://ɛvivibakery.com/evivilogo.jpg" />
+    <meta property="og:image" content="https://xn--vivibakery-kje.com/evivilogo.jpg" />
     <meta property="og:locale" content="en_GH" />
 
-    <!-- Canonical URL -->
-    <link rel="canonical" href="https://ɛvivibakery.com" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Ɛvivi Bakery | Cakes & Desserts in Accra" />
+    <meta
+      name="twitter:description"
+      content="Order custom cakes and fresh pastries from Ɛvivi Bakery, Ghana. Love at first bite."
+    />
+    <meta name="twitter:image" content="https://xn--vivibakery-kje.com/evivilogo.jpg" />
 
-    <!-- Manifest (PWA Support) -->
     <link rel="manifest" href="/manifest.json" />
 
-    <!-- Structured Data (JSON-LD for Google) -->
     <script type="application/ld+json">
       {
         "@context": "https://schema.org",
-        "@type": "Bakery",
+        "@type": "LocalBusiness",
         "name": "Ɛvivi Bakery",
-        "image": "https://ɛvivibakery.com/logo.png",
-        "@id": "https://ɛvivibakery.com",
-        "url": "https://ɛvivibakery.com",
+        "image": "https://xn--vivibakery-kje.com/evivilogo.jpg",
+        "url": "https://xn--vivibakery-kje.com",
         "telephone": "+233 24 881 2860",
+        "priceRange": "GHS",
         "address": {
-          "@type": "GQ-369-1491",
+          "@type": "PostalAddress",
           "streetAddress": "Accra, Ghana",
+          "addressLocality": "Accra",
           "addressCountry": "GH"
         },
+        "geo": {
+          "@type": "GeoCoordinates",
+          "latitude": "5.5560",
+          "longitude": "-0.1969"
+        },
         "openingHours": "Mo-Su 08:00-20:00",
-        "priceRange": "GHS 100.00 - GHS 6000.00",
         "sameAs": [
           "https://www.instagram.com/3vivi_bakery?igsh=YXc2OTF6djBheTJi",
           "https://www.facebook.com/evivibakery",
@@ -70,10 +77,8 @@
   <body>
     <div id="root"></div>
 
-    <!-- React entry -->
     <script type="module" src="/src/main.tsx"></script>
 
-    <!-- Paystack Integration -->
     <script src="https://js.paystack.co/v1/inline.js"></script>
   </body>
 </html>
