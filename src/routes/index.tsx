@@ -9,7 +9,7 @@ function HomePage() {
   return (
     <>
       <Helmet>
-        <title>Ɛvivi Bakery | Freshly Baked Cakes & Pastries in Ghana</title>
+        <title>Ɛvivi Bakery </title>
         <meta
           name="description"
           content="Order delicious cakes, pastries, and desserts from Ɛvivi Bakery — baked fresh in Ghana with love. Custom cakes for birthdays, weddings, and every celebration."
