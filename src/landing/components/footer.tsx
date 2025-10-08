@@ -34,7 +34,7 @@ export const FooterSection: React.FC = () => {
             className="h-14 w-auto rounded-xl shadow-lg"
           />
           <p className="text-sm text-rose-100 mt-4 leading-relaxed">
-            Handmade cakes & pastries from the heart of Accra. Taste like no other. 🎂
+            Handmade cakes & pastries from the heart of Accra. Love at first bite. 🎂
           </p>
           <div className="mt-6 flex items-center gap-5">
             <a
