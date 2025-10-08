@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-import { toast } from "sonner";
 import type { FormEvent } from "react";
 
 export type CustomerData = {
@@ -7,8 +6,6 @@ export type CustomerData = {
   email: string;
   phone: string;
   address: string;
-  deliveryDate?: string;
-  deliveryTime?: string;
 };
 
 type CustomerFormProps = {
@@ -23,8 +20,6 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
       email: "",
       phone: "",
       address: "",
-      deliveryDate: "",
-      deliveryTime: "",
     }
   );
 
@@ -32,30 +27,12 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
   const [emailError, setEmailError] = useState<string | null>(null);
   const [phoneError, setPhoneError] = useState<string | null>(null);
 
-  const todayISO = new Date().toISOString().split("T")[0];
-
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
 
-    if (name === "deliveryDate") {
-      const today = new Date();
-      const selectedDate = new Date(value);
-      const diffDays = Math.floor(
-        (selectedDate.getTime() - today.setHours(0, 0, 0, 0)) / (1000 * 60 * 60 * 24)
-      );
-      if (diffDays === 0 || diffDays === 1) {
-        toast("Extra fee will be paid for quick service");
-      }
-    }
-
-    if (name === "email") {
-      validateEmail(value);
-    }
-
-    if (name === "phone") {
-      validatePhone(value);
-    }
+    if (name === "email") validateEmail(value);
+    if (name === "phone") validatePhone(value);
   };
 
   const validateEmail = (email: string) => {
@@ -188,7 +165,7 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
           value={formData.address}
           onChange={handleChange}
           className="peer w-full rounded-xl border px-4 pt-5 pb-2 text-base text-slate-900 placeholder-transparent focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-          placeholder="Delivery Address"
+          placeholder="Address"
           required
         />
         <label
@@ -198,48 +175,8 @@ export const CustomerForm: React.FC<CustomerFormProps> = ({ onComplete, initialV
           peer-placeholder-shown:text-sm peer-focus:top-2 peer-focus:text-xs
           peer-focus:text-rose-600"
         >
-          Delivery Address <span className="text-rose-500">*</span>
+          Address <span className="text-rose-500">*</span>
         </label>
-      </div>
-
-      {/* Delivery Date (modern UI) */}
-      <div>
-  <label
-    htmlFor="deliveryDate"
-    className="block text-sm font-medium text-slate-700 mb-1 whitespace-nowrap"
-  >
-    Delivery Date <span className="text-rose-500">*</span>
-  </label>
-  <input
-    id="deliveryDate"
-    name="deliveryDate"
-    type="date"
-    value={formData.deliveryDate}
-    onChange={handleChange}
-    min={todayISO}
-    className="w-52 rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-  />
-</div>
-
-
-      {/* Delivery Time (modern UI) */}
-      <div>
-        <label htmlFor="deliveryTime" className="block text-sm font-medium text-slate-700 mb-1">
-          Delivery Time <span className="text-rose-500">*</span>
-        </label>
-        <input
-          id="deliveryTime"
-          name="deliveryTime"
-          type="time"
-          min="08:00"
-          max="17:00"
-          value={formData.deliveryTime}
-          onChange={handleChange}
-          className="w-52 rounded-xl border px-4 py-2 text-base text-slate-900 focus:ring-2 focus:ring-rose-400 focus:outline-none transition"
-        />
-        <span className="text-xs text-slate-500 block mt-1">
-          Deliveries are available between 8:00am and 5:00pm
-        </span>
       </div>
 
       <button
