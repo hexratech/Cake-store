@@ -1,12 +1,36 @@
 import { useEffect, useState, useCallback } from "react";
 import AdminLayout from "../components/AdminLayout";
-import { Search, ChevronDown, CheckCircle, Package, ShoppingCart, Truck, XCircle, Info } from "lucide-react";
-import OrderDetailsModal from "../components/OrderDetailsModal"; // import the modal
+import {
+  Search,
+  ChevronDown,
+  CheckCircle,
+  Package,
+  ShoppingCart,
+  Truck,
+  XCircle,
+  Info,
+  Cake,
+} from "lucide-react";
+import OrderDetailsModal from "../components/OrderDetailsModal";
+
+interface CustomDetails {
+  flavor?: string;
+  icing?: string;
+  layers?: string;
+  size?: string;
+  toppings?: string[];
+  note?: string;
+  design?: string;
+  designImage?: string;
+  estimatedPrice?: number;
+}
 
 interface OrderItem {
   name: string;
   price: number;
-  quantity: number;
+  qty: number;
+  isCustom?: boolean;
+  customDetails?: CustomDetails;
 }
 
 interface Order {
@@ -16,11 +40,15 @@ interface Order {
   email: string;
   phone: string;
   totalPrice: number;
-  status: "Pending" | "Processing" | "Shipped" | "Delivered" | "Cancelled";
+  status: "Pending" | "In Progress" | "Ready" | "Completed" | "Cancelled";
+  deliveryStatus: "Pending" | "Dispatched" | "Delivered";
+  deliveryMethod: "Delivery" | "Pickup";
   createdAt: string;
   items: OrderItem[];
-  deliveryOption?: string;
-  type?: "Normal" | "CustomCake";
+  address?: string;
+  deliveryDate?: string;       // ✅ Added
+  deliveryTime?: string;       // ✅ Added
+  estimatedDelivery?: string;
 }
 
 const OrdersPage = () => {
@@ -29,8 +57,7 @@ const OrdersPage = () => {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-
-  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null); // modal state
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
   const token = localStorage.getItem("adminToken");
   const API_URL = import.meta.env.VITE_API_URL as string;
@@ -72,7 +99,9 @@ const OrdersPage = () => {
         if (!res.ok) throw new Error("Failed to update status");
 
         const updatedOrder = await res.json();
-        setOrders((prev) => prev.map((order) => (order._id === id ? updatedOrder : order)));
+        setOrders((prev) =>
+          prev.map((order) => (order._id === id ? updatedOrder : order))
+        );
       } catch (err: unknown) {
         if (err instanceof Error) console.error(err.message);
         else console.error("Failed to update order status");
@@ -97,11 +126,11 @@ const OrdersPage = () => {
     switch (status) {
       case "Pending":
         return "bg-yellow-100 text-yellow-800";
-      case "Processing":
+      case "In Progress":
         return "bg-blue-100 text-blue-800";
-      case "Shipped":
+      case "Ready":
         return "bg-purple-100 text-purple-800";
-      case "Delivered":
+      case "Completed":
         return "bg-green-100 text-green-800";
       case "Cancelled":
         return "bg-red-100 text-red-800";
@@ -131,11 +160,13 @@ const OrdersPage = () => {
   return (
     <AdminLayout>
       <div className="p-6 md:p-8 bg-white min-h-full rounded-2xl shadow-lg">
+        {/* Header */}
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
           <h1 className="text-3xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-          <ShoppingCart className="w-8 h-8 text-rose-600" />
-          Orders
-        </h1>
+            <ShoppingCart className="w-8 h-8 text-rose-600" />
+            Orders
+          </h1>
+
           <div className="flex gap-4 items-center">
             <div className="relative">
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
@@ -155,9 +186,9 @@ const OrdersPage = () => {
               >
                 <option value="All">All Statuses</option>
                 <option value="Pending">Pending</option>
-                <option value="Processing">Processing</option>
-                <option value="Shipped">Shipped</option>
-                <option value="Delivered">Delivered</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Ready">Ready</option>
+                <option value="Completed">Completed</option>
                 <option value="Cancelled">Cancelled</option>
               </select>
               <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
@@ -165,8 +196,11 @@ const OrdersPage = () => {
           </div>
         </div>
 
+        {/* Orders Table */}
         {filteredOrders.length === 0 ? (
-          <div className="text-center py-10 text-gray-500">No orders found matching your criteria.</div>
+          <div className="text-center py-10 text-gray-500">
+            No orders found matching your criteria.
+          </div>
         ) : (
           <div className="w-full overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-200 shadow-xl rounded-xl overflow-hidden">
@@ -174,7 +208,8 @@ const OrdersPage = () => {
                 <tr className="text-gray-500 text-sm uppercase tracking-wider text-left">
                   <th className="p-4">Order ID</th>
                   <th className="p-4">Customer</th>
-                  <th className="p-4">Total Price</th>
+                  <th className="p-4">Total</th>
+                  <th className="p-4">Delivery</th>
                   <th className="p-4">Status</th>
                   <th className="p-4">Date</th>
                   <th className="p-4 text-right">Actions</th>
@@ -183,47 +218,74 @@ const OrdersPage = () => {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredOrders.map((order) => (
                   <tr key={order._id} className="hover:bg-gray-50 transition">
-                    <td className="p-4 font-medium text-gray-900">{order.orderId}</td>
+                    <td className="p-4 font-medium text-gray-900 flex items-center gap-2">
+                      {order.orderId}
+                      {order.items.some((i) => i.isCustom) && (
+                        <span
+                          title="Custom Cake Order"
+                          className="inline-flex items-center px-2 py-1 rounded-md text-xs bg-rose-100 text-rose-700"
+                        >
+                          <Cake className="w-3 h-3 mr-1" />
+                          Custom
+                        </span>
+                      )}
+                    </td>
                     <td className="p-4 text-gray-700">{order.customerName}</td>
-                    <td className="p-4 font-semibold text-gray-900">GHS {order.totalPrice.toFixed(2)}</td>
+                    <td className="p-4 font-semibold text-gray-900">
+                      GHS {order.totalPrice.toFixed(2)}
+                    </td>
+                    <td className="p-4 text-gray-600">{order.deliveryMethod}</td>
                     <td className="p-4">
-                      <span className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(order.status)}`}>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold ${getStatusBadge(
+                          order.status
+                        )}`}
+                      >
                         {order.status}
                       </span>
                     </td>
-                    <td className="p-4 text-gray-500">{new Date(order.createdAt).toLocaleDateString()}</td>
+                    <td className="p-4 text-gray-500">
+                      {new Date(order.createdAt).toLocaleDateString()}
+                    </td>
                     <td className="p-4 text-right">
                       <div className="flex items-center justify-end gap-2">
                         {order.status === "Pending" && (
                           <button
-                            onClick={() => updateOrderStatus(order._id, "Processing")}
+                            onClick={() =>
+                              updateOrderStatus(order._id, "In Progress")
+                            }
                             className="text-sm px-3 py-1 rounded-lg bg-blue-50 text-blue-600 hover:bg-blue-100 transition"
-                            title="Mark as Processing"
+                            title="Mark as In Progress"
                           >
                             <Package className="w-4 h-4" />
                           </button>
                         )}
-                        {order.status === "Processing" && (
+                        {order.status === "In Progress" && (
                           <button
-                            onClick={() => updateOrderStatus(order._id, "Shipped")}
+                            onClick={() => updateOrderStatus(order._id, "Ready")}
                             className="text-sm px-3 py-1 rounded-lg bg-purple-50 text-purple-600 hover:bg-purple-100 transition"
-                            title="Mark as Shipped"
+                            title="Mark as Ready"
                           >
                             <Truck className="w-4 h-4" />
                           </button>
                         )}
-                        {order.status === "Shipped" && (
+                        {order.status === "Ready" && (
                           <button
-                            onClick={() => updateOrderStatus(order._id, "Delivered")}
+                            onClick={() =>
+                              updateOrderStatus(order._id, "Completed")
+                            }
                             className="text-sm px-3 py-1 rounded-lg bg-green-50 text-green-600 hover:bg-green-100 transition"
-                            title="Mark as Delivered"
+                            title="Mark as Completed"
                           >
                             <CheckCircle className="w-4 h-4" />
                           </button>
                         )}
-                        {(order.status === "Pending" || order.status === "Processing") && (
+                        {(order.status === "Pending" ||
+                          order.status === "In Progress") && (
                           <button
-                            onClick={() => updateOrderStatus(order._id, "Cancelled")}
+                            onClick={() =>
+                              updateOrderStatus(order._id, "Cancelled")
+                            }
                             className="text-sm px-3 py-1 rounded-lg bg-red-50 text-red-600 hover:bg-red-100 transition"
                             title="Cancel Order"
                           >
@@ -231,7 +293,7 @@ const OrdersPage = () => {
                           </button>
                         )}
                         <button
-                          onClick={() => setSelectedOrder(order)} // open modal
+                          onClick={() => setSelectedOrder(order)}
                           className="text-sm px-3 py-1 rounded-lg bg-gray-50 text-gray-600 hover:bg-gray-100 transition"
                           title="View Details"
                         >
@@ -246,7 +308,7 @@ const OrdersPage = () => {
           </div>
         )}
 
-        {/* Render the modal */}
+        {/* Order Details Modal */}
         {selectedOrder && (
           <OrderDetailsModal
             order={selectedOrder}

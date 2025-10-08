@@ -8,6 +8,9 @@ export interface OrderItem {
   qty: number;
   isCustom?: boolean;
   customDetails?: {
+    // Note: The backend uses flavor, icing, layers, size, etc.
+    // For simplicity, we keep the original front-end type definition,
+    // but ensure we handle potential undefined values.
     base?: string;
     design?: string;
     estimatedPrice?: number;
@@ -23,12 +26,15 @@ export interface Order {
   address?: string;
   status: Status;
   createdAt: string;
+  deliveryDate?: string;
+  deliveryTime?: string;
   items?: OrderItem[];
 }
 
+// Interface for the backend response structure
 interface NextDeliveryResponse {
-  today: Order | null;
-  upcoming: Order[];
+  deliveryDate: string | null;
+  orders: Order[];
 }
 
 const statusColors: Record<Status, string> = {
@@ -41,7 +47,8 @@ const statusColors: Record<Status, string> = {
 
 const NextDelivery = () => {
   const [loading, setLoading] = useState(true);
-  const [data, setData] = useState<NextDeliveryResponse | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [deliveryDay, setDeliveryDay] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   const token = localStorage.getItem("adminToken") ?? "";
@@ -54,16 +61,31 @@ const NextDelivery = () => {
         `${import.meta.env.VITE_API_URL}/api/orders/next-delivery`,
         { headers: { Authorization: `Bearer ${token}` } }
       );
+      if (!res.ok) throw new Error("Failed to fetch deliveries");
 
-      if (!res.ok) {
-        const text = await res.text();
-        throw new Error(text || "Failed to fetch next delivery");
-      }
-
+      // --- FIX APPLIED HERE ---
+      // The frontend now expects the exact object structure returned by the backend.
       const result: NextDeliveryResponse = await res.json();
-      setData(result);
+
+      // The backend guarantees 'orders' is an array, but we check for safety.
+      const fetchedOrders = result.orders || [];
+
+      // Log for debugging the 'No deliveries available' issue
+      console.log("🚚 Next Delivery API Response:", result);
+      console.log("📦 Orders fetched count:", fetchedOrders.length);
+      // --- END FIX ---
+
+      // Orders returned by the backend are for a single day, or an empty array.
+      setOrders(fetchedOrders);
+      setDeliveryDay(result.deliveryDate);
+
+      // If no orders were found, the backend returns { deliveryDate: null, orders: [] }
+
     } catch (err: unknown) {
       console.error("Fetch next delivery error:", err);
+      // Ensure the state is reset on error to prevent displaying stale data
+      setOrders([]);
+      setDeliveryDay(null);
       if (err instanceof Error) setError(err.message);
       else setError("Unknown error");
     } finally {
@@ -102,7 +124,8 @@ const NextDelivery = () => {
         </p>
       )}
 
-      {order.items && order.items.length > 0 && (
+      {/* Defensive check for array used here */}
+      {Array.isArray(order.items) && order.items.length > 0 && (
         <p className="text-sm text-gray-600 mb-1 flex flex-wrap gap-1">
           Items:{" "}
           {order.items
@@ -114,6 +137,12 @@ const NextDelivery = () => {
             .join(", ")}
         </p>
       )}
+
+      {order.deliveryDate && order.deliveryTime && (
+        <p className="text-sm text-gray-500 flex items-center gap-1">
+          <Calendar className="w-4 h-4" /> {order.deliveryDate} at {order.deliveryTime}
+        </p>
+      )}
     </div>
   );
 
@@ -123,7 +152,7 @@ const NextDelivery = () => {
         <Truck className="w-5 h-5" /> Next Deliveries
       </h2>
 
-      {loading && <div>Loading next delivery...</div>}
+      {loading && <div>Loading deliveries...</div>}
 
       {error && (
         <div className="text-red-500 mb-3">
@@ -137,31 +166,16 @@ const NextDelivery = () => {
         </div>
       )}
 
-      {!loading && !error && data && (
-        <>
-          {data.today && (
-            <>
-              <h3 className="text-gray-600 font-medium mb-2 flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> Today
-              </h3>
-              <div className="flex flex-col w-full">{renderOrder(data.today)}</div>
-            </>
-          )}
+      {!loading && !error && orders.length === 0 && <p>No deliveries available</p>}
 
-          {data.upcoming?.length > 0 && (
-            <>
-              <h3 className="text-gray-600 font-medium mb-2 mt-4 flex items-center gap-1">
-                <Calendar className="w-4 h-4" /> Upcoming
-              </h3>
-              <div className="flex flex-col w-full">
-                {data.upcoming.map(renderOrder)}
-              </div>
-            </>
-          )}
+      {!loading && !error && orders.length > 0 && (
+        <>
+          <h3 className="text-gray-600 font-medium mb-2 flex items-center gap-1">
+            <Calendar className="w-4 h-4" /> Deliveries for **{deliveryDay}**
+          </h3>
+          <div className="flex flex-col w-full">{orders.map(renderOrder)}</div>
         </>
       )}
-
-      {!loading && !error && !data && <p>No delivery data available</p>}
     </div>
   );
 };

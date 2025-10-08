@@ -67,7 +67,7 @@ export const HeroSection: React.FC = () => {
         <div className="mt-6 flex flex-col sm:flex-row gap-3">
           {/* ✅ Order Now goes to /menu */}
           <button
-            onClick={() => navigate("/menu")}
+            onClick={() => navigate("/shop")}
             className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
           >
             Order Now

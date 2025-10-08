@@ -1,0 +1,23 @@
+{
+  "name": "Ɛvivi Bakery",
+  "short_name": "Evivi",
+  "description": "Order delicious cakes, pastries, and desserts from Ɛvivi Bakery — baked fresh in Ghana with love.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#FF66B2",
+  "orientation": "portrait",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

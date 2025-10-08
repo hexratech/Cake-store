@@ -1,0 +1,10 @@
+# robots.txt for Ɛvivi Bakery
+User-agent: *
+Allow: /
+
+# Disallow backend or private routes
+Disallow: /admin
+Disallow: /api
+
+# Sitemap location
+Sitemap: https://ɛvivibakery.com/sitemap.xml

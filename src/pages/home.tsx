@@ -65,9 +65,9 @@ export default function CakeShop(): JSX.Element {
               const underlineClasses =
                 "absolute left-0 -bottom-1 w-full h-0.5 bg-rose-500 scale-x-0 group-hover:scale-x-100 transition-transform origin-left duration-300 rounded";
 
-              if (link.id === "menu") {
+              if (link.id === "shop") {
                 return (
-                  <Link key={link.id} to="/menu" className={commonClasses}>
+                  <Link key={link.id} to="/shop" className={commonClasses}>
                     {link.label}
                     <span className={underlineClasses}></span>
                   </Link>
