@@ -61,7 +61,7 @@ export const ProductsSection: React.FC<ProductsSectionProps> = ({
       </div>
       <div className="text-center mt-8">
         <Link
-          to="/menu"
+          to="/shop"
           className="inline-block bg-rose-500 text-white font-semibold py-3 px-8 rounded-full shadow-lg hover:bg-rose-600 transition-colors duration-300"
         >
           View More Products

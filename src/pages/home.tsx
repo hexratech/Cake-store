@@ -125,7 +125,7 @@ export default function CakeShop(): JSX.Element {
                   link.id === "menu" ? (
                     <Link
                       key={link.id}
-                      to="/menu"
+                      to="/shop"
                       className="py-2 transition-colors hover:text-rose-600"
                       onClick={() => setMenuOpen(false)}
                     >
@@ -134,7 +134,7 @@ export default function CakeShop(): JSX.Element {
                   ) : (
                     <a
                       key={link.id}
-                      href={`#${link.id}`}
+                      href={`/${link.id}`}
                       className="py-2 transition-colors hover:text-rose-600"
                       onClick={() => setMenuOpen(false)}
                     >
