@@ -61,12 +61,12 @@ export const FooterSection: React.FC = () => {
 
         {/* Navigation */}
         <div>
-          <h4 className="font-bold text-xl mb-5">Navigation</h4>
+          <h4 className="font-bold text-xl mb-5">Quick Links</h4>
           <ul className="space-y-3 text-rose-100">
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
                 <a
-                  href={`#${link.id}`}
+                  href={`/${link.id}`}
                   className="hover:text-white transition-colors duration-200"
                 >
                   {link.label}

@@ -27,6 +27,9 @@ export const CheckoutPage: React.FC = () => {
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string>("");
   const [deliveryTime, setDeliveryTime] = useState<string>("");
+  // pickup date/time
+  const [pickupDate, setPickupDate] = useState<string>("");
+  const [pickupTime, setPickupTime] = useState<string>("");
 
   const [isProcessing, setIsProcessing] = useState(false);
   const [activeSection, setActiveSection] = useState<
@@ -47,9 +50,13 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // ✅ Delivery validation
+    // ✅ Delivery/Pickup validation
     if (deliveryMethod === "Delivery" && (!deliveryDate || !deliveryTime)) {
       setMessage("Please select a delivery date and time.");
+      return;
+    }
+    if (deliveryMethod === "Pickup" && (!pickupDate || !pickupTime)) {
+      setMessage("Please select a pickup date and time.");
       return;
     }
 
@@ -100,8 +107,9 @@ export const CheckoutPage: React.FC = () => {
         phone: customerData.phone,
         address: customerData.address,
         deliveryMethod,
-        deliveryDate,
-        deliveryTime,
+        // Include the chosen method's date/time
+        deliveryDate: deliveryMethod === "Delivery" ? deliveryDate : pickupDate,
+        deliveryTime: deliveryMethod === "Delivery" ? deliveryTime : pickupTime,
         items: mappedItems,
         totalPrice,
       });
@@ -248,6 +256,10 @@ export const CheckoutPage: React.FC = () => {
                     deliveryTime={deliveryTime}
                     onDateChange={setDeliveryDate}
                     onTimeChange={setDeliveryTime}
+                    pickupDate={pickupDate}
+                    pickupTime={pickupTime}
+                    onPickupDateChange={setPickupDate}
+                    onPickupTimeChange={setPickupTime}
                   />
                   <button
                     onClick={() => setActiveSection("review")}
