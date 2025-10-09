@@ -1,5 +1,4 @@
 // src/components/checkout/DeliveryOptions.tsx
-
 import { toast } from "sonner";
 
 export type DeliveryMethod = "Delivery" | "Pickup";
@@ -123,9 +122,12 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({
               type="time"
               value={selectedMethod === "Delivery" ? deliveryTime : pickupTime}
               onChange={handleTimeChange}
+              onInvalid={(e) => e.currentTarget.setCustomValidity("Time must be between 08:00 and 17:00")}
+              onInput={(e) => e.currentTarget.setCustomValidity("")}
               className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500"
               min="08:00"
               max="17:00"
+              required
             />
           </div>
         </div>
