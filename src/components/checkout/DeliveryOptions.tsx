@@ -1,4 +1,5 @@
 // src/components/checkout/DeliveryOptions.tsx
+import { useState } from "react";
 import { toast } from "sonner";
 
 export type DeliveryMethod = "Delivery" | "Pickup";
@@ -28,6 +29,15 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({
   onPickupDateChange,
   onPickupTimeChange,
 }) => {
+  const [isDeliveryInfoOpen, setDeliveryInfoOpen] = useState(false);
+
+  const handleMethodChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const method = e.target.value as DeliveryMethod;
+    onSelect(method);
+    if (method === "Delivery") {
+      setDeliveryInfoOpen(true);
+    }
+  };
   const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const dateValue = e.target.value;
     if (selectedMethod === "Delivery") {
@@ -76,7 +86,7 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({
             name="delivery"
             value="Delivery"
             checked={selectedMethod === "Delivery"}
-            onChange={(e) => onSelect(e.target.value as DeliveryMethod)}
+            onChange={handleMethodChange}
             className="accent-rose-600"
           />
           <span className="text-slate-700 font-medium">Delivery</span>
@@ -94,7 +104,7 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({
             name="delivery"
             value="Pickup"
             checked={selectedMethod === "Pickup"}
-            onChange={(e) => onSelect(e.target.value as DeliveryMethod)}
+            onChange={handleMethodChange}
             className="accent-rose-600"
           />
           <span className="text-slate-700 font-medium">Pickup</span>
@@ -129,6 +139,26 @@ export const DeliveryOptions: React.FC<DeliveryOptionsProps> = ({
               max="17:00"
               required
             />
+          </div>
+        </div>
+      )}
+      {isDeliveryInfoOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            className="absolute inset-0 bg-black/50"
+            onClick={() => setDeliveryInfoOpen(false)}
+          />
+          <div className="relative z-10 w-[90vw] max-w-sm sm:max-w-md rounded-xl bg-white p-4 sm:p-6 shadow-lg text-center max-h-[85vh] overflow-y-auto">
+            <h3 className="text-lg font-bold mb-2">Delivery Information</h3>
+            <p className="text-slate-700">
+              We partner with Yango for all our delivery services. Delivery prices may vary due to factors like distance and traffic. You’ll pay upon arrival.
+            </p>
+            <button
+              onClick={() => setDeliveryInfoOpen(false)}
+              className="mt-4 inline-flex items-center justify-center rounded-lg bg-rose-600 px-4 py-2 text-white hover:bg-rose-700 text-center"
+            >
+              Got it
+            </button>
           </div>
         </div>
       )}
