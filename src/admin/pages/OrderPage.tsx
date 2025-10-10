@@ -308,7 +308,7 @@ const OrdersPage = () => {
           </div>
         )}
 
-        {/* Order Details Modal */}
+        
         {selectedOrder && (
           <OrderDetailsModal
             order={selectedOrder}
