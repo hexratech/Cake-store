@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import {Cake} from "lucide-react"
+import { Cake } from "lucide-react";
 import AdminLayout from "@/admin/components/AdminLayout";
 import CustomCakeDetails from "@/admin/components/CustomCakeDetails";
-import { type CustomCakeOrder } from "@/types/CustomOrder";
+import type { CustomCakeOrder, CustomCakeItem } from "@/types/CustomOrder";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -14,30 +14,65 @@ import {
   SelectValue,
 } from "@/admin/components/Select";
 
+interface BackendItem {
+  name: string;
+  qty: number;
+  price: number;
+  isCustom: boolean;
+  customDetails?: CustomCakeItem;
+}
+
+interface BackendOrder extends Omit<CustomCakeOrder, "customItems"> {
+  items?: BackendItem[];
+}
+
 export default function CustomCakes() {
   const [cakes, setCakes] = useState<CustomCakeOrder[]>([]);
   const [filteredCakes, setFilteredCakes] = useState<CustomCakeOrder[]>([]);
   const [selectedCake, setSelectedCake] = useState<CustomCakeOrder | null>(null);
-  const [open, setOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const [filterSize, setFilterSize] = useState("all");
-  const [loading, setLoading] = useState(true);
+  const [open, setOpen] = useState<boolean>(false);
+  const [search, setSearch] = useState<string>("");
+  const [filterSize, setFilterSize] = useState<string>("all");
+  const [loading, setLoading] = useState<boolean>(true);
 
+  // ✅ Fetch custom cakes on mount (type-safe)
   useEffect(() => {
-    const fetchCustomCakes = async () => {
+    const fetchCustomCakes = async (): Promise<void> => {
       const token = localStorage.getItem("adminToken");
-      if (!token) return setLoading(false);
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       try {
-        const { data } = await axios.get<CustomCakeOrder[]>(
+        const { data } = await axios.get<BackendOrder[]>(
           `${import.meta.env.VITE_API_URL}/api/orders/custom-cakes`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
-        setCakes(data);
-        setFilteredCakes(data);
+        // ✅ Map backend "items" → frontend "customItems"
+        const formatted: CustomCakeOrder[] = data.map((order) => ({
+          ...order,
+          customItems:
+            order.items
+              ?.filter((item) => item.isCustom && item.customDetails)
+              .map((item) => ({
+                flavor: item.customDetails?.flavor,
+                icing: item.customDetails?.icing,
+                layers: item.customDetails?.layers,
+                size: item.customDetails?.size,
+                toppings: item.customDetails?.toppings,
+                note: item.customDetails?.note,
+                design: item.customDetails?.design,
+                designImage: item.customDetails?.designImage,
+                estimatedPrice: item.customDetails?.estimatedPrice,
+              })) ?? [],
+        }));
+
+        setCakes(formatted);
+        setFilteredCakes(formatted);
       } catch (err) {
-        console.error("Failed to fetch custom cakes", err);
+        console.error("Failed to fetch custom cakes:", err);
       } finally {
         setLoading(false);
       }
@@ -46,30 +81,35 @@ export default function CustomCakes() {
     fetchCustomCakes();
   }, []);
 
+  // ✅ Filter logic (still type-safe)
   useEffect(() => {
     let result = [...cakes];
-    if (search) {
+
+    if (search.trim() !== "") {
+      const lowerSearch = search.toLowerCase();
       result = result.filter(
         (c) =>
-          c.customerName?.toLowerCase().includes(search.toLowerCase()) ||
-          c.email?.toLowerCase().includes(search.toLowerCase()) ||
+          c.customerName?.toLowerCase().includes(lowerSearch) ||
+          c.email?.toLowerCase().includes(lowerSearch) ||
           c.phone?.includes(search)
       );
     }
+
     if (filterSize !== "all") {
       result = result.filter((c) =>
         c.customItems?.some((item) => item.size === filterSize)
       );
     }
+
     setFilteredCakes(result);
   }, [search, filterSize, cakes]);
 
-  const handleOpen = (cake: CustomCakeOrder) => {
+  const handleOpen = (cake: CustomCakeOrder): void => {
     setSelectedCake(cake);
     setOpen(true);
   };
 
-  const SkeletonCard = () => (
+  const SkeletonCard: React.FC = () => (
     <div className="border rounded-xl shadow-md p-5 bg-white animate-pulse">
       <div className="h-5 bg-gray-300 rounded w-3/4 mb-2"></div>
       <div className="h-4 bg-gray-300 rounded w-2/3 mb-1"></div>
@@ -94,7 +134,7 @@ export default function CustomCakes() {
             onChange={(e) => setSearch(e.target.value)}
             className="md:w-1/3"
           />
-          <Select value={filterSize} onValueChange={setFilterSize}>
+          <Select value={filterSize} onValueChange={(val) => setFilterSize(val)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by Size" />
             </SelectTrigger>
@@ -108,7 +148,7 @@ export default function CustomCakes() {
           </Select>
         </div>
 
-        {/* Loader */}
+        {/* Loader / Results */}
         {loading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {Array.from({ length: 6 }).map((_, idx) => (
@@ -120,12 +160,19 @@ export default function CustomCakes() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredCakes.map((cake) => (
-              <div key={cake._id} className="border rounded-xl shadow-md p-5 bg-white">
+              <div
+                key={cake._id}
+                className="border rounded-xl shadow-md p-5 bg-white hover:shadow-lg transition"
+              >
                 <h2 className="font-semibold text-lg">{cake.customerName}</h2>
                 <p className="text-sm text-gray-600">{cake.email}</p>
                 <p className="text-sm">{cake.phone}</p>
-                <p className="text-sm text-gray-500">Status: {cake.status}</p>
-                <p className="text-sm text-gray-500">Total Price: GHS {cake.totalPrice}</p>
+                <p className="text-sm text-gray-500">
+                  Status: {cake.status ?? "N/A"}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Total Price: GHS {cake.totalPrice ?? "N/A"}
+                </p>
                 <Button
                   onClick={() => handleOpen(cake)}
                   className="mt-4 w-full"
@@ -138,6 +185,7 @@ export default function CustomCakes() {
           </div>
         )}
 
+        {/* Cake Details Dialog */}
         {selectedCake && (
           <CustomCakeDetails
             open={open}
