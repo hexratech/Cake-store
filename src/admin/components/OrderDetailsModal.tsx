@@ -34,8 +34,10 @@ interface Order {
   createdAt: string;
   deliveryMethod: "Delivery" | "Pickup";
   address?: string;
-  deliveryDate?: string; // Display as-is
+  deliveryDate?: string;
   deliveryTime?: string;
+  pickupDate?: string;
+  pickupTime?: string;
   estimatedDelivery?: string;
   items: OrderItem[];
 }
@@ -68,11 +70,19 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
           <p><strong>Email:</strong> {order.email}</p>
           <p><strong>Phone:</strong> {order.phone}</p>
           <p><strong>Delivery Method:</strong> {order.deliveryMethod}</p>
+
           {order.deliveryMethod === "Delivery" && (
             <>
-              <p><strong>Address:</strong> {order.address}</p>
+              {order.address && <p><strong>Address:</strong> {order.address}</p>}
               {order.deliveryDate && <p><strong>Delivery Date:</strong> {order.deliveryDate}</p>}
               {order.deliveryTime && <p><strong>Delivery Time:</strong> {order.deliveryTime}</p>}
+            </>
+          )}
+
+          {order.deliveryMethod === "Pickup" && (
+            <>
+              {order.pickupDate && <p><strong>Pickup Date:</strong> {order.pickupDate}</p>}
+              {order.pickupTime && <p><strong>Pickup Time:</strong> {order.pickupTime}</p>}
             </>
           )}
         </div>
@@ -88,7 +98,7 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
                   <span className="font-semibold">GHS {item.price.toFixed(2)}</span>
                 </p>
 
-                {/* Show Custom Details if it's a custom cake */}
+                {/* Custom cake details */}
                 {item.isCustom && item.customDetails && (
                   <div className="ml-4 text-sm text-gray-600 space-y-1">
                     {item.customDetails.flavor && <p><strong>Flavor:</strong> {item.customDetails.flavor}</p>}
@@ -96,7 +106,9 @@ const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({ order, onClose })
                     {item.customDetails.layers && <p><strong>Layers:</strong> {item.customDetails.layers}</p>}
                     {item.customDetails.size && <p><strong>Size:</strong> {item.customDetails.size}</p>}
                     {item.customDetails.filling && <p><strong>Filling:</strong> {item.customDetails.filling}</p>}
-                    {item.customDetails.toppings?.length && <p><strong>Toppings:</strong> {item.customDetails.toppings.join(", ")}</p>}
+                    {item.customDetails.toppings?.length ? (
+                      <p><strong>Toppings:</strong> {item.customDetails.toppings.join(", ")}</p>
+                    ) : null}
                     {item.customDetails.note && <p><strong>Note:</strong> {item.customDetails.note}</p>}
                     {item.customDetails.design && <p><strong>Design:</strong> {item.customDetails.design}</p>}
                     {item.customDetails.designImage && (

@@ -46,8 +46,10 @@ interface Order {
   createdAt: string;
   items: OrderItem[];
   address?: string;
-  deliveryDate?: string;       // ✅ Added
-  deliveryTime?: string;       // ✅ Added
+  deliveryDate?: string;
+  deliveryTime?: string;
+  pickupDate?: string;      // ✅ added
+  pickupTime?: string;      // ✅ added
   estimatedDelivery?: string;
 }
 
@@ -76,8 +78,7 @@ const OrdersPage = () => {
       const data = await res.json();
       setOrders(data);
     } catch (err: unknown) {
-      if (err instanceof Error) setError(err.message);
-      else setError("Something went wrong");
+      setError(err instanceof Error ? err.message : "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -103,8 +104,7 @@ const OrdersPage = () => {
           prev.map((order) => (order._id === id ? updatedOrder : order))
         );
       } catch (err: unknown) {
-        if (err instanceof Error) console.error(err.message);
-        else console.error("Failed to update order status");
+        console.error(err instanceof Error ? err.message : "Failed to update order status");
       }
     },
     [token, API_URL]
@@ -209,7 +209,7 @@ const OrdersPage = () => {
                   <th className="p-4">Order ID</th>
                   <th className="p-4">Customer</th>
                   <th className="p-4">Total</th>
-                  <th className="p-4">Delivery</th>
+                  <th className="p-4">Method</th>
                   <th className="p-4">Status</th>
                   <th className="p-4">Date</th>
                   <th className="p-4 text-right">Actions</th>

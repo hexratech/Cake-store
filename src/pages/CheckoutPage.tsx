@@ -27,7 +27,6 @@ export const CheckoutPage: React.FC = () => {
   const [deliveryMethod, setDeliveryMethod] = useState<DeliveryMethod | null>(null);
   const [deliveryDate, setDeliveryDate] = useState<string>("");
   const [deliveryTime, setDeliveryTime] = useState<string>("");
-  // pickup date/time
   const [pickupDate, setPickupDate] = useState<string>("");
   const [pickupTime, setPickupTime] = useState<string>("");
 
@@ -50,7 +49,7 @@ export const CheckoutPage: React.FC = () => {
       return;
     }
 
-    // ✅ Delivery/Pickup validation
+    // ✅ Validate based on selected method
     if (deliveryMethod === "Delivery" && (!deliveryDate || !deliveryTime)) {
       setMessage("Please select a delivery date and time.");
       return;
@@ -100,24 +99,38 @@ export const CheckoutPage: React.FC = () => {
           return acc + item.customCake.totalPrice * item.quantity;
         }, 0) || cartTotal;
 
-      // ✅ Include deliveryDate and deliveryTime in the request
-      const orderResponse = await axios.post(`${API_URL}/api/orders`, {
-        customerName: customerData.name,
-        email: customerData.email,
-        phone: customerData.phone,
-        address: customerData.address,
-        deliveryMethod,
-        // Include the chosen method's date/time
-        deliveryDate: deliveryMethod === "Delivery" ? deliveryDate : pickupDate,
-        deliveryTime: deliveryMethod === "Delivery" ? deliveryTime : pickupTime,
-        items: mappedItems,
-        totalPrice,
-      });
+      // ✅ Conditionally include date/time fields based on method
+      const orderPayload =
+        deliveryMethod === "Delivery"
+          ? {
+              customerName: customerData.name,
+              email: customerData.email,
+              phone: customerData.phone,
+              address: customerData.address,
+              deliveryMethod,
+              deliveryDate,
+              deliveryTime,
+              items: mappedItems,
+              totalPrice,
+            }
+          : {
+              customerName: customerData.name,
+              email: customerData.email,
+              phone: customerData.phone,
+              address: customerData.address,
+              deliveryMethod,
+              pickupDate,
+              pickupTime,
+              items: mappedItems,
+              totalPrice,
+            };
 
+      // Step 3: Create order
+      const orderResponse = await axios.post(`${API_URL}/api/orders`, orderPayload);
       const orderId: string | undefined = orderResponse.data?._id;
       if (!orderId) throw new Error("Order creation failed: no ID returned.");
 
-      // Step 3: Payment initiation
+      // Step 4: Initiate payment
       setCurrentStepMessage("Initiating secure payment...");
       setProgress(75);
 
@@ -134,7 +147,7 @@ export const CheckoutPage: React.FC = () => {
         throw new Error("Payment link not returned from server.");
       }
 
-      // Step 4: Finalize and redirect
+      // Step 5: Redirect to payment
       setCurrentStepMessage("Finalizing your receipt and redirecting...");
       setProgress(100);
       clearCart();
@@ -179,9 +192,7 @@ export const CheckoutPage: React.FC = () => {
           {/* 1️⃣ Customer Details */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-slate-800">
-                1. Customer Details
-              </h2>
+              <h2 className="text-2xl font-bold text-slate-800">1. Customer Details</h2>
               {activeSection !== "details" && isFormComplete && (
                 <button
                   onClick={() => setActiveSection("details")}
@@ -228,9 +239,7 @@ export const CheckoutPage: React.FC = () => {
           {/* 2️⃣ Delivery Options */}
           <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-slate-800">
-                2. Delivery Options
-              </h2>
+              <h2 className="text-2xl font-bold text-slate-800">2. Delivery Options</h2>
               {activeSection !== "delivery" && isDeliverySelected && (
                 <button
                   onClick={() => setActiveSection("delivery")}
@@ -279,13 +288,23 @@ export const CheckoutPage: React.FC = () => {
                     <p className="text-slate-600">
                       Delivery Method: {deliveryMethod}
                     </p>
-                    {deliveryMethod === "Delivery" && (
+
+                    {deliveryMethod === "Delivery" ? (
                       <>
                         <p className="text-slate-600">
                           Date: {deliveryDate || "Not set"}
                         </p>
                         <p className="text-slate-600">
                           Time: {deliveryTime || "Not set"}
+                        </p>
+                      </>
+                    ) : (
+                      <>
+                        <p className="text-slate-600">
+                          Pickup Date: {pickupDate || "Not set"}
+                        </p>
+                        <p className="text-slate-600">
+                          Pickup Time: {pickupTime || "Not set"}
                         </p>
                       </>
                     )}
@@ -295,51 +314,61 @@ export const CheckoutPage: React.FC = () => {
             </AnimatePresence>
           </div>
 
-          {/* 3️⃣ Order Review */}
-          <div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="text-2xl font-bold text-slate-800">3. Order Review</h2>
-              {activeSection !== "review" && (
-                <button
-                  onClick={() => setActiveSection("review")}
-                  className="text-sm text-rose-500 font-semibold hover:underline"
-                  disabled={!isFormComplete || !isDeliverySelected}
-                >
-                  Edit
-                </button>
-              )}
-            </div>
+         {/* 3️⃣ Order Review */}
+<div className="bg-slate-50 p-6 rounded-3xl shadow-lg">
+  <div className="flex justify-between items-center mb-4">
+    <h2 className="text-2xl font-bold text-slate-800">3. Order Review</h2>
+    {activeSection !== "review" && (
+      <button
+        onClick={() => setActiveSection("review")}
+        className="text-sm text-rose-500 font-semibold hover:underline"
+        disabled={!isFormComplete || !isDeliverySelected}
+      >
+        Edit
+      </button>
+    )}
+  </div>
 
-            <AnimatePresence mode="wait">
-              {activeSection === "review" ? (
-                <motion.div
-                  key="review"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -20 }}
-                >
-                  <OrderReview />
-                  <button
-                    onClick={handlePlaceOrder}
-                    className="w-full mt-4 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 disabled:bg-gray-400"
-                    disabled={
-                      !isFormComplete || !isDeliverySelected || isCartEmpty || isProcessing
-                    }
-                  >
-                    {isProcessing ? "Processing..." : "Place Order"}
-                  </button>
-                </motion.div>
-              ) : (
-                <motion.div
-                  key="summary-review"
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                >
-                  <p className="text-sm text-slate-500">Order ready for review.</p>
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </div>
+  <AnimatePresence mode="wait">
+    {activeSection === "review" ? (
+      <motion.div
+        key="review"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: -20 }}
+      >
+        <OrderReview
+          deliveryMethod={deliveryMethod || undefined}
+          deliveryDate={deliveryDate}
+          deliveryTime={deliveryTime}
+          pickupDate={pickupDate}
+          pickupTime={pickupTime}
+        />
+        <button
+          onClick={handlePlaceOrder}
+          className="w-full mt-4 py-3 rounded-xl bg-rose-500 text-white font-bold hover:bg-rose-600 disabled:bg-gray-400"
+          disabled={
+            !isFormComplete ||
+            !isDeliverySelected ||
+            isCartEmpty ||
+            isProcessing
+          }
+        >
+          {isProcessing ? "Processing..." : "Place Order"}
+        </button>
+      </motion.div>
+    ) : (
+      <motion.div
+        key="summary-review"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <p className="text-sm text-slate-500">Order ready for review.</p>
+      </motion.div>
+    )}
+  </AnimatePresence>
+</div>
+
         </div>
 
         {/* RIGHT SECTION */}
