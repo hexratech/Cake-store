@@ -66,7 +66,7 @@ export const FooterSection: React.FC = () => {
             {NAV_LINKS.map((link) => (
               <li key={link.id}>
                 <a
-                  href={`/${link.id}`}
+                  href={`#${link.id}`}
                   className="hover:text-white transition-colors duration-200"
                 >
                   {link.label}
