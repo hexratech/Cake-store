@@ -1,15 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 
-// The image import was causing a compilation error, so we'll use a placeholder URL instead.
-// import filtersidebar from "../../assets/filtersiderbar.jpg";
-
-// FIX: Removed import.meta.env.VITE_API_URL as it is not supported in the target environment.
-// Please manually update this URL if your API is hosted elsewhere.
 const API_URL = "http://localhost:8080";
 
 interface FiltersProps {
-  onApply: (url: string) => void; // send full API URL
+  onApply: (query: string) => void;
 }
 
 interface FilterState {
@@ -29,11 +24,10 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
   });
 
   const [categories, setCategories] = useState<string[]>([]);
-  const [flavors, setFlavors] = useState<string[]>([]);
+  const [flavors, setFlavors] = useState<string[] | null>(null);
 
-  // ✅ Fetch categories and flavors dynamically from backend
+  // Fetch categories and flavors dynamically from backend
   useEffect(() => {
-    // Added the /api prefix to the fetch calls
     fetch(`${API_URL}/api/products/categories`)
       .then((res) => res.json())
       .then((data: string[]) => setCategories(data))
@@ -41,8 +35,10 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
     fetch(`${API_URL}/api/products/flavors`)
       .then((res) => res.json())
-      .then((data: string[]) => setFlavors(data))
-      .catch((err) => console.error("Failed to fetch flavors:", err));
+      .then((data: string[]) =>
+        setFlavors(data && Array.isArray(data) ? data : null)
+      )
+      .catch(() => setFlavors(null));
   }, []);
 
   const handleFilterChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -50,7 +46,6 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
     setFilters((prev) => ({ ...prev, [name]: value }));
   };
 
-  // ✅ Build query params for backend
   const buildQuery = () => {
     const params = new URLSearchParams();
     const { category, flavor, priceRange, sort } = filters;
@@ -58,11 +53,13 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
     if (category !== "All") params.append("category", category.toLowerCase());
     if (flavor !== "All") params.append("flavor", flavor.toLowerCase());
 
-    // Price range mapping
     const priceMap: Record<string, { minPrice?: string; maxPrice?: string }> = {
-      "Under GHS 100": { maxPrice: "100" },
-      "GHS 100 – 200": { minPrice: "100", maxPrice: "200" },
-      "Above GHS 200": { minPrice: "200" },
+      "Below GHS 200": { maxPrice: "200" },
+      "GHS 200 – 350": { minPrice: "200", maxPrice: "350" },
+      "GHS 350 – 500": { minPrice: "350", maxPrice: "500" },
+      "GHS 500 – 700": { minPrice: "500", maxPrice: "700" },
+      "GHS 700 – 1000": { minPrice: "700", maxPrice: "1000" },
+      "Above GHS 1000": { minPrice: "1000" },
     };
     if (priceRange !== "All" && priceMap[priceRange]) {
       const { minPrice, maxPrice } = priceMap[priceRange];
@@ -70,7 +67,6 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
       if (maxPrice) params.append("maxPrice", maxPrice);
     }
 
-    // Sort mapping
     const sortMap: Record<string, string> = {
       "Price: Low to High": "priceAsc",
       "Price: High to Low": "priceDesc",
@@ -84,26 +80,30 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
 
   const handleApplyFilters = () => {
     const query = buildQuery();
-    // Added the /api prefix here as well
-    const url = `${API_URL}/api/products?${query}`; // ✅ full backend URL
-    console.log("Applying filters with URL:", url); // Add this line for debugging
-    onApply(url);
+    onApply(query);
     setOpen(false);
   };
 
+  // SVG pattern from heropatterns.com (e.g. "topography")
+  const patternSVG = encodeURIComponent(`
+    <svg width="100" height="100" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0 50 Q25 0 50 50 T100 50" stroke="#f9c2c2" stroke-width="2" fill="none"/>
+      <path d="M0 75 Q25 25 50 75 T100 75" stroke="#f9c2c2" stroke-width="2" fill="none"/>
+    </svg>
+  `);
+
   return (
     <div
-      className="mb-6 relative rounded-xl overflow-hidden"
+      className="mb-6 relative rounded-xl overflow-hidden border border-rose-100 shadow-lg"
       style={{
-        // Using a placeholder image to fix the compilation error
-        backgroundImage: `url(https://placehold.co/600x400/fff4f0/222?text=Filters)`,
-        backgroundSize: "cover",
-        backgroundPosition: "center",
+        backgroundColor: "#fff4f0",
+        backgroundImage: `url("data:image/svg+xml,${patternSVG}")`,
+        backgroundRepeat: "repeat",
+        backgroundSize: "100px 100px",
       }}
     >
-      <div className="absolute inset-0 bg-white/50 backdrop-blur-sm" />
-      <div className="relative p-4">
-        <h2 className="text-xl font-bold mb-4">Filters</h2>
+      <div className="relative p-6">
+        <h2 className="text-xl font-bold mb-4 text-rose-700">Filters</h2>
         <AnimatePresence>
           {open && (
             <motion.div
@@ -111,7 +111,7 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
               transition={{ duration: 0.3 }}
-              className="space-y-4"
+              className="space-y-5"
             >
               {/* Category */}
               <div>
@@ -146,13 +146,18 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
                   value={filters.flavor}
                   onChange={handleFilterChange}
                   className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
+                  disabled={!flavors || flavors.length === 0}
                 >
                   <option>All</option>
-                  {flavors.map((flav) => (
-                    <option key={flav}>
-                      {flav.charAt(0).toUpperCase() + flav.slice(1)}
-                    </option>
-                  ))}
+                  {flavors && flavors.length > 0 ? (
+                    flavors.map((flav) => (
+                      <option key={flav}>
+                        {flav.charAt(0).toUpperCase() + flav.slice(1)}
+                      </option>
+                    ))
+                  ) : (
+                    <option disabled>No flavors available</option>
+                  )}
                 </select>
               </div>
 
@@ -171,9 +176,12 @@ export const Filters: React.FC<FiltersProps> = ({ onApply }) => {
                   className="w-full mt-1 px-4 py-2 border border-slate-300 rounded-lg focus:ring-2 focus:ring-rose-400 focus:border-rose-400 transition-colors"
                 >
                   <option>All</option>
-                  <option>Under GHS 100</option>
-                  <option>GHS 100 – 200</option>
-                  <option>Above GHS 200</option>
+                  <option>Below GHS 200</option>
+                  <option>GHS 200 – 350</option>
+                  <option>GHS 350 – 500</option>
+                  <option>GHS 500 – 700</option>
+                  <option>GHS 700 – 1000</option>
+                  <option>Above GHS 1000</option>
                 </select>
               </div>
 

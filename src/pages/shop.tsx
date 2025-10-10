@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Menu } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-import { Filters } from "../components/menu/Filters";
-import { ProductGrid } from "../components/menu/ProductGrid";
-import { CakeCustomizer } from "../components/menu/CakeCustomizer";
-import type { CustomCakeData } from "../components/menu/CakeCustomizer";
+import { Filters } from "../components/shop/Filters";
+import { ProductGrid } from "../components/shop/ProductGrid";
+import { CakeCustomizer } from "../components/shop/CakeCustomizer";
+import type { CustomCakeData } from "../components/shop/CakeCustomizer";
 import { NAV_LINKS } from "../types/navs";
 import { useCart } from "../hooks/useCart";
 import { FooterSection } from "../landing/components/footer";
@@ -88,12 +88,6 @@ export const MenuPage: React.FC = () => {
   const handleSubmitCustomCake = (customCake: CustomCakeData) => {
     addCustomCakeToCart(customCake);
     setShowCustomizer(false);
-  };
-
-  // ✅ Apply filters (Filters component builds the query string)
-  const handleApplyFilters = (newQuery: string) => {
-    setQuery(newQuery);
-    setShowFilters(false);
   };
 
   return (
@@ -295,7 +289,13 @@ export const MenuPage: React.FC = () => {
                 className="bg-white w-80 max-w-full h-full shadow-xl overflow-y-auto p-6"
                 onClick={(e) => e.stopPropagation()}
               >
-                <Filters onApply={handleApplyFilters} />
+                {/* Pass a callback that closes the modal after applying filters */}
+                <Filters
+                  onApply={(newQuery: string) => {
+                    setQuery(newQuery); // update query for fetchProducts
+                    setShowFilters(false); // close modal
+                  }}
+                />
               </motion.div>
             </motion.div>
           )}
@@ -339,16 +339,16 @@ export const MenuPage: React.FC = () => {
                   onClick={() => setIsCartOpen(false)}
                   aria-label="close cart"
                 >
-                  <X size={24} className="text-slate-500 hover:text-slate-800" />
+                  <X
+                    size={24}
+                    className="text-slate-500 hover:text-slate-800"
+                  />
                 </button>
               </div>
 
               {cart.length === 0 ? (
                 <div className="text-center text-slate-500 py-8">
-                  <ShoppingCart
-                    size={48}
-                    className="mx-auto text-slate-300"
-                  />
+                  <ShoppingCart size={48} className="mx-auto text-slate-300" />
                   <p className="mt-2">Your cart is empty.</p>
                 </div>
               ) : (
@@ -366,8 +366,7 @@ export const MenuPage: React.FC = () => {
                         <img
                           src={
                             item.type === "product"
-                              ? item.product.image?.trim() ||
-                                "/placeholder.png"
+                              ? item.product.image?.trim() || "/placeholder.png"
                               : "/custom-placeholder.png"
                           }
                           alt={
@@ -445,8 +444,7 @@ export const MenuPage: React.FC = () => {
                           if (item.type === "custom")
                             return (
                               total +
-                              (item.customCake.totalPrice || 0) *
-                                item.quantity
+                              (item.customCake.totalPrice || 0) * item.quantity
                             );
                           return total;
                         }, 0)
