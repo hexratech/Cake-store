@@ -3,10 +3,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ShoppingCart, X, Menu } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-import { Filters } from "../components/menu/Filters";
-import { ProductGrid } from "../components/menu/ProductGrid";
-import { CakeCustomizer } from "../components/menu/CakeCustomizer";
-import type { CustomCakeData } from "../components/menu/CakeCustomizer";
+import { Filters } from "../components/shop/Filters";
+import { ProductGrid } from "../components/shop/ProductGrid";
+import { CakeCustomizer } from "../components/shop/CakeCustomizer";
+import type { CustomCakeData } from "../components/shop/CakeCustomizer";
 import { NAV_LINKS } from "../types/navs";
 import { useCart } from "../hooks/useCart";
 import { FooterSection } from "../landing/components/footer";
