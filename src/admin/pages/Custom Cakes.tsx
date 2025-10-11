@@ -185,7 +185,7 @@ export default function CustomCakes() {
           </div>
         )}
 
-        {/* Cake Details Dialog */}
+        
         {selectedCake && (
           <CustomCakeDetails
             open={open}
