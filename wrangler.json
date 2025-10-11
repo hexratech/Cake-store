@@ -1,0 +1,7 @@
+{
+    "name": "cake-store-frontend",
+    "compatibility_date": "2025-10-11",
+    "assets": {
+    "directory": "./dist"
+    }
+}
