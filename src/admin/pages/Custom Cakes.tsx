@@ -149,43 +149,49 @@ export default function CustomCakes() {
         </div>
 
         {/* Loader / Results */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {Array.from({ length: 6 }).map((_, idx) => (
-              <SkeletonCard key={idx} />
-            ))}
-          </div>
-        ) : filteredCakes.length === 0 ? (
-          <p className="text-gray-500">No custom cakes found.</p>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredCakes.map((cake) => (
-              <div
-                key={cake._id}
-                className="border rounded-xl shadow-md p-5 bg-white hover:shadow-lg transition"
-              >
-                <h2 className="font-semibold text-lg">{cake.customerName}</h2>
-                <p className="text-sm text-gray-600">{cake.email}</p>
-                <p className="text-sm">{cake.phone}</p>
-                <p className="text-sm text-gray-500">
-                  Status: {cake.status ?? "N/A"}
-                </p>
-                <p className="text-sm text-gray-500">
-                  Total Price: GHS {cake.totalPrice ?? "N/A"}
-                </p>
-                <Button
-                  onClick={() => handleOpen(cake)}
-                  className="mt-4 w-full"
-                  variant="outline"
-                >
-                  View Details
-                </Button>
+        {(() => {
+          if (loading) {
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <SkeletonCard key={idx} />
+                ))}
               </div>
-            ))}
-          </div>
-        )}
+            );
+          } else if (filteredCakes.length === 0) {
+            return <p className="text-gray-500">No custom cakes found.</p>;
+          } else {
+            return (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {filteredCakes.map((cake) => (
+                  <div
+                    key={cake._id}
+                    className="border rounded-xl shadow-md p-5 bg-white hover:shadow-lg transition"
+                  >
+                    <h2 className="font-semibold text-lg">{cake.customerName}</h2>
+                    <p className="text-sm text-gray-600">{cake.email}</p>
+                    <p className="text-sm">{cake.phone}</p>
+                    <p className="text-sm text-gray-500">
+                      Status: {cake.status ?? "N/A"}
+                    </p>
+                    <p className="text-sm text-gray-500">
+                      Total Price: GHS {cake.totalPrice ?? "N/A"}
+                    </p>
+                    <Button
+                      onClick={() => handleOpen(cake)}
+                      className="mt-4 w-full"
+                      variant="outline"
+                    >
+                      View Details
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            );
+          }
+        })()}
 
-        
+
         {selectedCake && (
           <CustomCakeDetails
             open={open}
