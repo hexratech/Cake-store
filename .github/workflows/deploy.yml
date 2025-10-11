@@ -1,0 +1,39 @@
+name: Deploy to Cloudflare Pages
+
+on:
+  # Triggers the workflow on pushes to the main branch
+  push:
+    branches: [ main ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write # This permission is useful for tracking deployments in GitHub
+
+    steps:
+      - name: 🛎️ Checkout code
+        uses: actions/checkout@v4
+
+      # 1. (Optional) Run your project's build step if it's not a purely static site
+      # If your project uses a framework (like Next.js, Hugo, etc.) uncomment and customize this section
+      # - name: 📦 Install Dependencies
+      #   run: npm ci
+      # - name: 🏗️ Build Project
+      #   run: npm run build
+
+      - name: 🚀 Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          # Your Secrets (fetched automatically from the repo secrets you set up)
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          
+          # The wrangler command to run for a Pages Direct Upload deployment
+          command: pages deploy **dist** --project-name=**evivibakery**
+          
+          # Optional: Use this to ensure your deployment links back to the correct commit/branch in GitHub
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
