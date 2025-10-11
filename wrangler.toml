@@ -1,13 +1,8 @@
-name = "cake-store"
+name = "evivibakery"
 compatibility_date = "2025-01-01"
 
 [site]
-bucket = "dist"
+bucket = "dist"   # this is where Vite outputs static files
 
 [build]
 command = "npm run build"
-
-[env.production]
-workers_dev = false
-route = "https://yourdomain.com/*"
-zone_id = "your_zone_id"
