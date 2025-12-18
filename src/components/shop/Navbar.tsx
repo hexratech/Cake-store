@@ -1,5 +1,5 @@
 // src/components/menu/Navbar.tsx
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { ShoppingCart, Menu, X } from "lucide-react";
 import { NAV_LINKS } from "@/types/navs";
 import { Link } from "react-router-dom";
@@ -9,7 +9,37 @@ import { useCart } from "@/hooks/useCart";
 export const Navbar: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [santaAnimating, setSantaAnimating] = useState(false);
   const { cart, addToCart, removeFromCart, removeCustomCakeFromCart } = useCart();
+
+  // Trigger Santa animation every 10 seconds
+  useEffect(() => {
+    const animateSanta = () => {
+      console.log("🎅 Santa animation triggered!");
+      setSantaAnimating(true);
+      setTimeout(() => {
+        console.log("🎅 Santa animation ended");
+        setSantaAnimating(false);
+      }, 5000); // Reset after animation completes
+    };
+
+    // Start first animation after 1 second
+    const initialTimeout = setTimeout(() => {
+      console.log("🎅 Starting initial Santa animation");
+      animateSanta();
+    }, 1000);
+
+    // Then repeat every 10 seconds
+    const interval = setInterval(() => {
+      console.log("🎅 Starting periodic Santa animation");
+      animateSanta();
+    }, 10000);
+
+    return () => {
+      clearTimeout(initialTimeout);
+      clearInterval(interval);
+    };
+  }, []);
 
   const cartCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartTotal = cart.reduce((sum, item) => {
@@ -19,7 +49,35 @@ export const Navbar: React.FC = () => {
   }, 0);
 
   return (
-    <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b">
+    <nav className="bg-white/60 backdrop-blur sticky top-0 z-40 border-b relative overflow-hidden">
+      {/* Santa Animation */}
+      <AnimatePresence>
+        {santaAnimating && (
+          <motion.div
+            initial={{ left: "-100px", opacity: 0 }}
+            animate={{ left: "calc(100% + 100px)", opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 5, ease: "linear" }}
+            className="absolute top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+            style={{ 
+              width: "80px", 
+              height: "80px",
+              backgroundColor: "rgba(255, 0, 0, 0.3)", // Debug background
+              borderRadius: "50%",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+             <img 
+              src="santaa.png" 
+              alt="Santa" 
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
+
       <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-4">
           <img src="logo.png" alt="3vivi bakery" className="h-10 w-auto rounded-md" />
