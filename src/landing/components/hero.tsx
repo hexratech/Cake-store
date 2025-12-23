@@ -68,14 +68,14 @@ export const HeroSection: React.FC = () => {
           {/* ✅ Order Now goes to /menu */}
           <button
             onClick={() => navigate("/shop")}
-            className="px-5 py-3 rounded-lg bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
+            className="px-5 py-3 rounded-full bg-rose-600 text-white font-medium shadow-md hover:bg-rose-700 transition-colors"
           >
             Order Now
           </button>
           {/* ✅ Learn More scrolls to Services */}
           <button
             onClick={handleLearnMore}
-            className="px-5 py-3 rounded-lg bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-colors"
+            className="px-5 py-3 rounded-full bg-white/20 backdrop-blur-sm text-white font-medium hover:bg-white/30 transition-colors"
           >
             Learn More
           </button>
