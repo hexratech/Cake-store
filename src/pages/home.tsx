@@ -28,7 +28,30 @@ export default function CakeShop(): JSX.Element {
     { id: "3", name: "Spenzy", text: "Quick delivery but would like more flavor options.", stars: 4 },
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [santaAnimating, setSantaAnimating] = useState(0);
   const navigate = useNavigate();
+
+  // Trigger Santa animation continuously
+  useEffect(() => {
+    let animationCount = 0;
+    
+    const runAnimation = () => {
+      animationCount++;
+      setSantaAnimating(animationCount);
+      
+      // Schedule next animation to start after current one finishes + small delay
+      setTimeout(() => {
+        runAnimation();
+      }, 10500); // Animation duration (10s) + 500ms delay to ensure full exit
+    };
+
+    // Start first animation immediately
+    runAnimation();
+
+    return () => {
+      // Cleanup on unmount
+    };
+  }, []);
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -50,7 +73,34 @@ export default function CakeShop(): JSX.Element {
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
       {/* NAV */}
-      <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm">
+      <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm relative overflow-hidden">
+       
+       
+        {/* Santa Animation - Continuous Loop */}
+        {santaAnimating > 0 && (
+          <motion.div
+            key={santaAnimating} // Key changes to force re-animation
+            initial={{ left: "-100px" }}
+            animate={{ left: "calc(100% + 100px)" }}
+            transition={{ duration: 10, ease: "linear" }}
+            className="absolute top-1/2 -translate-y-1/2 z-50 pointer-events-none"
+            style={{ 
+              width: "100px", 
+              height: "100px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center"
+            }}
+          >
+            <img 
+              src="santaa.png" 
+              alt="Santa" 
+              style={{ width: "100%", height: "100%", objectFit: "contain" }}
+            />
+          </motion.div>
+        )}
+
+
         <div className="max-w-7xl mx-auto px-6 py-3 flex items-center justify-between">
           {/* Left: Logo */}
           <a href="/">
