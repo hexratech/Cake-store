@@ -14,6 +14,7 @@ import { ServicesSection } from "../landing/components/services";
 import { FaqSection } from "../landing/components/fqs";
 import { motion, AnimatePresence } from "framer-motion";
 import { useCart } from "@/hooks/useCart";
+import Snowfall from 'react-snowfall';
 
 export default function CakeShop(): JSX.Element {
   const { cart, addToCart, removeFromCart, cartCount } = useCart();
@@ -72,8 +73,34 @@ export default function CakeShop(): JSX.Element {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
+
+      {/* Snowfall Effect  there will be a roll back after xmas*/}
+      <Snowfall
+        snowflakeCount={500}
+        color="#ffffff"
+        style={{
+          position: 'fixed',
+          left: 0,
+          top: 0,
+          width: '100%',
+          height: '100%',
+          pointerEvents: 'none',
+          zIndex: 40,
+        }}
+      />
+
+      {/* Layered SVG snow pile at the bottom to simulate accumulation */}
+      <div className="pointer-events-none fixed left-0 bottom-0 w-full z-50">
+        <div className="w-full max-w-[1600px] mx-auto">
+          <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="w-full h-20 md:h-28">
+            <path d="M0,120 C200,20 400,180 720,140 C1040,100 1240,180 1440,120 L1440,200 L0,200 Z" fill="#ffffff" opacity="0.98" />
+            <path d="M0,140 C220,80 420,200 720,160 C1020,120 1220,200 1440,140 L1440,200 L0,200 Z" fill="#ffffff" opacity="0.95" />
+          </svg>
+        </div>
+      </div>
+
       {/* NAV */}
-      <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm relative overflow-hidden">
+      <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm  overflow-hidden">
        
        
         {/* Santa Animation - Continuous Loop */}
