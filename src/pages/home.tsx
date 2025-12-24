@@ -76,7 +76,7 @@ export default function CakeShop(): JSX.Element {
 
       {/* Snowfall Effect  there will be a roll back after xmas*/}
       <Snowfall
-        snowflakeCount={500}
+        snowflakeCount={700}
         color="#ffffff"
         style={{
           position: 'fixed',
@@ -93,11 +93,13 @@ export default function CakeShop(): JSX.Element {
       <div className="pointer-events-none fixed left-0 bottom-0 w-full z-50">
         <div className="w-full max-w-[1600px] mx-auto">
           <svg viewBox="0 0 1440 200" preserveAspectRatio="none" className="w-full h-20 md:h-28">
-            <path d="M0,120 C200,20 400,180 720,140 C1040,100 1240,180 1440,120 L1440,200 L0,200 Z" fill="#ffffff" opacity="0.98" />
+            <path d="M0,120 C200,20 400,180 720,140 C1040,100 1240,180 1440,120 L1440,200 L0,200 Z" fill="#ffffff" opacity="0.00" />
             <path d="M0,140 C220,80 420,200 720,160 C1020,120 1220,200 1440,140 L1440,200 L0,200 Z" fill="#ffffff" opacity="0.95" />
           </svg>
         </div>
       </div>
+
+
 
       {/* NAV */}
       <nav className="bg-white/70 backdrop-blur sticky top-0 z-40 border-b shadow-sm  overflow-hidden">
