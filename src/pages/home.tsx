@@ -30,6 +30,8 @@ export default function CakeShop(): JSX.Element {
   ]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [santaAnimating, setSantaAnimating] = useState(0);
+  const [snowflakeCount, setSnowflakeCount] = useState<number>(700);
+  const [snowEnabled, setSnowEnabled] = useState<boolean>(true);
   const navigate = useNavigate();
 
   // Trigger Santa animation continuously
@@ -55,6 +57,35 @@ export default function CakeShop(): JSX.Element {
   }, []);
 
   useEffect(() => {
+    // Responsive snow: adjust count for smaller screens and respect reduced motion
+    const updateSnow = () => {
+      try {
+        const prefersReduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+        if (prefersReduced) {
+          setSnowEnabled(false);
+          setSnowflakeCount(0);
+          return;
+        }
+
+        const w = window.innerWidth || document.documentElement.clientWidth || 1024;
+        if (w < 480) setSnowflakeCount(200);
+        else if (w < 768) setSnowflakeCount(450);
+        else if (w < 1024) setSnowflakeCount(450);
+        else setSnowflakeCount(700);
+
+        setSnowEnabled(true);
+      } catch (e) {
+        setSnowflakeCount(300);
+        setSnowEnabled(true);
+      }
+    };
+
+    updateSnow();
+    window.addEventListener('resize', updateSnow);
+    return () => window.removeEventListener('resize', updateSnow);
+  }, []);
+
+  useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await fetch(`${import.meta.env.VITE_API_URL}/api/products`);
@@ -75,19 +106,21 @@ export default function CakeShop(): JSX.Element {
     <div className="min-h-screen bg-gradient-to-b from-rose-50 to-white text-slate-800">
 
       {/* Snowfall Effect  there will be a roll back after xmas*/}
-      <Snowfall
-        snowflakeCount={700}
-        color="#ffffff"
-        style={{
-          position: 'fixed',
-          left: 0,
-          top: 0,
-          width: '100%',
-          height: '100%',
-          pointerEvents: 'none',
-          zIndex: 40,
-        }}
-      />
+      {snowEnabled && (
+        <Snowfall
+          snowflakeCount={snowflakeCount}
+          color="#ffffff"
+          style={{
+            position: 'fixed',
+            left: 0,
+            top: 0,
+            width: '100%',
+            height: '100%',
+            pointerEvents: 'none',
+            zIndex: 45,
+          }}
+        />
+      )}
 
       {/* Layered SVG snow pile at the bottom to simulate accumulation */}
       <div className="pointer-events-none fixed left-0 bottom-0 w-full z-50">
