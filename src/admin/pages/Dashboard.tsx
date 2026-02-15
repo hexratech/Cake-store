@@ -166,7 +166,7 @@ const Dashboard = () => {
           </h1>
           <p className="text-gray-600">
             Welcome back! Here's a quick overview of your bakery's performance.
-            👋
+            
           </p>
         </div>
 
